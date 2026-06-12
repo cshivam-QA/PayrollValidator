@@ -1,0 +1,135 @@
+<Poll concept="littlecaesars" location="00001-05930" date="20251201" search="PAYROLL_EXPORT" created="2026-02-27T12:13:50" cb-s="U">
+    <H0>
+        <H1 id="114437" fn="Annamarie" ln="Ibarra">
+            <NV n="PAYROLL_ID" v="114437"/>
+        </H1>
+        <H1 id="8010947" fn="Dylan" ln="Jeffers">
+            <NV n="PAYROLL_ID" v="8010947"/>
+        </H1>
+        <H1 id="8068801" fn="Julie" ln="Mekhaiel">
+            <NV n="PAYROLL_ID" v="8068801"/>
+        </H1>
+        <H1 id="5026382" fn="Tyler" ln="Duchene">
+            <NV n="PAYROLL_ID" v="5026382"/>
+        </H1>
+        <H1 id="8009601" fn="Vanessa" ln="Hernandez">
+            <NV n="PAYROLL_ID" v="8009601"/>
+        </H1>
+        <H1 id="8035364" fn="Patrocinio" ln="Ramirez">
+            <NV n="PAYROLL_ID" v="8035364"/>
+        </H1>
+        <H1 id="8079572" fn="Antonio" ln="Hernandez">
+            <NV n="PAYROLL_ID" v="8079572"/>
+        </H1>
+        <H1 id="154081" fn="Michael" ln="Gomez">
+            <NV n="PAYROLL_ID" v="154081"/>
+        </H1>
+        <H1 id="8078311" fn="Jonathan" ln="Burks">
+            <NV n="PAYROLL_ID" v="8078311"/>
+        </H1>
+        <H1 id="5022797" fn="Mariah" ln="Garcia">
+            <NV n="PAYROLL_ID" v="5022797"/>
+        </H1>
+        <H1 id="8010493" fn="Juan" ln="Martin">
+            <NV n="PAYROLL_ID" v="8010493"/>
+        </H1>
+        <H1 id="8030938" fn="Hamilton" ln="Schreihart">
+            <NV n="PAYROLL_ID" v="8030938"/>
+        </H1>
+        <H1 id="8079757" fn="Brandon" ln="Tinoco">
+            <NV n="PAYROLL_ID" v="8079757"/>
+        </H1>
+        <H1 id="8045317" fn="Daniel" ln="Palomo">
+            <NV n="PAYROLL_ID" v="8045317"/>
+        </H1>
+        <H1 id="134412" fn="Rafael" ln="Guerra">
+            <NV n="PAYROLL_ID" v="134412"/>
+        </H1>
+        <H1 id="8080500" fn="Briley" ln="Gurule">
+            <NV n="PAYROLL_ID" v="8080500"/>
+        </H1>
+        <H1 id="8059195" fn="Makayla" ln="Pompa">
+            <NV n="PAYROLL_ID" v="8059195"/>
+        </H1>
+        <H1 id="8062784" fn="JIMMY" ln="GONZALEZ">
+            <NV n="PAYROLL_ID" v="8062784"/>
+        </H1>
+        <H1 id="8062988" fn="Vinessa" ln="Sepulveda">
+            <NV n="PAYROLL_ID" v="8062988"/>
+        </H1>
+        <H1 id="8072191" fn="Nathan" ln="Herrera">
+            <NV n="PAYROLL_ID" v="8072191"/>
+        </H1>
+        <H1 id="8078311" fn="Jonathan" ln="Burks"></H1>
+    </H0>
+    <Labor>
+        <JobCodes>
+            <J c="N" ds="CREW" hourly="1" col="#306EFF"/>
+            <J c="Meal_Break_Violation" ds="Meal Break Violation" iep="1" hourly="1" col="#306EFF"/>
+            <J c="CRL" ds="CREW LEADER CORP" hourly="1" col="#FFA500"/>
+            <J c="OT_HOLIDAY" ds="OT_HOLIDAY" iep="1" hourly="1" col="#FFFF00"/>
+            <J c="M" ds="MANAGER" hourly="1" col="#ff0000"/>
+            <J c="HOLIDAY" ds="HOLIDAY" iep="1" hourly="1" col="#FFFF00"/>
+        </JobCodes>
+        <TM0 type="DAILY">
+            <TM1 e="114437" j="CRL" dt="20251201" r="21.21" rh="5.1" wkh="5.1" rp="108.17" dtr="42.42" pay="108.17" b="N">
+                <BV shc="1"/>
+            </TM1>
+            <TM1 e="8010947" j="CRL" dt="20251201" r="21.21" rh="8.0" ot="0.23" wkh="8.23" rp="169.68" dtr="42.42" op="7.32" pay="177.00" b="N">
+                <BV shc="1"/>
+            </TM1>
+            <TM1 e="8068801" j="N" dt="20251201" r="20.00" rh="4.25" wkh="4.25" rp="85.00" dtr="40.00" pay="85.00" b="N">
+                <BV shc="1"/>
+            </TM1>
+            <TM1 e="5026382" j="N" dt="20251201" r="20.30" rh="4.98" wkh="4.98" rp="101.09" dtr="40.60" pay="101.09" b="N">
+                <BV shc="1"/>
+            </TM1>
+            <TM1 e="8009601" j="M" dt="20251201" r="25.00" rh="8.0" ot="1.92" wkh="9.92" rp="200.00" dtr="50.00" op="72.00" pay="272.00" b="N">
+                <BV shc="1"/>
+            </TM1>
+            <TM1 e="114437" j="Meal_Break_Violation" dt="20251201" r="21.21" rh="1.0" wkh="1.0" rp="21.21" pay="21.21" b="N">
+                <BV shc="1"/>
+            </TM1>
+        </TM0>
+        <TM0 type="EXCEPTIONS">
+            <TM1 e="8078311" j="N" in="11/26/2025 03:00:00 PM" pe="OPEN"/>
+        </TM0>
+        <TM0 type="SHIFT">
+            <TM1 e="114437" j="CRL" dt="20251201" in="12/01/2025 08:59:00 AM" out="12/01/2025 02:05:00 PM" r="21.21" rh="5.1" wkh="5.1" rp="108.17" pay="108.17" b="N" t="MANUALWORK"/>
+            <TM1 e="8010947" j="CRL" dt="20251201" in="12/01/2025 08:58:00 AM" out="12/01/2025 01:33:00 PM" r="21.21" rh="4.58" wkh="4.58" rp="97.14" pay="97.14" b="N" t="MANUALWORK"/>
+            <TM1 e="8010947" j="CRL" dt="20251201" in="12/01/2025 02:03:00 PM" out="12/01/2025 05:42:00 PM" r="21.21" rh="3.42" wkh="3.65" ot="0.23" op="7.32" rp="72.54" pay="79.86" b="N" t="MANUALWORK"/>
+            <TM1 e="8010947" j="CRL" dt="20251201" in="12/01/2025 01:33:00 PM" out="12/01/2025 02:03:00 PM" r="21.21" rh="0.5" b="N" t="MEALBREAK"/>
+            <TM1 e="8068801" j="N" dt="20251201" in="12/01/2025 05:08:00 PM" out="12/01/2025 09:23:00 PM" r="20.00" rh="4.25" wkh="4.25" rp="85.00" pay="85.00" b="N" t="MANUALWORK"/>
+            <TM1 e="5026382" j="N" dt="20251201" in="12/01/2025 07:00:00 PM" out="12/01/2025 11:59:00 PM" r="20.30" rh="4.98" wkh="4.98" rp="101.09" pay="101.09" b="N" t="MANUALWORK"/>
+            <TM1 e="8009601" j="M" dt="20251201" in="12/01/2025 05:43:00 PM" out="12/01/2025 11:59:00 PM" r="25.00" rh="4.35" wkh="6.27" ot="1.92" op="72.00" rp="108.75" pay="180.75" b="N" t="MANUALWORK"/>
+            <TM1 e="8009601" j="M" dt="20251201" in="12/01/2025 01:32:00 PM" out="12/01/2025 05:11:00 PM" r="25.00" rh="3.65" wkh="3.65" rp="91.25" pay="91.25" b="N" t="MANUALWORK"/>
+            <TM1 e="8009601" j="M" dt="20251201" in="12/01/2025 05:11:00 PM" out="12/01/2025 05:43:00 PM" r="25.00" rh="0.53" b="N" t="MEALBREAK"/>
+        </TM0>
+        <TM0 type="PAY_PERIOD">
+            <TM1 e="8009601" j="HOLIDAY" dt="20251201" r="2500.00" rh="8.0" wkh="8.0" rp="20000.00" pay="20000.00" b="N"/>
+            <TM1 e="8009601" j="OT_HOLIDAY" dt="20251201" r="2500.00" rh="0.05" wkh="0.05" rp="125.00" pay="125.00" b="N"/>
+            <TM1 e="114437" j="Meal_Break_Violation" dt="20251201" r="2121.00" rh="1.0" wkh="1.0" rp="2121.00" pay="2121.00" b="N"/>
+            <TM1 e="5026382" j="Meal_Break_Violation" dt="20251201" r="2030.00" rh="1.0" wkh="1.0" rp="2030.00" pay="2030.00" b="N"/>
+            <TM1 e="114437" j="CRL" dt="20251201" r="21.21" rh="19.48" wkh="19.48" rp="413.17" pay="413.17" dtr="42.42" b="N"/>
+            <TM1 e="8010947" j="CRL" dt="20251201" r="21.21" rh="20.32" ot="0.23" wkh="20.55" rp="430.78" op="7.32" pay="438.10" dtr="42.42" b="N"/>
+            <TM1 e="8068801" j="N" dt="20251201" r="20.00" rh="4.25" wkh="4.25" rp="85.00" pay="85.00" dtr="40.00" b="N"/>
+            <TM1 e="5026382" j="N" dt="20251201" r="20.30" rh="38.92" wkh="38.92" rp="789.68" pay="789.68" dtr="40.60" b="N"/>
+            <TM1 e="8009601" j="M" dt="20251201" r="25.00" rh="32.0" ot="9.12" wkh="41.13" rp="800.00" op="342.38" pay="1143.38" dtr="50.00" dbt="0.02" dp="1.00" b="N"/>
+            <TM1 e="8035364" j="CRL" dt="20251201" r="21.35" rh="8.57" wkh="8.57" rp="182.97" pay="182.97" dtr="42.70" b="N"/>
+            <TM1 e="8079572" j="N" dt="20251201" r="20.00" rh="4.58" wkh="4.58" rp="91.60" pay="91.60" dtr="40.00" b="N"/>
+            <TM1 e="154081" j="CRL" dt="20251201" r="21.21" rh="4.97" wkh="4.97" rp="105.41" pay="105.41" dtr="42.42" b="N"/>
+            <TM1 e="8078311" j="N" dt="20251201" r="20.00" rh="10.63" wkh="10.63" rp="212.60" pay="212.60" dtr="40.00" b="N"/>
+            <TM1 e="5022797" j="CRL" dt="20251201" r="21.21" rh="22.97" wkh="22.97" rp="486.99" pay="486.99" dtr="42.42" b="N"/>
+            <TM1 e="8010493" j="CRL" dt="20251201" r="21.00" rh="16.32" wkh="16.32" rp="342.72" pay="342.72" dtr="42.00" b="N"/>
+            <TM1 e="8030938" j="CRL" dt="20251201" r="21.21" rh="24.5" wkh="24.5" rp="519.86" pay="519.86" dtr="42.42" b="N"/>
+            <TM1 e="8079757" j="N" dt="20251201" r="20.00" rh="4.08" wkh="4.08" rp="81.60" pay="81.60" dtr="40.00" b="N"/>
+            <TM1 e="8045317" j="N" dt="20251201" r="20.20" rh="9.37" wkh="9.37" rp="189.27" pay="189.27" dtr="40.40" b="N"/>
+            <TM1 e="134412" j="N" dt="20251201" r="20.20" rh="4.53" wkh="4.53" rp="91.51" pay="91.51" dtr="40.40" b="N"/>
+            <TM1 e="8080500" j="N" dt="20251201" r="20.00" rh="6.27" wkh="6.27" rp="125.40" pay="125.40" dtr="40.00" b="N"/>
+            <TM1 e="8059195" j="N" dt="20251201" r="20.00" rh="4.03" wkh="4.03" rp="80.60" pay="80.60" dtr="40.00" b="N"/>
+            <TM1 e="8062784" j="N" dt="20251201" r="20.30" rh="8.22" wkh="8.22" rp="166.87" pay="166.87" dtr="40.60" b="N"/>
+            <TM1 e="8062988" j="N" dt="20251201" r="20.20" rh="4.02" wkh="4.02" rp="81.20" pay="81.20" dtr="40.40" b="N"/>
+            <TM1 e="8072191" j="N" dt="20251201" r="20.00" rh="4.42" wkh="4.42" rp="88.40" pay="88.40" dtr="40.00" b="N"/>
+        </TM0>
+    </Labor>
+</Poll>
