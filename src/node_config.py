@@ -8,13 +8,6 @@ NODE_CONFIG = [
     },
 
     {
-        "node": "NV",
-        "path": ".//H0/H1/NV",
-        "key_fields": ["n"],
-        "display_path": "Poll/H0/H1/NV"
-    },
-
-    {
         "node": "JOBCODE",
         "path": ".//Labor/JobCodes/J",
         "key_fields": ["c"],
@@ -54,13 +47,6 @@ NODE_CONFIG = [
         "path": ".//TM0[@type='PAY_PERIOD']/TM1",
         "key_fields": ["e", "j"],
         "display_path": "Poll/Labor/TM0(type=PAY_PERIOD)/TM1"
-    },
-
-    {
-        "node": "BV",
-        "path": ".//BV",
-        "key_fields": ["shc"],
-        "display_path": "BV"
     }
 
 ]

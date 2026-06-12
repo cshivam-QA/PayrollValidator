@@ -1,25 +1,74 @@
-import pandas as pd
 import os
+import pandas as pd
 
 
-def generate_reports(differences, zero_values):
+def generate_report(
+        summary,
+        root_info,
+        differences,
+        missing_records,
+        zero_values,
+        duplicate_records):
 
     os.makedirs("../reports", exist_ok=True)
 
-    diff_df = pd.DataFrame(differences)
-
-    zero_df = pd.DataFrame(zero_values)
-
-    diff_df.to_csv(
-        "../reports/differences.csv",
-        index=False
+    output_file = (
+        "../reports/"
+        "Payroll_Comparison_Report.xlsx"
     )
 
-    zero_df.to_csv(
-        "../reports/zero_values.csv",
-        index=False
-    )
+    with pd.ExcelWriter(
+            output_file,
+            engine="openpyxl") as writer:
 
-    print("\nReports Generated Successfully")
-    print("reports/differences.csv")
-    print("reports/zero_values.csv")
+        pd.DataFrame(
+            root_info
+        ).to_excel(
+            writer,
+            sheet_name="ROOT_INFO",
+            index=False
+        )
+
+        pd.DataFrame(
+            summary
+        ).to_excel(
+            writer,
+            sheet_name="SUMMARY",
+            index=False
+        )
+
+        pd.DataFrame(
+            differences
+        ).to_excel(
+            writer,
+            sheet_name="DIFFERENCES",
+            index=False
+        )
+
+        pd.DataFrame(
+            missing_records
+        ).to_excel(
+            writer,
+            sheet_name="MISSING_RECORDS",
+            index=False
+        )
+
+        pd.DataFrame(
+            zero_values
+        ).to_excel(
+            writer,
+            sheet_name="ZERO_VALUES",
+            index=False
+        )
+
+        pd.DataFrame(
+            duplicate_records
+        ).to_excel(
+            writer,
+            sheet_name="DUPLICATE_RECORDS",
+            index=False
+        )
+
+    print()
+    print("Report Generated Successfully")
+    print(output_file)
