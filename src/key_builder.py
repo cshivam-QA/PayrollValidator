@@ -1,21 +1,17 @@
 class KeyBuilder:
 
     @staticmethod
-    def build(node_type, node):
+    def build(node, key_fields):
 
-        if node_type == "H1":
-            return node.attrib.get("id")
+        values = []
 
-        if node_type == "JOBCODE":
-            return node.attrib.get("c")
+        for field in key_fields:
 
-        if node_type == "DAILY":
-            return f"{node.attrib.get('e')}_{node.attrib.get('j')}"
+            value = node.attrib.get(field)
 
-        if node_type == "SHIFT":
-            return f"{node.attrib.get('e')}_{node.attrib.get('j')}_{node.attrib.get('in')}"
+            if value is None:
+                value = "NULL"
 
-        if node_type == "PAY_PERIOD":
-            return f"{node.attrib.get('e')}_{node.attrib.get('j')}"
+            values.append(str(value))
 
-        return None
+        return "_".join(values)
