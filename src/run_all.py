@@ -1,21 +1,32 @@
 from xml_loader import XMLLoader
 from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
+from node_config import NODE_CONFIG
+from comparator import compare_nodes
 
 
 cb_files, ac_files = get_matching_files()
 
-print()
-print("CB Files Found :", len(cb_files))
-print("AC Files Found :", len(ac_files))
-print()
+summary = []
+all_differences = []
+all_missing_records = []
+all_zero_values = []
+all_duplicate_records = []
 
 matched = set(cb_files.keys()) & set(ac_files.keys())
 
-print("Matched Files :", len(matched))
-print()
+missing_cb = (
+    set(ac_files.keys())
+    -
+    set(cb_files.keys())
+)
 
-summary = []
+missing_ac = (
+    set(cb_files.keys())
+    -
+    set(ac_files.keys())
+)
+
 
 for key in sorted(matched):
 
@@ -26,7 +37,117 @@ for key in sorted(matched):
     ac = XMLLoader(ac_xml)
 
     cb_info = cb.get_root_info()
-    ac_info = ac.get_root_info()
+
+    file_difference_count = 0
+    file_missing_count = 0
+    file_zero_count = 0
+    file_duplicate_count = 0
+
+    for config in NODE_CONFIG:
+
+        (
+            differences,
+            zero_values,
+            missing_records,
+            duplicate_records
+
+        ) = compare_nodes(
+
+            cb.get_nodes(
+                config["path"]
+            ),
+
+            ac.get_nodes(
+                config["path"]
+            ),
+
+            config["node"],
+            config["display_path"],
+            config["key_fields"]
+
+        )
+
+        for row in differences:
+
+            row["Store"] = (
+                cb_info.get("location")
+            )
+
+            row["Date"] = (
+                cb_info.get("date")
+            )
+
+        for row in missing_records:
+
+            row["Store"] = (
+                cb_info.get("location")
+            )
+
+            row["Date"] = (
+                cb_info.get("date")
+            )
+
+        for row in zero_values:
+
+            row["Store"] = (
+                cb_info.get("location")
+            )
+
+            row["Date"] = (
+                cb_info.get("date")
+            )
+
+        for row in duplicate_records:
+
+            row["Store"] = (
+                cb_info.get("location")
+            )
+
+            row["Date"] = (
+                cb_info.get("date")
+            )
+
+        all_differences.extend(
+            differences
+        )
+
+        all_missing_records.extend(
+            missing_records
+        )
+
+        all_zero_values.extend(
+            zero_values
+        )
+
+        all_duplicate_records.extend(
+            duplicate_records
+        )
+
+        file_difference_count += len(
+            differences
+        )
+
+        file_missing_count += len(
+            missing_records
+        )
+
+        file_zero_count += len(
+            zero_values
+        )
+
+        file_duplicate_count += len(
+            duplicate_records
+        )
+
+    total_issues = (
+
+        file_difference_count
+        +
+        file_missing_count
+        +
+        file_duplicate_count
+
+    )
 
     summary.append({
 
@@ -36,17 +157,105 @@ for key in sorted(matched):
         "Date":
         cb_info.get("date"),
 
-        "CB File":
-        cb_xml,
-
-        "AC File":
-        ac_xml,
-
         "Status":
-        "MATCHED"
+        (
+            "PASS"
+            if total_issues == 0
+            else "FAIL"
+        ),
+
+        "Differences":
+        file_difference_count,
+
+        "Missing Records":
+        file_missing_count,
+
+        "Zero Values":
+        file_zero_count,
+
+        "Duplicates":
+        file_duplicate_count
 
     })
 
+
+for key in sorted(missing_ac):
+
+    summary.append({
+
+        "Store":
+        key.split("_")[0],
+
+        "Date":
+        key.split("_")[1],
+
+        "Status":
+        "AC FILE MISSING",
+
+        "Differences":
+        0,
+
+        "Missing Records":
+        0,
+
+        "Zero Values":
+        0,
+
+        "Duplicates":
+        0
+
+    })
+
+
+for key in sorted(missing_cb):
+
+    summary.append({
+
+        "Store":
+        key.split("_")[0],
+
+        "Date":
+        key.split("_")[1],
+
+        "Status":
+        "CB FILE MISSING",
+
+        "Differences":
+        0,
+
+        "Missing Records":
+        0,
+
+        "Zero Values":
+        0,
+
+        "Duplicates":
+        0
+
+    })
+
+
+summary.sort(
+
+    key=lambda x: (
+
+        x["Store"],
+        x["Date"]
+
+    )
+
+)
+
 generate_master_report(
-    summary
+
+    summary,
+
+    all_differences,
+
+    all_missing_records,
+
+    all_zero_values,
+
+    all_duplicate_records
+
 )

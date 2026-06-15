@@ -7,6 +7,10 @@ EXCLUDED_ATTRIBUTES = {
     "PAY_PERIOD": ["otr"]
 }
 
+EXCLUDED_ZERO_ATTRIBUTES = [
+    "trh"
+]
+
 
 def normalize_value(value):
 
@@ -131,7 +135,13 @@ def compare_nodes(
             cb_val = cb.attrib.get(attr)
             ac_val = ac.attrib.get(attr)
 
-            if cb_val is not None and is_zero_value(cb_val):
+            if (
+                attr not in EXCLUDED_ZERO_ATTRIBUTES
+                and
+                cb_val is not None
+                and
+                is_zero_value(cb_val)
+            ):
 
                 zero_values.append({
                     "Node": node_name,
@@ -144,7 +154,13 @@ def compare_nodes(
 
                 continue
 
-            if ac_val is not None and is_zero_value(ac_val):
+            if (
+                attr not in EXCLUDED_ZERO_ATTRIBUTES
+                and
+                ac_val is not None
+                and
+                is_zero_value(ac_val)
+            ):
 
                 zero_values.append({
                     "Node": node_name,
