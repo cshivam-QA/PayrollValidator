@@ -10,10 +10,10 @@ def generate_report(
         zero_values,
         duplicate_records):
 
-    os.makedirs("../reports", exist_ok=True)
+    os.makedirs("reports", exist_ok=True)
 
     output_file = (
-        "../reports/"
+        "reports/"
         "Payroll_Comparison_Report.xlsx"
     )
 
