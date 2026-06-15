@@ -3,6 +3,7 @@ from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
 from node_config import NODE_CONFIG
 from comparator import compare_nodes
+import os
 
 
 cb_files, ac_files = get_matching_files()
@@ -157,6 +158,12 @@ for key in sorted(matched):
         "Date":
         cb_info.get("date"),
 
+        "CB File":
+        os.path.basename(cb_xml),
+
+        "AC File":
+        os.path.basename(ac_xml),
+
         "Status":
         (
             "PASS"
@@ -189,6 +196,14 @@ for key in sorted(missing_ac):
         "Date":
         key.split("_")[1],
 
+        "CB File":
+        os.path.basename(
+            cb_files[key]
+        ),
+
+        "AC File":
+        "Missing",
+
         "Status":
         "AC FILE MISSING",
 
@@ -216,6 +231,14 @@ for key in sorted(missing_cb):
 
         "Date":
         key.split("_")[1],
+
+        "CB File":
+        "Missing",
+
+        "AC File":
+        os.path.basename(
+            ac_files[key]
+        ),
 
         "Status":
         "CB FILE MISSING",
