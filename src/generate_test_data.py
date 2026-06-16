@@ -1,257 +1,335 @@
 import os
 import random
-import shutil
-import zipfile
-import pandas as pd
 import xml.etree.ElementTree as ET
-from copy import deepcopy
 
 
-SOURCE_FILE = "cb_files/PAYROLL_EXPORT_00221_20260607.xml"
+# ==================================================
+# CONFIG
+# ==================================================
 
-STORES = [
-    "00221",
-    "00022",
-    "00023",
-    "06796",
-    "08107",
-    "01254",
-    "01480",
-    "05450",
-    "07347",
-    "08154"
-]
+CB_TEMPLATE = r"CB_00748_0517.xml"
 
-DATES = [
-    "20260607",
-    "20260531",
-    "20260524"
-]
+AC_TEMPLATE = r"AC_Payroll_Out_05_18_2026 07_16_47_00748.xml"
 
-SCENARIOS = [
-    "PASS",
-    "VALUE_MISMATCH",
-    "MISSING_ATTRIBUTE",
-    "MISSING_RECORD",
-    "ZERO_VALUE"
-]
+CB_OUTPUT = r"Generated_Test_Data\CB"
 
-OUTPUT_FOLDER = "Payroll_Test_Dataset"
+AC_OUTPUT = r"Generated_Test_Data\AC"
 
-random.seed(123)
+TOTAL_FILES = 500
+
+PASS_FILES = 350
+
+FAIL_FILES = 145
+
+MISSING_FILES = 5
 
 
-def save_xml(tree, file_path):
-    tree.write(
-        file_path,
-        encoding="utf-8",
-        xml_declaration=True
+# ==================================================
+# CREATE OUTPUT FOLDERS
+# ==================================================
+
+os.makedirs(
+    CB_OUTPUT,
+    exist_ok=True
+)
+
+os.makedirs(
+    AC_OUTPUT,
+    exist_ok=True
+)
+
+
+# ==================================================
+# STORE DISTRIBUTION
+# ==================================================
+
+all_stores = list(
+    range(
+        1,
+        TOTAL_FILES + 1
+    )
+)
+
+random.shuffle(
+    all_stores
+)
+
+pass_stores = set(
+    all_stores[:PASS_FILES]
+)
+
+fail_stores = set(
+    all_stores[
+        PASS_FILES:
+        PASS_FILES + FAIL_FILES
+    ]
+)
+
+missing_stores = set(
+    all_stores[
+        PASS_FILES + FAIL_FILES:
+    ]
+)
+
+
+# ==================================================
+# HELPERS
+# ==================================================
+
+def update_xml_data(
+        root,
+        store):
+
+    root.attrib["location"] = (
+        str(store).zfill(5)
+    )
+
+    root.attrib["date"] = (
+        "20260531"
     )
 
 
-def create_cb_file(source_tree, store, business_date, output_file):
+def inject_failure(root):
 
-    tree = deepcopy(source_tree)
+    fail_type = random.choice([
 
-    root = tree.getroot()
+        "H1",
 
-    root.set("location", store)
-    root.set("date", business_date)
+        "JOBCODE",
 
-    save_xml(tree, output_file)
+        "DAILY",
 
+        "SHIFT",
 
-def create_ac_file(
-        source_tree,
-        store,
-        business_date,
-        scenario,
-        output_file):
+        "PAY_PERIOD"
 
-    tree = deepcopy(source_tree)
+    ])
 
-    root = tree.getroot()
+    if fail_type == "H1":
 
-    root.set("location", store)
-    root.set("date", business_date)
+        node = root.find(
+            ".//H0/H1"
+        )
 
-    daily_node = root.find(
-        ".//TM0[@type='DAILY']/TM1"
-    )
+        if node is not None:
 
-    if daily_node is not None:
+            node.attrib["fn"] = (
+                node.attrib.get(
+                    "fn",
+                    ""
+                )
+                +
+                "_FAIL"
+            )
 
-        if scenario == "VALUE_MISMATCH":
+    elif fail_type == "JOBCODE":
 
-            daily_node.set(
-                "pay",
+        node = root.find(
+            ".//Labor/JobCodes/J"
+        )
+
+        if node is not None:
+
+            node.attrib["c"] = (
+                "999999"
+            )
+
+    elif fail_type == "DAILY":
+
+        node = root.find(
+            ".//TM0[@type='DAILY']/TM1"
+        )
+
+        if node is not None:
+
+            node.attrib["rh"] = (
                 "999.99"
             )
 
-        elif scenario == "MISSING_ATTRIBUTE":
+    elif fail_type == "SHIFT":
 
-            if "pay" in daily_node.attrib:
-                del daily_node.attrib["pay"]
-
-        elif scenario == "ZERO_VALUE":
-
-            daily_node.set(
-                "pay",
-                "0"
-            )
-
-        elif scenario == "MISSING_RECORD":
-
-            parent = root.find(
-                ".//TM0[@type='DAILY']"
-            )
-
-            if parent is not None:
-                parent.remove(daily_node)
-
-    save_xml(tree, output_file)
-
-
-def create_zip(folder_name, zip_name):
-
-    with zipfile.ZipFile(
-            zip_name,
-            "w",
-            zipfile.ZIP_DEFLATED) as zipf:
-
-        for root, dirs, files in os.walk(folder_name):
-
-            for file in files:
-
-                full_path = os.path.join(
-                    root,
-                    file
-                )
-
-                relative_path = os.path.relpath(
-                    full_path,
-                    folder_name
-                )
-
-                zipf.write(
-                    full_path,
-                    relative_path
-                )
-
-
-def main():
-
-    if not os.path.exists(SOURCE_FILE):
-
-        print()
-        print("Source XML not found")
-        print(SOURCE_FILE)
-
-        return
-
-    if os.path.exists(OUTPUT_FOLDER):
-
-        shutil.rmtree(
-            OUTPUT_FOLDER
+        node = root.find(
+            ".//TM0[@type='SHIFT']/TM1"
         )
 
-    cb_folder = os.path.join(
-        OUTPUT_FOLDER,
-        "cb_files"
-    )
+        if node is not None:
 
-    ac_folder = os.path.join(
-        OUTPUT_FOLDER,
-        "ac_files"
-    )
-
-    os.makedirs(
-        cb_folder,
-        exist_ok=True
-    )
-
-    os.makedirs(
-        ac_folder,
-        exist_ok=True
-    )
-
-    source_tree = ET.parse(
-        SOURCE_FILE
-    )
-
-    expected_results = []
-
-    for store in STORES:
-
-        for business_date in DATES:
-
-            scenario = random.choice(
-                SCENARIOS
+            node.attrib["tips"] = (
+                "999.99"
             )
 
-            file_name = (
-                f"PAYROLL_EXPORT_{store}_{business_date}.xml"
+    elif fail_type == "PAY_PERIOD":
+
+        node = root.find(
+            ".//TM0[@type='PAY_PERIOD']/TM1"
+        )
+
+        if node is not None:
+
+            node.attrib["pay"] = (
+                "99999.99"
             )
 
-            cb_file = os.path.join(
-                cb_folder,
-                file_name
-            )
 
-            ac_file = os.path.join(
-                ac_folder,
-                file_name
-            )
+def get_cb_filename(store):
 
-            create_cb_file(
-                source_tree,
-                store,
-                business_date,
-                cb_file
-            )
+    if store <= 200:
 
-            create_ac_file(
-                source_tree,
-                store,
-                business_date,
-                scenario,
-                ac_file
-            )
+        return (
+            f"PAYROLL_EXPORT_"
+            f"{str(store).zfill(5)}"
+            f"_20260531.xml"
+        )
 
-            expected_results.append({
+    return (
+        f"Payroll_Out_"
+        f"05_31_2026 "
+        f"17_09_44_"
+        f"{str(store).zfill(5)}.xml"
+    )
 
-                "Store": store,
-                "Date": business_date,
-                "Scenario": scenario,
-                "Expected Status":
-                    "PASS"
-                    if scenario == "PASS"
-                    else "FAIL"
 
-            })
+def get_ac_filename(store):
 
-    pd.DataFrame(
-        expected_results
-    ).to_csv(
+    if store <= 200:
 
-        os.path.join(
-            OUTPUT_FOLDER,
-            "Expected_Results.csv"
-        ),
+        return (
+            f"PAYROLL_EXPORT_"
+            f"{str(store).zfill(5)}"
+            f"_20260531.xml"
+        )
 
-        index=False
+    return (
+        f"Payroll_Out_"
+        f"05_31_2026 "
+        f"17_09_44_"
+        f"{str(store).zfill(5)}.xml"
+    )
+
+
+# ==================================================
+# GENERATE FILES
+# ==================================================
+
+for store in range(
+        1,
+        TOTAL_FILES + 1):
+
+    cb_tree = ET.parse(
+        CB_TEMPLATE
+    )
+
+    cb_root = cb_tree.getroot()
+
+    update_xml_data(
+        cb_root,
+        store
+    )
+
+    cb_file = os.path.join(
+
+        CB_OUTPUT,
+
+        get_cb_filename(
+            store
+        )
 
     )
 
-    create_zip(
-        OUTPUT_FOLDER,
-        "Payroll_Test_Dataset.zip"
+    cb_tree.write(
+
+        cb_file,
+
+        encoding="utf-8",
+
+        xml_declaration=True
+
     )
 
-    print()
-    print("Dataset Generated Successfully")
-    print("Payroll_Test_Dataset.zip")
+    if store in missing_stores:
+
+        continue
+
+    ac_tree = ET.parse(
+        AC_TEMPLATE
+    )
+
+    ac_root = ac_tree.getroot()
+
+    update_xml_data(
+        ac_root,
+        store
+    )
+
+    if store in fail_stores:
+
+        inject_failure(
+            ac_root
+        )
+
+    ac_file = os.path.join(
+
+        AC_OUTPUT,
+
+        get_ac_filename(
+            store
+        )
+
+    )
+
+    ac_tree.write(
+
+        ac_file,
+
+        encoding="utf-8",
+
+        xml_declaration=True
+
+    )
 
 
-if __name__ == "__main__":
-    main()
+# ==================================================
+# SUMMARY
+# ==================================================
+
+print()
+
+print("=" * 50)
+
+print(
+    "TEST DATASET GENERATED"
+)
+
+print("=" * 50)
+
+print(
+    f"CB FILES      : {TOTAL_FILES}"
+)
+
+print(
+    f"AC FILES      : {TOTAL_FILES - MISSING_FILES}"
+)
+
+print(
+    f"PASS FILES    : {PASS_FILES}"
+)
+
+print(
+    f"FAIL FILES    : {FAIL_FILES}"
+)
+
+print(
+    f"MISSING FILES : {MISSING_FILES}"
+)
+
+print()
+
+print(
+    f"CB Folder : {CB_OUTPUT}"
+)
+
+print(
+    f"AC Folder : {AC_OUTPUT}"
+)
+
+print("=" * 50)
