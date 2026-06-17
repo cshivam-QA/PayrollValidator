@@ -1,15 +1,8 @@
 from key_builder import KeyBuilder
 
+EXCLUDED_ATTRIBUTES = {"DAILY": ["otr"], "SHIFT": ["otr"], "PAY_PERIOD": ["otr"]}
 
-EXCLUDED_ATTRIBUTES = {
-    "DAILY": ["otr"],
-    "SHIFT": ["otr"],
-    "PAY_PERIOD": ["otr"]
-}
-
-EXCLUDED_ZERO_ATTRIBUTES = [
-    "trh"
-]
+EXCLUDED_ZERO_ATTRIBUTES = ["trh"]
 
 
 def normalize_value(value):
@@ -38,10 +31,7 @@ def build_node_map(nodes, key_fields):
 
     for node in nodes:
 
-        key = KeyBuilder.build(
-            node,
-            key_fields
-        )
+        key = KeyBuilder.build(node, key_fields)
 
         if key in node_map:
             duplicates.append(key)
@@ -51,46 +41,27 @@ def build_node_map(nodes, key_fields):
     return node_map, duplicates
 
 
-def compare_nodes(
-        cb_nodes,
-        ac_nodes,
-        node_name,
-        path,
-        key_fields):
+def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
     differences = []
     zero_values = []
     missing_records = []
     duplicate_records = []
 
-    cb_map, cb_duplicates = build_node_map(
-        cb_nodes,
-        key_fields
-    )
+    cb_map, cb_duplicates = build_node_map(cb_nodes, key_fields)
 
-    ac_map, ac_duplicates = build_node_map(
-        ac_nodes,
-        key_fields
-    )
+    ac_map, ac_duplicates = build_node_map(ac_nodes, key_fields)
 
     # H1 duplicates are valid when exception records exist
     if node_name != "H1":
 
         for key in cb_duplicates:
 
-            duplicate_records.append({
-                "Node": node_name,
-                "Key": key,
-                "Side": "CB"
-            })
+            duplicate_records.append({"Node": node_name, "Key": key, "Side": "CB"})
 
         for key in ac_duplicates:
 
-            duplicate_records.append({
-                "Node": node_name,
-                "Key": key,
-                "Side": "AC"
-            })
+            duplicate_records.append({"Node": node_name, "Key": key, "Side": "AC"})
 
     all_keys = set(cb_map.keys()) | set(ac_map.keys())
 
@@ -101,34 +72,21 @@ def compare_nodes(
 
         if cb is None:
 
-            missing_records.append({
-                "Node": node_name,
-                "Key": key,
-                "Missing In": "CB"
-            })
+            missing_records.append({"Node": node_name, "Key": key, "Missing In": "CB"})
 
             continue
 
         if ac is None:
 
-            missing_records.append({
-                "Node": node_name,
-                "Key": key,
-                "Missing In": "AC"
-            })
+            missing_records.append({"Node": node_name, "Key": key, "Missing In": "AC"})
 
             continue
 
-        attrs = (
-            set(cb.attrib.keys())
-            |
-            set(ac.attrib.keys())
-        )
+        attrs = set(cb.attrib.keys()) | set(ac.attrib.keys())
 
         for attr in attrs:
 
-            if attr in EXCLUDED_ATTRIBUTES.get(
-                    node_name, []):
+            if attr in EXCLUDED_ATTRIBUTES.get(node_name, []):
 
                 continue
 
@@ -137,69 +95,71 @@ def compare_nodes(
 
             if (
                 attr not in EXCLUDED_ZERO_ATTRIBUTES
-                and
-                cb_val is not None
-                and
-                is_zero_value(cb_val)
+                and cb_val is not None
+                and is_zero_value(cb_val)
             ):
 
-                zero_values.append({
-                    "Node": node_name,
-                    "Path": path,
-                    "Key": key,
-                    "Attribute": attr,
-                    "Value": cb_val,
-                    "Side": "CB"
-                })
+                zero_values.append(
+                    {
+                        "Node": node_name,
+                        "Path": path,
+                        "Key": key,
+                        "Attribute": attr,
+                        "Value": cb_val,
+                        "Side": "CB",
+                    }
+                )
 
                 continue
 
             if (
                 attr not in EXCLUDED_ZERO_ATTRIBUTES
-                and
-                ac_val is not None
-                and
-                is_zero_value(ac_val)
+                and ac_val is not None
+                and is_zero_value(ac_val)
             ):
 
-                zero_values.append({
-                    "Node": node_name,
-                    "Path": path,
-                    "Key": key,
-                    "Attribute": attr,
-                    "Value": ac_val,
-                    "Side": "AC"
-                })
+                zero_values.append(
+                    {
+                        "Node": node_name,
+                        "Path": path,
+                        "Key": key,
+                        "Attribute": attr,
+                        "Value": ac_val,
+                        "Side": "AC",
+                    }
+                )
 
                 continue
 
             if cb_val is None:
 
-                differences.append({
-                    "Node": node_name,
-                    "Difference Type":
-                    "Missing Attribute In CB",
-                    "Path": path,
-                    "Key": key,
-                    "Attribute": attr,
-                    "CB Value": "",
-                    "AC Value": ac_val
-                })
+                differences.append(
+                    {
+                        "Node": node_name,
+                        "Difference Type": "Missing Attribute In CB",
+                        "Path": path,
+                        "Key": key,
+                        "Attribute": attr,
+                        "CB Value": "",
+                        "AC Value": ac_val,
+                    }
+                )
 
                 continue
 
             if ac_val is None:
 
-                differences.append({
-                    "Node": node_name,
-                    "Difference Type":
-                    "Missing Attribute In AC",
-                    "Path": path,
-                    "Key": key,
-                    "Attribute": attr,
-                    "CB Value": cb_val,
-                    "AC Value": ""
-                })
+                differences.append(
+                    {
+                        "Node": node_name,
+                        "Difference Type": "Missing Attribute In AC",
+                        "Path": path,
+                        "Key": key,
+                        "Attribute": attr,
+                        "CB Value": cb_val,
+                        "AC Value": "",
+                    }
+                )
 
                 continue
 
@@ -208,20 +168,16 @@ def compare_nodes(
 
             if cb_norm != ac_norm:
 
-                differences.append({
-                    "Node": node_name,
-                    "Difference Type":
-                    "Value Mismatch",
-                    "Path": path,
-                    "Key": key,
-                    "Attribute": attr,
-                    "CB Value": cb_val,
-                    "AC Value": ac_val
-                })
+                differences.append(
+                    {
+                        "Node": node_name,
+                        "Difference Type": "Value Mismatch",
+                        "Path": path,
+                        "Key": key,
+                        "Attribute": attr,
+                        "CB Value": cb_val,
+                        "AC Value": ac_val,
+                    }
+                )
 
-    return (
-        differences,
-        zero_values,
-        missing_records,
-        duplicate_records
-    )
+    return (differences, zero_values, missing_records, duplicate_records)

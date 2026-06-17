@@ -21,5 +21,5 @@ class XMLLoader:
             "location": self.root.attrib.get("location"),
             "date": self.root.attrib.get("date"),
             "search": self.root.attrib.get("search"),
-            "created": self.root.attrib.get("created")
+            "created": self.root.attrib.get("created"),
         }

@@ -6,18 +6,13 @@ from PySide6.QtWidgets import (
     QLabel,
     QFileDialog,
     QMessageBox,
-    QComboBox
+    QComboBox,
 )
 
 import sys
 import os
 
-sys.path.append(
-    os.path.join(
-        os.path.dirname(__file__),
-        "src"
-    )
-)
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 from src.run_comparison import run_comparison
 
@@ -28,200 +23,123 @@ class PayrollValidator(QWidget):
 
         super().__init__()
 
-        self.setWindowTitle(
-            "XML Integration Validator"
-        )
+        self.setWindowTitle("XML Integration Validator")
 
-        self.resize(
-            900,
-            600
-        )
+        self.resize(900, 600)
 
         self.cb_folder = ""
         self.ac_folder = ""
         self.integration = "payroll"
 
         layout = QVBoxLayout()
-        self.integration_label = QLabel(
-            "Integration"
-        )
+        self.integration_label = QLabel("Integration")
 
         self.integration_dropdown = QComboBox()
-        self.integration_dropdown.addItems([
-            "Payroll",
-            "Timekeeping",
-            "Food Out"
-        ])
-
-        self.cb_label = QLabel(
-            "CB Folder: Not Selected"
+        self.integration_dropdown.addItems(
+            ["Payroll", "Timekeeping", "Food Out", "Vendor Schedule"]
         )
 
-        self.ac_label = QLabel(
-            "AC Folder: Not Selected"
-        )
+        self.cb_label = QLabel("CB Folder: Not Selected")
 
-        self.status_label = QLabel(
-            "Status : Ready"
-        )
+        self.ac_label = QLabel("AC Folder: Not Selected")
 
-        cb_button = QPushButton(
-            "Browse CB Folder"
-        )
+        self.status_label = QLabel("Status : Ready")
 
-        ac_button = QPushButton(
-            "Browse AC Folder"
-        )
+        cb_button = QPushButton("Browse CB Folder")
 
-        self.run_button = QPushButton(
-            "Run Validation"
-        )
+        ac_button = QPushButton("Browse AC Folder")
 
-        cb_button.clicked.connect(
-            self.select_cb_folder
-        )
+        self.run_button = QPushButton("Run Validation")
 
-        ac_button.clicked.connect(
-            self.select_ac_folder
-        )
+        cb_button.clicked.connect(self.select_cb_folder)
 
-        self.run_button.clicked.connect(
-            self.run_validation
-        )
+        ac_button.clicked.connect(self.select_ac_folder)
 
-        layout.addWidget(
-            self.integration_label
-        )
+        self.run_button.clicked.connect(self.run_validation)
 
-        layout.addWidget(
-            self.integration_dropdown
-        )
+        layout.addWidget(self.integration_label)
 
-        layout.addWidget(
-            self.cb_label
-        )
+        layout.addWidget(self.integration_dropdown)
 
-        layout.addWidget(
-            cb_button
-        )
+        layout.addWidget(self.cb_label)
 
-        layout.addWidget(
-            self.ac_label
-        )
+        layout.addWidget(cb_button)
 
-        layout.addWidget(
-            ac_button
-        )
+        layout.addWidget(self.ac_label)
 
-        layout.addWidget(
-            self.run_button
-        )
+        layout.addWidget(ac_button)
 
-        layout.addWidget(
-            self.status_label
-        )
+        layout.addWidget(self.run_button)
 
-        self.setLayout(
-            layout
-        )
+        layout.addWidget(self.status_label)
+
+        self.setLayout(layout)
 
     def select_cb_folder(self):
 
-        folder = QFileDialog.getExistingDirectory(
-            self,
-            "Select CB Folder"
-        )
+        folder = QFileDialog.getExistingDirectory(self, "Select CB Folder")
 
         if folder:
 
             self.cb_folder = folder
 
-            self.cb_label.setText(
-                f"CB Folder: {folder}"
-            )
+            self.cb_label.setText(f"CB Folder: {folder}")
 
     def select_ac_folder(self):
 
-        folder = QFileDialog.getExistingDirectory(
-            self,
-            "Select AC Folder"
-        )
+        folder = QFileDialog.getExistingDirectory(self, "Select AC Folder")
 
         if folder:
 
             self.ac_folder = folder
 
-            self.ac_label.setText(
-                f"AC Folder: {folder}"
-            )
+            self.ac_label.setText(f"AC Folder: {folder}")
 
     def run_validation(self):
 
         if not self.cb_folder:
 
-            QMessageBox.warning(
-                self,
-                "Validation",
-                "Please select CB Folder"
-            )
+            QMessageBox.warning(self, "Validation", "Please select CB Folder")
 
             return
 
         if not self.ac_folder:
 
-            QMessageBox.warning(
-                self,
-                "Validation",
-                "Please select AC Folder"
-            )
+            QMessageBox.warning(self, "Validation", "Please select AC Folder")
 
             return
 
         try:
 
-            self.status_label.setText(
-                "Status : Running Validation..."
-            )
+            self.status_label.setText("Status : Running Validation...")
 
             result = run_comparison(
                 self.cb_folder,
                 self.ac_folder,
-                self.integration_dropdown.currentText().lower()
+                self.integration_dropdown.currentText().lower(),
             )
 
-            self.status_label.setText(
-                "Status : Validation Completed"
-            )
+            self.status_label.setText("Status : Validation Completed")
 
             QMessageBox.information(
                 self,
                 "Validation Complete",
                 f"Report Generated\n\n"
                 f"Files Processed : {result['total_files']}\n\n"
-                f"Report : {result['report_path']}"
+                f"Report : {result['report_path']}",
             )
 
         except Exception as e:
 
-            self.status_label.setText(
-                "Status : Failed"
-            )
+            self.status_label.setText("Status : Failed")
 
-            QMessageBox.critical(
-                self,
-                "Validation Error",
-                str(e)
-            )
+            QMessageBox.critical(self, "Validation Error", str(e))
 
 
-app = QApplication(
-    sys.argv
-)
+app = QApplication(sys.argv)
 
 window = PayrollValidator()
 
 window.show()
 
-sys.exit(
-    app.exec()
-)
+sys.exit(app.exec())

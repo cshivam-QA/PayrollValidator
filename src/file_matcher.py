@@ -11,13 +11,9 @@ def get_xml_key(file_path):
 
         info = xml.get_root_info()
 
-        store = str(
-            info.get("location", "")
-        ).strip()
+        store = str(info.get("location", "")).strip()
 
-        business_date = str(
-            info.get("date", "")
-        ).strip()
+        business_date = str(info.get("date", "")).strip()
 
         if not store or not business_date:
 
@@ -36,9 +32,7 @@ def get_xml_key(file_path):
         return None
 
 
-def get_matching_files(
-        cb_folder,
-        ac_folder):
+def get_matching_files(cb_folder, ac_folder):
 
     cb_files = {}
 
@@ -56,14 +50,9 @@ def get_matching_files(
 
         if file.lower().endswith(".xml"):
 
-            full_path = os.path.join(
-                cb_folder,
-                file
-            )
+            full_path = os.path.join(cb_folder, file)
 
-            key = get_xml_key(
-                full_path
-            )
+            key = get_xml_key(full_path)
 
             if key:
 
@@ -73,14 +62,9 @@ def get_matching_files(
 
         if file.lower().endswith(".xml"):
 
-            full_path = os.path.join(
-                ac_folder,
-                file
-            )
+            full_path = os.path.join(ac_folder, file)
 
-            key = get_xml_key(
-                full_path
-            )
+            key = get_xml_key(full_path)
 
             if key:
 
