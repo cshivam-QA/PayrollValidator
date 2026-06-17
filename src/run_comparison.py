@@ -1,12 +1,58 @@
 from xml_loader import XMLLoader
 from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
-from node_config import NODE_CONFIG
 from comparator import compare_nodes
 import os
 
+def get_node_config(
+    integration,
+    client="bww"
+):
 
-def run_comparison(cb_folder, ac_folder):
+    if integration == "payroll":
+
+        from payroll_config import NODE_CONFIG
+        return NODE_CONFIG
+
+    elif integration == "timekeeping":
+
+        from timekeeping_config import NODE_CONFIG
+        return NODE_CONFIG
+
+    elif integration == "food out":
+
+        if client.lower() == "bww":
+
+            from foodout_bww_config import NODE_CONFIG
+
+        elif client.lower() == "arbys":
+
+            from foodout_arbys_config import NODE_CONFIG
+
+        elif client.lower() == "lc":
+
+            from foodout_lc_config import NODE_CONFIG
+
+        else:
+
+            raise Exception(
+                f"Unsupported Food Out Client: {client}"
+            )
+
+        return NODE_CONFIG
+
+    raise Exception(
+        f"Unsupported Integration: {integration}"
+    )
+def run_comparison(
+    cb_folder,
+    ac_folder,
+    integration="payroll"
+):
+
+    node_config = get_node_config(
+        integration
+    )
 
     cb_files, ac_files = get_matching_files(
         cb_folder,
@@ -61,8 +107,7 @@ def run_comparison(cb_folder, ac_folder):
 
         file_duplicate_count = 0
 
-        for config in NODE_CONFIG:
-
+        for config in node_config:
             (
                 differences,
                 zero_values,
@@ -96,37 +141,37 @@ def run_comparison(cb_folder, ac_folder):
                 row["Store"] = cb_info.get("location")
                 row["Date"] = cb_info.get("date")
 
-        all_differences.extend(
-            differences
-        )
+            all_differences.extend(
+                differences
+            )
 
-        all_missing_records.extend(
-            missing_records
-        )
+            all_missing_records.extend(
+                missing_records
+            )
 
-        all_zero_values.extend(
-            zero_values
-        )
+            all_zero_values.extend(
+                zero_values
+            )
 
-        all_duplicate_records.extend(
-            duplicate_records
-        )
+            all_duplicate_records.extend(
+                duplicate_records
+            )
 
-        file_difference_count += len(
-            differences
-        )
+            file_difference_count += len(
+                differences
+            )
 
-        file_missing_count += len(
-            missing_records
-        )
+            file_missing_count += len(
+                missing_records
+            )
 
-        file_zero_count += len(
-            zero_values
-        )
+            file_zero_count += len(
+                zero_values
+            )
 
-        file_duplicate_count += len(
-            duplicate_records
-        )
+            file_duplicate_count += len(
+                duplicate_records
+            )
 
         total_issues = (
             file_difference_count

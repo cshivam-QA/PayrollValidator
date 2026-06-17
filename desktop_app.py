@@ -5,7 +5,8 @@ from PySide6.QtWidgets import (
     QPushButton,
     QLabel,
     QFileDialog,
-    QMessageBox
+    QMessageBox,
+    QComboBox
 )
 
 import sys
@@ -28,7 +29,7 @@ class PayrollValidator(QWidget):
         super().__init__()
 
         self.setWindowTitle(
-            "CB to AC Payroll Validation Tool"
+            "XML Integration Validator"
         )
 
         self.resize(
@@ -38,8 +39,19 @@ class PayrollValidator(QWidget):
 
         self.cb_folder = ""
         self.ac_folder = ""
+        self.integration = "payroll"
 
         layout = QVBoxLayout()
+        self.integration_label = QLabel(
+            "Integration"
+        )
+
+        self.integration_dropdown = QComboBox()
+        self.integration_dropdown.addItems([
+            "Payroll",
+            "Timekeeping",
+            "Food Out"
+        ])
 
         self.cb_label = QLabel(
             "CB Folder: Not Selected"
@@ -75,6 +87,14 @@ class PayrollValidator(QWidget):
 
         self.run_button.clicked.connect(
             self.run_validation
+        )
+
+        layout.addWidget(
+            self.integration_label
+        )
+
+        layout.addWidget(
+            self.integration_dropdown
         )
 
         layout.addWidget(
@@ -165,7 +185,8 @@ class PayrollValidator(QWidget):
 
             result = run_comparison(
                 self.cb_folder,
-                self.ac_folder
+                self.ac_folder,
+                self.integration_dropdown.currentText().lower()
             )
 
             self.status_label.setText(

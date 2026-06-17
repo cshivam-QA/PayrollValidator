@@ -23,6 +23,12 @@ def get_xml_key(file_path):
 
             return None
 
+        print(
+            f"FILE={os.path.basename(file_path)} | "
+            f"STORE={store} | "
+            f"DATE={business_date}"
+        )
+
         return f"{store}_{business_date}"
 
     except Exception:
@@ -79,5 +85,13 @@ def get_matching_files(
             if key:
 
                 ac_files[key] = full_path
+
+    print("\nCB FILES:")
+    for k, v in cb_files.items():
+        print(k, "=>", v)
+
+    print("\nAC FILES:")
+    for k, v in ac_files.items():
+        print(k, "=>", v)
 
     return cb_files, ac_files
