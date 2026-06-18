@@ -1,192 +1,297 @@
-# XML Integration Validation Framework
+=========================================================
+XML INTEGRATION VALIDATOR
+Version : V3.2
+=========================================================
 
-A Python-based XML Validation and Comparison Tool designed to validate CB (CloudBridge) and AC (AnyConnector) integration outputs.
+OVERVIEW
+---------------------------------------------------------
 
-The tool compares XML files node-by-node, identifies differences, missing records, duplicate records, and generates a consolidated Excel report for QA validation.
+XML Integration Validator is a desktop-based validation
+tool developed to compare CB (CloudBridge) and AC
+(AnyConnector) XML outputs.
 
----
+The tool performs automated XML validation and generates
+Excel reports highlighting differences, missing records,
+duplicate records, and zero-value records.
 
-## Features
+The application helps reduce manual validation effort
+and improves accuracy during integration testing.
 
-### Payroll Validation
+The tool supports both Single File Comparison and
+Bulk Folder Comparison modes.
 
-* Employee Master (H1)
-* Employee Attributes (NV)
-* Job Codes
-* Daily Labor
-* Shift Data
-* Exceptions
-* Weekly Payroll Summary
-* Missing Record Detection
-* Duplicate Record Detection
-* Zero Value Detection
+---------------------------------------------------------
+SUPPORTED INTEGRATIONS
+---------------------------------------------------------
 
-### Timekeeping Validation
+1. Payroll Out
+2. Timekeeping Out
+3. Food Out
+4. Vendor Schedule
 
-* Employee Master Validation
-* Employee Attributes Validation
-* Daily Labor Validation
-* Shift Validation
-* Exception Validation
-* Weekly Validation
-* Job Code Validation
+---------------------------------------------------------
+PAYROLL VALIDATION SUPPORT
+---------------------------------------------------------
 
-### Food Out Validation
+Supported Nodes:
 
-* Inventory Type Validation
-* Inventory Group Validation
-* GL Code Validation
-* Inventory Daily Validation
-* Delivery Validation
-* Credit Memo Validation
-* Inventory Count Validation
-* Inventory Transfer Validation
-* Waste Validation
+- KEY
+- H1
+- NV
+- JOBCODE
+- DAILY
+- SHIFT
+- WEEKLY
+- EXCEPTIONS
 
----
+Validations:
 
-## Supported Integrations
+- Value Comparison
+- Missing Record Detection
+- Missing Attribute Detection
+- Duplicate Record Detection
+- Zero Value Detection
 
-* Payroll Out
-* Timekeeping Out
-* Food Out
-* Vendor Schedule
+---------------------------------------------------------
+TIMEKEEPING VALIDATION SUPPORT
+---------------------------------------------------------
 
----
+Supported Nodes:
 
-## Comparison Capabilities
+- KEY
+- H1
+- NV
+- JOBCODE
+- DAILY
+- SHIFT
+- WEEKLY
+- EXCEPTIONS
 
-The validator performs:
+Validations:
 
-* Node-Level Comparison
-* Attribute-Level Comparison
-* Missing Record Detection
-* Missing Attribute Detection
-* Duplicate Record Detection
-* Zero Value Detection
-* Value Mismatch Detection
+- Value Comparison
+- Missing Record Detection
+- Missing Attribute Detection
+- Duplicate Record Detection
+- Zero Value Detection
 
----
+---------------------------------------------------------
+FOOD OUT VALIDATION SUPPORT
+---------------------------------------------------------
 
-## Report Output
+Supported Client Configurations:
 
-The tool generates an Excel report containing:
+- BWW
+- Arbys
+- LC
 
-### MASTER_SUMMARY
+Supported Nodes:
 
-Overall comparison status for each file pair.
+- INVENTORY_TYPE
+- INVENTORY_GROUP
+- GLCODE
+- INV_DAILY
+- INV_NV (BWW Specific)
+- DLV
+- CM
+- INVC
+- INVXF
+- WASTE
 
-### ALL_DIFFERENCES
+Validations:
 
-All attribute-level mismatches.
+- Value Comparison
+- Missing Record Detection
+- Missing Attribute Detection
+- Duplicate Record Detection
+- Zero Value Detection
 
-### ALL_MISSING_RECORDS
+---------------------------------------------------------
+VENDOR SCHEDULE VALIDATION SUPPORT
+---------------------------------------------------------
 
-Records missing in CB or AC.
+Supported Validations:
 
-### ALL_ZERO_VALUES
+- Node Level Comparison
+- Attribute Level Comparison
+- Missing Record Detection
+- Missing Attribute Detection
+- Duplicate Record Detection
+- Zero Value Detection
 
-Zero value records identified during validation.
+---------------------------------------------------------
+VALIDATION FEATURES
+---------------------------------------------------------
 
-### ALL_DUPLICATES
+✓ Single File Comparison
 
-Duplicate records detected during comparison.
+✓ Bulk Folder Comparison
 
----
+✓ Multi-file Validation
 
-## Technology Stack
+✓ Node Level Comparison
 
-* Python 3.x
-* PySide6 (Desktop UI)
-* OpenPyXL (Excel Reporting)
-* XML ElementTree
-* PyInstaller
+✓ Attribute Level Comparison
 
----
+✓ Value Mismatch Detection
 
-## Project Structure
+✓ Missing Record Detection
 
-src/
+✓ Missing Attribute Detection
 
-* comparator.py
-* file_matcher.py
-* key_builder.py
-* xml_loader.py
-* report_generator.py
-* master_report_generator.py
-* run_comparison.py
+✓ Duplicate Record Detection
 
-Configuration Files
+✓ Zero Value Detection
 
-* payroll_config.py
-* timekeeping_config.py
-* foodout_bww_config.py
-* foodout_arbys_config.py
-* foodout_lc_config.py
+✓ Automated Excel Reporting
 
-Desktop Application
+---------------------------------------------------------
+REPORT OUTPUT
+---------------------------------------------------------
 
-* desktop_app.py
+The tool generates:
 
----
+Master_Comparison_Report.xlsx
 
-## How to Run
+Sheets Generated:
 
-### Desktop Application
+1. MASTER_SUMMARY
 
-```bash
-py desktop_app.py
-```
+Overall validation result for each file pair.
 
-### Generate EXE
+2. ALL_DIFFERENCES
 
-```bash
-pyinstaller desktop_app.spec
-```
+All value mismatches detected.
 
----
+3. ALL_MISSING_RECORDS
 
-## Version History
+Missing records found in CB or AC.
 
-### V1.0
+4. ALL_ZERO_VALUES
 
-* Payroll Validation Support
+Records containing zero values.
 
-### V2.0
+5. ALL_DUPLICATES
 
-* Excel Reporting
-* Missing Record Detection
-* Duplicate Detection
+Duplicate records identified during comparison.
 
-### V3.0
+---------------------------------------------------------
+TECHNOLOGY STACK
+---------------------------------------------------------
 
-* Timekeeping Integration Support
-* Enhanced Reporting
+Programming Language:
+- Python
 
-### V3.2
+Desktop Framework:
+- PySide6
 
-* Food Out Integration Support
-* Client-Specific Food Out Configurations
-* Improved XML Comparison Logic
-* Enhanced Validation Framework
+Excel Reporting:
+- Pandas
+- OpenPyXL
 
-## V3.3
+Build Tool:
+- PyInstaller
 
-### Release Highlights
+Version Control:
+- Git
+- GitHub
 
-- Added Vendor Schedule Integration
-- Added Single File Comparison Mode
-- Added XML Structure Validation
-- Added Invalid Integration Detection
-- Excluded TRH Attribute from Comparison
-- Improved Validation Reliability
+---------------------------------------------------------
+HOW TO USE
+---------------------------------------------------------
 
----
+Step 1
 
-## Author
+Launch:
+
+XML_Integration_Validator.exe
+
+Step 2
+
+Select Validation Mode:
+
+- Single File Comparison
+- Folder Comparison
+
+Step 3
+
+Select Integration Type:
+
+- Payroll
+- Timekeeping
+- Food Out
+- Vendor Schedule
+
+Step 4
+
+Select CB File/Folder
+
+Step 5
+
+Select AC File/Folder
+
+Step 6
+
+Click:
+
+Run Validation
+
+Step 7
+
+Review generated Excel report.
+
+---------------------------------------------------------
+RECENT ENHANCEMENTS (V3.2)
+---------------------------------------------------------
+
+✓ Added Timekeeping Validation Support
+
+✓ Added Food Out Integration Support
+
+✓ Added Vendor Schedule Integration Support
+
+✓ Added Single File Comparison Support
+
+✓ Added Bulk Folder Comparison Support
+
+✓ Added BWW Food Out Configuration
+
+✓ Added Arbys Food Out Configuration
+
+✓ Added LC Food Out Configuration
+
+✓ Enhanced XML Comparison Logic
+
+✓ Improved Report Generation
+
+✓ Added requirements.txt Support
+
+✓ GitHub Source Control Integration
+
+✓ Improved Project Portability
+
+---------------------------------------------------------
+FUTURE ENHANCEMENTS
+---------------------------------------------------------
+
+- Dynamic Client Selection
+
+- Configuration Management UI
+
+- Dashboard Reporting
+
+- Additional Integration Support
+
+---------------------------------------------------------
+AUTHOR
+---------------------------------------------------------
 
 Shivam Chaurasia
 
 Senior QA Analyst
 
 XML Integration Validation Framework
+
+=========================================================
+END OF DOCUMENT
+=========================================================
