@@ -85,6 +85,8 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
         attrs = set(cb.attrib.keys()) | set(ac.attrib.keys())
 
         for attr in attrs:
+            if attr.lower() == "trh":
+                continue
 
             if attr in EXCLUDED_ATTRIBUTES.get(node_name, []):
 

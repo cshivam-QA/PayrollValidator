@@ -48,11 +48,25 @@ def get_node_config(integration, client="bww"):
     raise Exception(f"Unsupported Integration: {integration}")
 
 
-def run_comparison(cb_folder, ac_folder, integration="payroll"):
+def run_comparison(
+    cb_folder=None,
+    ac_folder=None,
+    integration="payroll",
+    cb_file=None,
+    ac_file=None,
+):
 
     node_config = get_node_config(integration)
 
-    cb_files, ac_files = get_matching_files(cb_folder, ac_folder)
+    if cb_file and ac_file:
+
+        cb_files = {"single_file": cb_file}
+
+        ac_files = {"single_file": ac_file}
+
+    else:
+
+        cb_files, ac_files = get_matching_files(cb_folder, ac_folder)
 
     summary = []
 
