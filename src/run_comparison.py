@@ -2,6 +2,7 @@ from xml_loader import XMLLoader
 from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
 from comparator import compare_nodes
+from xml_validator import validate_xml_structure
 import os
 
 
@@ -93,6 +94,22 @@ def run_comparison(
         cb = XMLLoader(cb_xml)
 
         ac = XMLLoader(ac_xml)
+
+        if not validate_xml_structure(cb, integration):
+
+            raise Exception(
+                f"Selected files do not appear to be valid "
+                f"{integration.title()} XML files.\n\n"
+                f"Please verify the selected integration."
+            )
+
+        if not validate_xml_structure(ac, integration):
+
+            raise Exception(
+                f"Selected files do not appear to be valid "
+                f"{integration.title()} XML files.\n\n"
+                f"Please verify the selected integration."
+            )
 
         cb_info = cb.get_root_info()
 
