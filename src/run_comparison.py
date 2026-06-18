@@ -95,6 +95,38 @@ def run_comparison(
 
         ac = XMLLoader(ac_xml)
 
+        cb_info = cb.get_root_info()
+
+        ac_info = ac.get_root_info()
+
+        if key == "single_file":
+
+            cb_store = str(cb_info.get("location", "")).strip()
+
+            ac_store = str(ac_info.get("location", "")).strip()
+
+            cb_date = str(cb_info.get("date", "")).strip()
+
+            ac_date = str(ac_info.get("date", "")).strip()
+
+            if cb_store != ac_store:
+
+                raise Exception(
+                    f"Store Mismatch Detected.\n\n"
+                    f"CB Store : {cb_store}\n"
+                    f"AC Store : {ac_store}\n\n"
+                    f"Please select matching files."
+                )
+
+            if cb_date != ac_date:
+
+                raise Exception(
+                    f"Business Date Mismatch Detected.\n\n"
+                    f"CB Date : {cb_date}\n"
+                    f"AC Date : {ac_date}\n\n"
+                    f"Please select matching files."
+                )
+
         if not validate_xml_structure(cb, integration):
 
             raise Exception(
@@ -110,8 +142,6 @@ def run_comparison(
                 f"{integration.title()} XML files.\n\n"
                 f"Please verify the selected integration."
             )
-
-        cb_info = cb.get_root_info()
 
         file_difference_count = 0
 
