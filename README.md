@@ -1,4 +1,4 @@
-# Payroll Validator
+# XML Integration Validation Framework
 
 A Python-based XML Validation and Comparison Tool designed to validate CB (CloudBridge) and AC (AnyConnector) integration outputs.
 
