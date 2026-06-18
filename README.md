@@ -50,6 +50,7 @@ The tool compares XML files node-by-node, identifies differences, missing record
 * Payroll Out
 * Timekeeping Out
 * Food Out
+* Vendor Schedule
 
 ---
 
