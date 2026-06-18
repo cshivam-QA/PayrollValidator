@@ -169,6 +169,16 @@ pyinstaller desktop_app.spec
 * Improved XML Comparison Logic
 * Enhanced Validation Framework
 
+### V3.3
+
+Release Highlights:
+• Added Vendor Schedule Integration
+• Added Single File Comparison Mode
+• Added XML Structure Validation
+• Added Invalid Integration Detection
+• Excluded TRH Attribute from Comparison
+• Improved Validation Reliability
+
 ---
 
 ## Author
