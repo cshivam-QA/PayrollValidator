@@ -1,3 +1,4 @@
+from labor_forecast_comparator import compare_labor_forecast
 from xml_loader import XMLLoader
 from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
@@ -45,6 +46,11 @@ def get_node_config(integration, client="bww"):
         from vendor_schedule_config import NODE_CONFIG
 
         return NODE_CONFIG
+    elif integration == "labor forecast":
+
+        from labor_forecast_config import NODE_CONFIG
+
+        return NODE_CONFIG
 
     raise Exception(f"Unsupported Integration: {integration}")
 
@@ -90,6 +96,51 @@ def run_comparison(
         cb_xml = cb_files[key]
 
         ac_xml = ac_files[key]
+
+        if integration == "labor forecast":
+
+            cb = XMLLoader(cb_xml)
+            cb_info = cb.get_root_info()
+
+            differences, missing_records = compare_labor_forecast(
+                cb_xml,
+                ac_xml,
+            )
+
+            for row in differences:
+
+                row["Store"] = cb_info.get("location")
+                row["Date"] = cb_info.get("date")
+
+            for row in missing_records:
+
+                row["Store"] = cb_info.get("location")
+                row["Date"] = cb_info.get("date")
+
+            all_differences.extend(differences)
+
+            all_missing_records.extend(missing_records)
+
+            summary.append(
+                {
+                    "Store": cb_info.get("location"),
+                    "Date": cb_info.get("date"),
+                    "CB File": os.path.basename(cb_xml),
+                    "AC File": os.path.basename(ac_xml),
+                    "Status": (
+                        "PASS"
+                        if len(differences) == 0
+                        and len(missing_records) == 0
+                        else "FAIL"
+                    ),
+                    "Differences": len(differences),
+                    "Missing Records": len(missing_records),
+                    "Zero Values": 0,
+                    "Duplicates": 0,
+                }
+            )
+
+            continue
 
         cb = XMLLoader(cb_xml)
 

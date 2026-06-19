@@ -35,10 +35,10 @@ NODE_CONFIG = [
         "key_fields": ["e", "j"],
         "display_path": "Poll/Labor/TM0(type=WEEKLY)/TM1",
     },
-    {
-        "node": "PAY_PERIOD",
-        "path": ".//TM0[@type='PAY_PERIOD']/TM1",
-        "key_fields": ["e", "j"],
-        "display_path": "Poll/Labor/TM0(type=PAY_PERIOD)/TM1",
-    },
+{
+    "node": "PAY_PERIOD",
+    "path": ".//TM0[@type='PAY_PERIOD']/TM1",
+    "key_fields": ["e", "j", "dt", "r"],
+    "display_path": "Poll/Labor/TM0(type=PAY_PERIOD)/TM1",
+}
 ]

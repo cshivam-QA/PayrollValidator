@@ -72,13 +72,29 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
         if cb is None:
 
-            missing_records.append({"Node": node_name, "Key": key, "Missing In": "CB"})
+            missing_records.append(
+                {
+                    "Node": node_name,
+                    "Key": key,
+                    "Missing In": "CB",
+                    "CB Attributes": "",
+                    "AC Attributes": str(ac.attrib),
+                }
+            )
 
             continue
 
         if ac is None:
 
-            missing_records.append({"Node": node_name, "Key": key, "Missing In": "AC"})
+            missing_records.append(
+                {
+                    "Node": node_name,
+                    "Key": key,
+                    "Missing In": "AC",
+                    "CB Attributes": str(cb.attrib),
+                    "AC Attributes": "",
+                }
+            )
 
             continue
 
