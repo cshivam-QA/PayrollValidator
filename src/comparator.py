@@ -1,6 +1,10 @@
 from key_builder import KeyBuilder
 
 EXCLUDED_ATTRIBUTES = {"DAILY": ["otr"], "SHIFT": ["otr"], "PAY_PERIOD": ["otr"]}
+ATTRIBUTE_TOLERANCE = {
+    "r": 0.01,
+    "pay": 0.01,
+}
 
 EXCLUDED_ZERO_ATTRIBUTES = ["trh"]
 
@@ -103,9 +107,12 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
         for attr in attrs:
             if attr.lower() == "trh":
                 continue
+            if attr.lower() == "cb-wi":
+                continue
+            if attr.lower() == "s":
+                continue
 
             if attr in EXCLUDED_ATTRIBUTES.get(node_name, []):
-
                 continue
 
             cb_val = cb.attrib.get(attr)
@@ -114,56 +121,44 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
             if (
                 attr not in EXCLUDED_ZERO_ATTRIBUTES
                 and cb_val is not None
-                and is_zero_value(cb_val)
-            ):
-
-                zero_values.append(
-                    {
-                        "Node": node_name,
-                        "Path": path,
-                        "Key": key,
-                        "Attribute": attr,
-                        "Value": cb_val,
-                        "Side": "CB",
-                    }
-                )
-
-                continue
-
-            if (
-                attr not in EXCLUDED_ZERO_ATTRIBUTES
                 and ac_val is not None
-                and is_zero_value(ac_val)
             ):
 
-                zero_values.append(
-                    {
-                        "Node": node_name,
-                        "Path": path,
-                        "Key": key,
-                        "Attribute": attr,
-                        "Value": ac_val,
-                        "Side": "AC",
-                    }
-                )
+                cb_is_zero = is_zero_value(cb_val)
+                ac_is_zero = is_zero_value(ac_val)
 
-                continue
+                if cb_is_zero and ac_is_zero:
+                    continue
 
-            if cb_val is None:
+                if cb_is_zero and not ac_is_zero:
 
-                differences.append(
-                    {
-                        "Node": node_name,
-                        "Difference Type": "Missing Attribute In CB",
-                        "Path": path,
-                        "Key": key,
-                        "Attribute": attr,
-                        "CB Value": "",
-                        "AC Value": ac_val,
-                    }
-                )
+                    zero_values.append(
+                        {
+                            "Node": node_name,
+                            "Path": path,
+                            "Key": key,
+                            "Attribute": attr,
+                            "Value": cb_val,
+                            "Side": "CB",
+                        }
+                    )
 
-                continue
+                    continue
+
+                if ac_is_zero and not cb_is_zero:
+
+                    zero_values.append(
+                        {
+                            "Node": node_name,
+                            "Path": path,
+                            "Key": key,
+                            "Attribute": attr,
+                            "Value": ac_val,
+                            "Side": "AC",
+                        }
+                    )
+
+                    continue
 
             if ac_val is None:
 
@@ -183,6 +178,16 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
             cb_norm = normalize_value(cb_val)
             ac_norm = normalize_value(ac_val)
+
+            lower_attr = attr.lower()
+
+            if lower_attr in ATTRIBUTE_TOLERANCE:
+                try:
+                    tolerance = ATTRIBUTE_TOLERANCE[lower_attr]
+                    if abs(float(cb_val) - float(ac_val)) <= tolerance:
+                        continue
+                except:
+                    pass
 
             if cb_norm != ac_norm:
 

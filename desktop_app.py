@@ -39,7 +39,7 @@ class PayrollValidator(QWidget):
 
         self.integration_dropdown = QComboBox()
         self.integration_dropdown.addItems(
-            ["Payroll", "Timekeeping", "Food Out", "Vendor Schedule", "Labor Forecast"]
+            ["Payroll", "Timekeeping", "Food Out", "Vendor Schedule", "Labor Forecast", "Schedule Out"]
         )
         self.folder_radio = QRadioButton("Folder Comparison")
         self.file_radio = QRadioButton("Single File Comparison")

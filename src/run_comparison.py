@@ -51,6 +51,11 @@ def get_node_config(integration, client="bww"):
         from labor_forecast_config import NODE_CONFIG
 
         return NODE_CONFIG
+    elif integration == "schedule out":
+
+        from schedule_out_config import NODE_CONFIG
+
+        return NODE_CONFIG
 
     raise Exception(f"Unsupported Integration: {integration}")
 
@@ -90,6 +95,7 @@ def run_comparison(
     missing_cb = set(ac_files.keys()) - set(cb_files.keys())
 
     missing_ac = set(cb_files.keys()) - set(ac_files.keys())
+    processed_stores = set()
 
     for key in sorted(matched):
 
@@ -124,19 +130,15 @@ def run_comparison(
             summary.append(
                 {
                     "Store": cb_info.get("location"),
-                    "Date": cb_info.get("date"),
+                    "CB Date": cb_info.get("date"),
+                    "AC Date": ac_info.get("date"),
                     "CB File": os.path.basename(cb_xml),
                     "AC File": os.path.basename(ac_xml),
-                    "Status": (
-                        "PASS"
-                        if len(differences) == 0
-                        and len(missing_records) == 0
-                        else "FAIL"
-                    ),
-                    "Differences": len(differences),
-                    "Missing Records": len(missing_records),
-                    "Zero Values": 0,
-                    "Duplicates": 0,
+                    "Status": ("PASS" if total_issues == 0 else "FAIL"),
+                    "Differences": file_difference_count,
+                    "Missing Records": file_missing_count,
+                    "Zero Values": file_zero_count,
+                    "Duplicates": file_duplicate_count,
                 }
             )
 
@@ -250,7 +252,8 @@ def run_comparison(
         summary.append(
             {
                 "Store": cb_info.get("location"),
-                "Date": cb_info.get("date"),
+                "CB Date": cb_info.get("date"),
+                "AC Date": ac_info.get("date"),
                 "CB File": os.path.basename(cb_xml),
                 "AC File": os.path.basename(ac_xml),
                 "Status": ("PASS" if total_issues == 0 else "FAIL"),
@@ -260,28 +263,72 @@ def run_comparison(
                 "Duplicates": file_duplicate_count,
             }
         )
+
     for key in sorted(missing_ac):
 
-        summary.append(
-            {
-                "Store": key.split("_")[0],
-                "Date": key.split("_")[1],
-                "CB File": os.path.basename(cb_files[key]),
-                "AC File": "Missing",
-                "Status": "AC FILE MISSING",
-                "Differences": 0,
-                "Missing Records": 0,
-                "Zero Values": 0,
-                "Duplicates": 0,
-            }
-        )
+        store = key.split("_")[0]
+        cb_date = key.split("_")[1]
+
+        matching_ac_key = None
+
+        for ac_key in ac_files.keys():
+
+            ac_store = ac_key.split("_")[0]
+
+            if ac_store == store:
+
+                matching_ac_key = ac_key
+                break
+
+        if matching_ac_key:
+
+            ac_date = matching_ac_key.split("_")[1]
+
+            summary.append(
+                {
+                    "Store": store,
+                    "CB Date": cb_date,
+                    "AC Date": ac_date,
+                    "CB File": os.path.basename(cb_files[key]),
+                    "AC File": os.path.basename(ac_files[matching_ac_key]),
+                    "Status": "BUSINESS DATE MISMATCH",
+                    "Differences": 0,
+                    "Missing Records": 0,
+                    "Zero Values": 0,
+                    "Duplicates": 0,
+                }
+            )
+
+            processed_stores.add(store)
+
+        else:
+            summary.append(
+                {
+                    "Store": store,
+                    "CB Date": cb_date,
+                    "AC Date": "",
+                    "CB File": os.path.basename(cb_files[key]),
+                    "AC File": "Missing",
+                    "Status": "AC FILE MISSING",
+                    "Differences": 0,
+                    "Missing Records": 0,
+                    "Zero Values": 0,
+                    "Duplicates": 0,
+                }
+            )
 
     for key in sorted(missing_cb):
 
+        store = key.split("_")[0]
+
+        if store in processed_stores:
+            continue
+
         summary.append(
             {
-                "Store": key.split("_")[0],
-                "Date": key.split("_")[1],
+                "Store": store,
+                "CB Date": "",
+                "AC Date": key.split("_")[1],
                 "CB File": "Missing",
                 "AC File": os.path.basename(ac_files[key]),
                 "Status": "CB FILE MISSING",
@@ -292,7 +339,13 @@ def run_comparison(
             }
         )
 
-    summary.sort(key=lambda x: (x["Store"], x["Date"]))
+    summary.sort(
+        key=lambda x: (
+            x["Store"],
+            x.get("CB Date", ""),
+            x.get("AC Date", ""),
+        )
+    )
 
     generate_master_report(
         summary,

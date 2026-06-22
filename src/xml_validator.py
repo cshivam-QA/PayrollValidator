@@ -4,7 +4,7 @@ def validate_xml_structure(xml_loader, integration):
         "timekeeping": ".//Labor",
         "food out": ".//Inventory",
         "vendor schedule": ".//Custom/VDRS",
-        "labor forecast": ".//DNV/DNV1",
+        "schedule out": ".//Labor/SCH0/SCH1",
     }
 
     path = validation_paths.get(integration.lower())
