@@ -28,7 +28,7 @@ class PayrollValidator(QWidget):
 
         self.setWindowTitle("XML Integration Validator")
 
-        self.resize(1200, 600)
+        self.resize(1100, 500)
         self.setStyleSheet("""
 QWidget {
     background-color: #1e1e1e;
@@ -105,11 +105,11 @@ QPushButton#runButton:hover {
         self.integration = "payroll"
 
         layout = QVBoxLayout()
-        layout.setSpacing(12)
-        layout.setContentsMargins(20, 20, 20, 20)
+        layout.setSpacing(10)
+        layout.setContentsMargins(20, 15, 20, 15)
         title = QLabel("XML Integration Validator")
         title.setStyleSheet("""
-        font-size: 22pt;
+        font-size: 18pt;
         font-weight: bold;
         color: #4da6ff;
         """)
@@ -122,6 +122,7 @@ QPushButton#runButton:hover {
 
         layout.addWidget(title)
         layout.addWidget(subtitle)
+        layout.addSpacing(5)
         self.integration_label = QLabel("Integration")
 
         self.integration_dropdown = QComboBox()
@@ -155,8 +156,6 @@ QPushButton#runButton:hover {
         self.ac_file_path.setReadOnly(True)
         self.ac_file_path.setPlaceholderText("Select AC XML File")
 
-        self.cb_file_label = QLabel("CB XML File")
-        self.ac_file_label = QLabel("AC XML File")
         self.status_label = QLabel("🟢 Ready")
         self.status_label.setObjectName("statusLabel")
 
