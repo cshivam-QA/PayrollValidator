@@ -28,13 +28,23 @@ class PayrollValidator(QWidget):
 
         self.setWindowTitle("XML Integration Validator")
 
-        self.resize(1100, 700)
+        self.resize(1200, 600)
         self.setStyleSheet("""
 QWidget {
     background-color: #1e1e1e;
     color: white;
     font-family: Segoe UI;
     font-size: 11pt;
+}
+    QRadioButton {
+    spacing: 8px;
+    font-size: 14px;
+    color: white;
+}
+
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
 }
  QLineEdit {
     background-color: #2d2d30;
@@ -70,7 +80,7 @@ QRadioButton {
     spacing: 8px;
     margin-right: 20px;                      
 }
-                           QPushButton#runButton {
+    QPushButton#runButton {
     background-color: #28a745;
     font-weight: bold;
     font-size: 12pt;
@@ -80,6 +90,13 @@ QRadioButton {
 QPushButton#runButton:hover {
     background-color: #34c759;
 }
+    #statusLabel {
+    background-color: #252526;
+    border: 1px solid #3c3c3c;
+    border-radius: 8px;
+    padding: 8px;
+    font-weight: bold;
+}
 """)
         self.cb_folder = ""
         self.ac_folder = ""
@@ -88,8 +105,8 @@ QPushButton#runButton:hover {
         self.integration = "payroll"
 
         layout = QVBoxLayout()
-        layout.setSpacing(10)
-        layout.setContentsMargins(15, 15, 15, 15)
+        layout.setSpacing(12)
+        layout.setContentsMargins(20, 20, 20, 20)
         title = QLabel("XML Integration Validator")
         title.setStyleSheet("""
         font-size: 22pt;
@@ -108,6 +125,7 @@ QPushButton#runButton:hover {
         self.integration_label = QLabel("Integration")
 
         self.integration_dropdown = QComboBox()
+        self.integration_dropdown.setFixedHeight(38)
         self.integration_dropdown.addItems(
             ["Payroll", "Timekeeping", "Food Out", "Vendor Schedule", "Labor Forecast", "Schedule Out"]
         )
@@ -121,17 +139,35 @@ QPushButton#runButton:hover {
 
         self.cb_path = QLineEdit()
         self.cb_path.setReadOnly(True)
+        self.cb_path.setPlaceholderText("Select CB Folder")
 
         self.ac_path = QLineEdit()
         self.ac_path.setReadOnly(True)
-        self.cb_file_label = QLabel("CB File: Not Selected")
-        self.ac_file_label = QLabel("AC File: Not Selected")
+        self.ac_path.setPlaceholderText("Select AC Folder")
+
+        self.cb_file_path = QLineEdit()
+        self.cb_file_title = QLabel("CB File")
+        self.ac_file_title = QLabel("AC File")
+        self.cb_file_path.setReadOnly(True)
+        self.cb_file_path.setPlaceholderText("Select CB XML File")
+
+        self.ac_file_path = QLineEdit()
+        self.ac_file_path.setReadOnly(True)
+        self.ac_file_path.setPlaceholderText("Select AC XML File")
+
+        self.cb_file_label = QLabel("CB XML File")
+        self.ac_file_label = QLabel("AC XML File")
         self.status_label = QLabel("🟢 Ready")
+        self.status_label.setObjectName("statusLabel")
 
         self.cb_button = QPushButton("Browse CB Folder")
         self.ac_button = QPushButton("Browse AC Folder")
         self.cb_file_button = QPushButton("Browse CB File")
         self.ac_file_button = QPushButton("Browse AC File")
+        self.cb_button.setFixedWidth(140)
+        self.ac_button.setFixedWidth(140)
+        self.cb_file_button.setFixedWidth(140)
+        self.ac_file_button.setFixedWidth(140)
         cb_layout = QHBoxLayout()
         cb_layout.addWidget(self.cb_path)
         cb_layout.addWidget(self.cb_button)
@@ -139,7 +175,20 @@ QPushButton#runButton:hover {
         ac_layout = QHBoxLayout()
         ac_layout.addWidget(self.ac_path)
         ac_layout.addWidget(self.ac_button)
+
+        cb_file_layout = QHBoxLayout()
+        cb_file_layout.addWidget(self.cb_file_path)
+        cb_file_layout.addWidget(self.cb_file_button)
+        self.cb_file_container = QWidget()
+        self.cb_file_container.setLayout(cb_file_layout)
+
+        ac_file_layout = QHBoxLayout()
+        ac_file_layout.addWidget(self.ac_file_path)
+        ac_file_layout.addWidget(self.ac_file_button)
+        self.ac_file_container = QWidget()
+        self.ac_file_container.setLayout(ac_file_layout)
         self.run_button = QPushButton("▶ Run Comparison")
+        self.run_button.setFixedHeight(45)
         self.run_button.setObjectName("runButton")
 
         self.cb_button.clicked.connect(self.select_cb_folder)
@@ -164,11 +213,11 @@ QPushButton#runButton:hover {
         layout.addWidget(self.ac_label)
         layout.addLayout(ac_layout)
 
-        layout.addWidget(self.cb_file_label)
-        layout.addWidget(self.cb_file_button)
+        layout.addWidget(self.cb_file_title)
+        layout.addWidget(self.cb_file_container)
 
-        layout.addWidget(self.ac_file_label)
-        layout.addWidget(self.ac_file_button)
+        layout.addWidget(self.ac_file_title)
+        layout.addWidget(self.ac_file_container)
 
         layout.addWidget(self.run_button)
         layout.addWidget(self.status_label)
@@ -177,63 +226,51 @@ QPushButton#runButton:hover {
         self.setLayout(layout)
 
     def select_cb_folder(self):
-
         folder = QFileDialog.getExistingDirectory(self, "Select CB Folder")
-
         if folder:
-
             self.cb_folder = folder
-
             self.cb_path.setText(folder)
 
     def select_ac_folder(self):
-
         folder = QFileDialog.getExistingDirectory(self, "Select AC Folder")
-
         if folder:
-
             self.ac_folder = folder
-
             self.ac_path.setText(folder)
 
     def select_cb_file(self):
-
         file, _ = QFileDialog.getOpenFileName(
             self, "Select CB XML File", "", "XML Files (*.xml)"
         )
-
         if file:
-
             self.cb_file = file
-
-            self.cb_file_label.setText(f"CB File: {file}")
+            self.cb_file_path.setText(file)
 
     def select_ac_file(self):
-
         file, _ = QFileDialog.getOpenFileName(
             self, "Select AC XML File", "", "XML Files (*.xml)"
         )
-
         if file:
-
             self.ac_file = file
+            self.ac_file_path.setText(file)
 
-            self.ac_file_label.setText(f"AC File: {file}")
     def update_mode(self):
         folder_mode = self.folder_radio.isChecked()
 
         self.cb_label.setVisible(folder_mode)
         self.ac_label.setVisible(folder_mode)
 
+        self.cb_path.setVisible(folder_mode)
+        self.ac_path.setVisible(folder_mode)
+
         self.cb_button.setVisible(folder_mode)
         self.ac_button.setVisible(folder_mode)
 
-        self.cb_file_label.setVisible(not folder_mode)
-        self.ac_file_label.setVisible(not folder_mode)
+        self.cb_file_title.setVisible(not folder_mode)
+        self.ac_file_title.setVisible(not folder_mode)
 
-        self.cb_file_button.setVisible(not folder_mode)
-        self.ac_file_button.setVisible(not folder_mode)
-
+        self.cb_file_container.setVisible(not folder_mode)
+        self.ac_file_container.setVisible(not folder_mode)
+        
     def run_validation(self):
         if self.folder_radio.isChecked():
             if not self.cb_folder:
