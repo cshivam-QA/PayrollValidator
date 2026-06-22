@@ -41,10 +41,25 @@ QWidget {
     font-size: 14px;
     color: white;
 }
+    QRadioButton:checked {
+    color: #4da6ff;
+    font-weight: bold;
+}
 
 QRadioButton::indicator {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
+}
+    QRadioButton::indicator:unchecked {
+    border: 2px solid #888888;
+    border-radius: 9px;
+    background-color: transparent;
+}
+
+QRadioButton::indicator:checked {
+    border: 2px solid #4da6ff;
+    border-radius: 9px;
+    background-color: #4da6ff;
 }
  QLineEdit {
     background-color: #2d2d30;
@@ -157,6 +172,11 @@ QPushButton#runButton:hover {
         self.ac_file_path.setPlaceholderText("Select AC XML File")
 
         self.status_label = QLabel("🟢 Ready")
+        self.version_label = QLabel("Version 1.0")
+        self.version_label.setStyleSheet("""
+color: #888888;
+font-size: 10px;
+""")
         self.status_label.setObjectName("statusLabel")
 
         self.cb_button = QPushButton("Browse CB Folder")
@@ -187,6 +207,9 @@ QPushButton#runButton:hover {
         self.ac_file_container = QWidget()
         self.ac_file_container.setLayout(ac_file_layout)
         self.run_button = QPushButton("▶ Run Comparison")
+        self.open_report_button = QPushButton("📁 View Generated Report")
+        self.open_report_button.setEnabled(False)
+        self.open_report_button.clicked.connect(self.open_report)
         self.run_button.setFixedHeight(45)
         self.run_button.setObjectName("runButton")
 
@@ -219,7 +242,9 @@ QPushButton#runButton:hover {
         layout.addWidget(self.ac_file_container)
 
         layout.addWidget(self.run_button)
+        layout.addWidget(self.open_report_button)
         layout.addWidget(self.status_label)
+        layout.addWidget(self.version_label)
 
         self.update_mode()
         self.setLayout(layout)
@@ -278,8 +303,6 @@ QPushButton#runButton:hover {
             if not self.ac_folder:
                 QMessageBox.warning(self, "Validation", "Please select AC Folder")
                 return
-            cb_path = self.cb_folder
-            ac_path = self.ac_folder
         else:
             if not self.cb_file:
                 QMessageBox.warning(self, "Validation", "Please select CB File")
@@ -287,8 +310,6 @@ QPushButton#runButton:hover {
             if not self.ac_file:
                 QMessageBox.warning(self, "Validation", "Please select AC File")
                 return
-            cb_path = self.cb_file
-            ac_path = self.ac_file
 
         try:
             self.status_label.setText("🟡 Running Comparison...")
@@ -307,18 +328,32 @@ QPushButton#runButton:hover {
                 )
 
             self.status_label.setText("🟢 Comparison Completed")
+
+            self.report_path = result["report_path"]
+
+            self.open_report_button.setEnabled(True)
+
             QMessageBox.information(
                 self,
                 "Validation Complete",
-                f"Report Generated\n\n"
+                f"Report Generated Successfully\n\n"
                 f"Files Processed : {result['total_files']}\n\n"
-                f"Report : {result['report_path']}",
+                f"Click '📁 View Generated Report' to open the report location.",
             )
+
         except Exception as e:
             self.status_label.setText("🔴 Failed")
             QMessageBox.critical(self, "Validation Error", str(e))
 
+    def open_report(self):
 
+        if hasattr(self, "report_path"):
+
+            folder = os.path.dirname(os.path.abspath(self.report_path))
+
+            print("OPENING FOLDER:", folder)
+
+            os.startfile(folder)
 app = QApplication(sys.argv)
 
 window = PayrollValidator()
