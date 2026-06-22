@@ -90,7 +90,7 @@ QRadioButton {
 QPushButton#runButton:hover {
     background-color: #34c759;
 }
-    #statusLabel {
+    python desktop_app.py#statusLabel {
     background-color: #252526;
     border: 1px solid #3c3c3c;
     border-radius: 8px;
