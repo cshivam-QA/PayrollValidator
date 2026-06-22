@@ -1,7 +1,9 @@
 from PySide6.QtWidgets import (
     QApplication,
+    QLineEdit,
     QWidget,
     QVBoxLayout,
+    QHBoxLayout,
     QPushButton,
     QLabel,
     QFileDialog,
@@ -26,8 +28,59 @@ class PayrollValidator(QWidget):
 
         self.setWindowTitle("XML Integration Validator")
 
-        self.resize(900, 600)
+        self.resize(1100, 700)
+        self.setStyleSheet("""
+QWidget {
+    background-color: #1e1e1e;
+    color: white;
+    font-family: Segoe UI;
+    font-size: 11pt;
+}
+ QLineEdit {
+    background-color: #2d2d30;
+    border: 1px solid #555;
+    border-radius: 4px;
+    padding: 6px;
+    color: white;
+}                          
 
+QPushButton {
+    background-color: #0078d4;
+    color: white;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+QPushButton:hover {
+    background-color: #1f8fff;
+}
+
+QComboBox {
+    background-color: #2d2d30;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 6px;
+}
+
+QLabel {
+    color: white;
+}
+
+QRadioButton {
+    spacing: 8px;
+    margin-right: 20px;                      
+}
+                           QPushButton#runButton {
+    background-color: #28a745;
+    font-weight: bold;
+    font-size: 12pt;
+    padding: 10px;
+}
+
+QPushButton#runButton:hover {
+    background-color: #34c759;
+}
+""")
         self.cb_folder = ""
         self.ac_folder = ""
         self.cb_file = ""
@@ -35,6 +88,23 @@ class PayrollValidator(QWidget):
         self.integration = "payroll"
 
         layout = QVBoxLayout()
+        layout.setSpacing(10)
+        layout.setContentsMargins(15, 15, 15, 15)
+        title = QLabel("XML Integration Validator")
+        title.setStyleSheet("""
+        font-size: 22pt;
+        font-weight: bold;
+        color: #4da6ff;
+        """)
+
+        subtitle = QLabel("Compare CB and AC Integration XML Files")
+        subtitle.setStyleSheet("""
+        font-size: 10pt;
+        color: #cccccc;
+        """)
+
+        layout.addWidget(title)
+        layout.addWidget(subtitle)
         self.integration_label = QLabel("Integration")
 
         self.integration_dropdown = QComboBox()
@@ -45,40 +115,65 @@ class PayrollValidator(QWidget):
         self.file_radio = QRadioButton("Single File Comparison")
 
         self.folder_radio.setChecked(True)
+        self.folder_radio.toggled.connect(self.update_mode)
+        self.cb_label = QLabel("CB Folder")
+        self.ac_label = QLabel("AC Folder")
 
-        self.cb_label = QLabel("CB Folder: Not Selected")
-        self.ac_label = QLabel("AC Folder: Not Selected")
+        self.cb_path = QLineEdit()
+        self.cb_path.setReadOnly(True)
+
+        self.ac_path = QLineEdit()
+        self.ac_path.setReadOnly(True)
         self.cb_file_label = QLabel("CB File: Not Selected")
         self.ac_file_label = QLabel("AC File: Not Selected")
-        self.status_label = QLabel("Status : Ready")
+        self.status_label = QLabel("🟢 Ready")
 
-        cb_button = QPushButton("Browse CB Folder")
-        ac_button = QPushButton("Browse AC Folder")
-        cb_file_button = QPushButton("Browse CB File")
-        ac_file_button = QPushButton("Browse AC File")
-        self.run_button = QPushButton("Run Validation")
+        self.cb_button = QPushButton("Browse CB Folder")
+        self.ac_button = QPushButton("Browse AC Folder")
+        self.cb_file_button = QPushButton("Browse CB File")
+        self.ac_file_button = QPushButton("Browse AC File")
+        cb_layout = QHBoxLayout()
+        cb_layout.addWidget(self.cb_path)
+        cb_layout.addWidget(self.cb_button)
 
-        cb_button.clicked.connect(self.select_cb_folder)
-        ac_button.clicked.connect(self.select_ac_folder)
-        cb_file_button.clicked.connect(self.select_cb_file)
-        ac_file_button.clicked.connect(self.select_ac_file)
+        ac_layout = QHBoxLayout()
+        ac_layout.addWidget(self.ac_path)
+        ac_layout.addWidget(self.ac_button)
+        self.run_button = QPushButton("▶ Run Comparison")
+        self.run_button.setObjectName("runButton")
+
+        self.cb_button.clicked.connect(self.select_cb_folder)
+        self.ac_button.clicked.connect(self.select_ac_folder)
+        self.cb_file_button.clicked.connect(self.select_cb_file)
+        self.ac_file_button.clicked.connect(self.select_ac_file)
         self.run_button.clicked.connect(self.run_validation)
 
         layout.addWidget(self.integration_label)
         layout.addWidget(self.integration_dropdown)
-        layout.addWidget(self.folder_radio)
-        layout.addWidget(self.file_radio)
+        radio_layout = QHBoxLayout()
+
+        radio_layout.addWidget(self.folder_radio)
+        radio_layout.addWidget(self.file_radio)
+
+        radio_layout.addStretch()
+        layout.addLayout(radio_layout)
+
         layout.addWidget(self.cb_label)
-        layout.addWidget(cb_button)
+        layout.addLayout(cb_layout)
+
         layout.addWidget(self.ac_label)
-        layout.addWidget(ac_button)
+        layout.addLayout(ac_layout)
+
         layout.addWidget(self.cb_file_label)
-        layout.addWidget(cb_file_button)
+        layout.addWidget(self.cb_file_button)
+
         layout.addWidget(self.ac_file_label)
-        layout.addWidget(ac_file_button)
+        layout.addWidget(self.ac_file_button)
+
         layout.addWidget(self.run_button)
         layout.addWidget(self.status_label)
 
+        self.update_mode()
         self.setLayout(layout)
 
     def select_cb_folder(self):
@@ -89,7 +184,7 @@ class PayrollValidator(QWidget):
 
             self.cb_folder = folder
 
-            self.cb_label.setText(f"CB Folder: {folder}")
+            self.cb_path.setText(folder)
 
     def select_ac_folder(self):
 
@@ -99,7 +194,7 @@ class PayrollValidator(QWidget):
 
             self.ac_folder = folder
 
-            self.ac_label.setText(f"AC Folder: {folder}")
+            self.ac_path.setText(folder)
 
     def select_cb_file(self):
 
@@ -124,6 +219,20 @@ class PayrollValidator(QWidget):
             self.ac_file = file
 
             self.ac_file_label.setText(f"AC File: {file}")
+    def update_mode(self):
+        folder_mode = self.folder_radio.isChecked()
+
+        self.cb_label.setVisible(folder_mode)
+        self.ac_label.setVisible(folder_mode)
+
+        self.cb_button.setVisible(folder_mode)
+        self.ac_button.setVisible(folder_mode)
+
+        self.cb_file_label.setVisible(not folder_mode)
+        self.ac_file_label.setVisible(not folder_mode)
+
+        self.cb_file_button.setVisible(not folder_mode)
+        self.ac_file_button.setVisible(not folder_mode)
 
     def run_validation(self):
         if self.folder_radio.isChecked():
@@ -146,7 +255,7 @@ class PayrollValidator(QWidget):
             ac_path = self.ac_file
 
         try:
-            self.status_label.setText("Status : Running Validation...")
+            self.status_label.setText("🟡 Running Comparison...")
 
             if self.folder_radio.isChecked():
                 result = run_comparison(
@@ -161,7 +270,7 @@ class PayrollValidator(QWidget):
                     ac_file=self.ac_file,
                 )
 
-            self.status_label.setText("Status : Validation Completed")
+            self.status_label.setText("🟢 Comparison Completed")
             QMessageBox.information(
                 self,
                 "Validation Complete",
@@ -170,7 +279,7 @@ class PayrollValidator(QWidget):
                 f"Report : {result['report_path']}",
             )
         except Exception as e:
-            self.status_label.setText("Status : Failed")
+            self.status_label.setText("🔴 Failed")
             QMessageBox.critical(self, "Validation Error", str(e))
 
 
