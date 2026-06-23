@@ -106,7 +106,10 @@ def run_comparison(
         if integration == "labor forecast":
 
             cb = XMLLoader(cb_xml)
+            ac = XMLLoader(ac_xml)
+
             cb_info = cb.get_root_info()
+            ac_info = ac.get_root_info()
 
             differences, missing_records = compare_labor_forecast(
                 cb_xml,
@@ -127,6 +130,14 @@ def run_comparison(
 
             all_missing_records.extend(missing_records)
 
+            file_difference_count = len(differences)
+            file_missing_count = len(missing_records)
+
+            total_issues = (
+                file_difference_count +
+                file_missing_count
+            )
+
             summary.append(
                 {
                     "Store": cb_info.get("location"),
@@ -134,11 +145,15 @@ def run_comparison(
                     "AC Date": ac_info.get("date"),
                     "CB File": os.path.basename(cb_xml),
                     "AC File": os.path.basename(ac_xml),
-                    "Status": ("PASS" if total_issues == 0 else "FAIL"),
+                    "Status": (
+                        "PASS"
+                        if total_issues == 0
+                        else "FAIL"
+                    ),
                     "Differences": file_difference_count,
                     "Missing Records": file_missing_count,
-                    "Zero Values": file_zero_count,
-                    "Duplicates": file_duplicate_count,
+                    "Zero Values": 0,
+                    "Duplicates": 0,
                 }
             )
 
