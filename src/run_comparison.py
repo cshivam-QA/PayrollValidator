@@ -4,6 +4,10 @@ from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
 from comparator import compare_nodes
 from xml_validator import validate_xml_structure
+from labor_preprocessor import (
+    filter_exception_records,
+    aggregate_pay_period_tm1,
+)
 import os
 
 
@@ -220,10 +224,26 @@ def run_comparison(
         file_duplicate_count = 0
 
         for config in node_config:
+
+            cb_nodes = cb.get_nodes(config["path"])
+            ac_nodes = ac.get_nodes(config["path"])
+
+            if (
+                integration in ["payroll", "timekeeping"]
+                and config["node"] == "EXCEPTIONS"
+            ):
+                cb_nodes = filter_exception_records(cb.get_root(), cb_nodes)
+                ac_nodes = filter_exception_records(ac.get_root(), ac_nodes)
+            if (
+                integration == "payroll"
+                and config["node"] == "PAY_PERIOD"
+            ):
+                cb_nodes = aggregate_pay_period_tm1(cb_nodes)
+
             differences, zero_values, missing_records, duplicate_records = (
                 compare_nodes(
-                    cb.get_nodes(config["path"]),
-                    ac.get_nodes(config["path"]),
+                    cb_nodes,
+                    ac_nodes,
                     config["node"],
                     config["display_path"],
                     config["key_fields"],
@@ -247,19 +267,13 @@ def run_comparison(
                 row["Date"] = cb_info.get("date")
 
             all_differences.extend(differences)
-
             all_missing_records.extend(missing_records)
-
             all_zero_values.extend(zero_values)
-
             all_duplicate_records.extend(duplicate_records)
 
             file_difference_count += len(differences)
-
             file_missing_count += len(missing_records)
-
             file_zero_count += len(zero_values)
-
             file_duplicate_count += len(duplicate_records)
 
         total_issues = file_difference_count + file_missing_count + file_duplicate_count

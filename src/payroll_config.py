@@ -26,7 +26,7 @@ NODE_CONFIG = [
     {
         "node": "EXCEPTIONS",
         "path": ".//TM0[@type='EXCEPTIONS']/TM1",
-        "key_fields": ["e", "j"],
+        "key_fields": ["e", "j", "in"],
         "display_path": "Poll/Labor/TM0(type=EXCEPTIONS)/TM1",
     },
     {

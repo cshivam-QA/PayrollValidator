@@ -1,13 +1,17 @@
+import math
 from key_builder import KeyBuilder
 
 EXCLUDED_ATTRIBUTES = {"DAILY": ["otr"], "SHIFT": ["otr"], "PAY_PERIOD": ["otr"]}
 ATTRIBUTE_TOLERANCE = {
-    "r": 0.01,
-    "pay": 0.01,
+    "r": 0.01,      # Existing rule
+    "rp": 0.01,     # New
+    "pay": 0.01,    # Existing
+    "op": 0.01,     # New
+    "dp": 0.01,     # New
 }
 
-EXCLUDED_ZERO_ATTRIBUTES = ["trh"]
-
+EXCLUDED_ZERO_ATTRIBUTES = ("trh",)
+OPTIONAL_ZERO_ATTRIBUTES = {"rh"}
 
 def normalize_value(value):
 
@@ -160,6 +164,14 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
                     continue
 
+            if (
+                attr.lower() in OPTIONAL_ZERO_ATTRIBUTES
+                and ac_val is None
+                and cb_val is not None
+                and is_zero_value(cb_val)
+            ):
+                continue
+
             if ac_val is None:
 
                 differences.append(
@@ -176,18 +188,29 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
                 continue
 
+            if (
+                attr.lower() in OPTIONAL_ZERO_ATTRIBUTES
+                and cb_val is None
+                and ac_val is not None
+                and is_zero_value(ac_val)
+            ):
+                continue
+
             cb_norm = normalize_value(cb_val)
             ac_norm = normalize_value(ac_val)
 
             lower_attr = attr.lower()
 
-            if lower_attr in ATTRIBUTE_TOLERANCE:
-                try:
+            try:
+                if lower_attr in ATTRIBUTE_TOLERANCE:
                     tolerance = ATTRIBUTE_TOLERANCE[lower_attr]
-                    if abs(float(cb_val) - float(ac_val)) <= tolerance:
+                    cb_num = round(float(cb_val), 2)
+                    ac_num = round(float(ac_val), 2)
+
+                    if abs(cb_num - ac_num) <= (tolerance + 1e-9):
                         continue
-                except:
-                    pass
+            except Exception:
+                pass
 
             if cb_norm != ac_norm:
 
@@ -203,4 +226,9 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
                     }
                 )
 
-    return (differences, zero_values, missing_records, duplicate_records)
+    return (
+        differences,
+        zero_values,
+        missing_records,
+        duplicate_records,
+    )
