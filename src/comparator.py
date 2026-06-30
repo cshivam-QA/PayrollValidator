@@ -3,11 +3,15 @@ from key_builder import KeyBuilder
 
 EXCLUDED_ATTRIBUTES = {"DAILY": ["otr"], "SHIFT": ["otr"], "PAY_PERIOD": ["otr"]}
 ATTRIBUTE_TOLERANCE = {
-    "r": 0.01,      # Existing rule
-    "rp": 0.01,     # New
-    "pay": 0.01,    # Existing
-    "op": 0.01,     # New
-    "dp": 0.01,     # New
+    # Hours
+    "r": 0.01,
+    "wkh": 0.01,
+
+    # Pay
+    "pay": 0.01,
+    "rp": 0.01,
+    "op": 0.01,
+    "dp": 0.01,
 }
 
 EXCLUDED_ZERO_ATTRIBUTES = ("trh",)

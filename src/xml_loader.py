@@ -13,6 +13,17 @@ class XMLLoader:
 
     def get_nodes(self, xpath):
         return self.root.findall(xpath)
+    
+    def get_nv_nodes(self):
+        nodes = []
+
+        for h1 in self.root.findall(".//H0/H1"):
+            employee_id = h1.attrib.get("id")
+            for nv in h1.findall("NV"):
+                nv.attrib["_employee_id"] = employee_id
+                nodes.append(nv)
+
+        return nodes
 
     def get_root_info(self):
 

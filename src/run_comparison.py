@@ -225,8 +225,12 @@ def run_comparison(
 
         for config in node_config:
 
-            cb_nodes = cb.get_nodes(config["path"])
-            ac_nodes = ac.get_nodes(config["path"])
+            if config["node"] == "NV":
+                cb_nodes = cb.get_nv_nodes()
+                ac_nodes = ac.get_nv_nodes()
+            else:
+                cb_nodes = cb.get_nodes(config["path"])
+                ac_nodes = ac.get_nodes(config["path"])
 
             if (
                 integration in ["payroll", "timekeeping"]

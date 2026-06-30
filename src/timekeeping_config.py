@@ -14,7 +14,7 @@ NODE_CONFIG = [
     {
         "node": "NV",
         "path": ".//H0/H1/NV",
-        "key_fields": ["n"],
+        "key_fields": ["_employee_id", "n"],
         "display_path": "Poll/H0/H1/NV",
     },
     {
