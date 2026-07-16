@@ -1,0 +1,305 @@
+/* ==========================================
+   XML VALIDATOR DASHBOARD
+   Enterprise UI v2.0
+========================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+
+    --primary: #2563EB;
+    --success: #22C55E;
+    --danger: #EF4444;
+    --warning: #F59E0B;
+
+    --background: #F4F7FC;
+    --card: #FFFFFF;
+
+    --text: #1F2937;
+    --sub-text: #6B7280;
+
+    --border: #E5E7EB;
+
+    --shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+
+}
+
+body {
+
+    background: var(--background);
+
+    font-family: Inter, Segoe UI, sans-serif;
+
+    color: var(--text);
+
+    padding: 35px;
+
+}
+
+.container {
+
+    max-width: 1600px;
+
+    margin: auto;
+
+}
+
+/* ==========================================
+            HEADER
+========================================== */
+
+header {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 40px;
+
+}
+
+.logo h1 {
+
+    font-size: 34px;
+
+    font-weight: 700;
+
+}
+
+.logo p {
+
+    color: var(--sub-text);
+
+    margin-top: 8px;
+
+}
+
+.version {
+
+    background: var(--primary);
+
+    color: white;
+
+    padding: 10px 22px;
+
+    border-radius: 30px;
+
+    font-weight: 600;
+
+}
+
+/* ==========================================
+        SUMMARY CARDS
+========================================== */
+
+.summary-cards {
+
+    display: grid;
+
+    grid-template-columns: repeat(7, 1fr);
+
+    gap: 20px;
+
+    margin-bottom: 40px;
+
+}
+
+.card {
+
+    background: white;
+
+    border-radius: 16px;
+
+    padding: 22px;
+
+    box-shadow: var(--shadow);
+
+    transition: .30s;
+
+    border: 1px solid var(--border);
+
+}
+
+.card:hover {
+
+    transform: translateY(-5px);
+
+}
+
+.card h2 {
+
+    font-size: 14px;
+
+    color: var(--sub-text);
+
+    margin-bottom: 20px;
+
+}
+
+.card h1 {
+
+    font-size: 34px;
+
+}
+
+.success {
+
+    border-left: 6px solid var(--success);
+
+}
+
+.fail {
+
+    border-left: 6px solid var(--danger);
+
+}
+
+/* ==========================================
+            CHART SECTION
+========================================== */
+
+.charts {
+
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+
+    gap: 25px;
+
+    margin-bottom: 40px;
+
+}
+
+.chart-box {
+
+    background: white;
+
+    height: 340px;
+
+    border-radius: 16px;
+
+    box-shadow: var(--shadow);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: var(--sub-text);
+
+    font-size: 20px;
+
+}
+
+/* ==========================================
+            INSIGHTS
+========================================== */
+
+.insights {
+
+    margin-bottom: 40px;
+
+}
+
+.insights h2 {
+
+    margin-bottom: 20px;
+
+}
+
+.insight-box {
+
+    background: white;
+
+    padding: 25px;
+
+    border-radius: 16px;
+
+    box-shadow: var(--shadow);
+
+}
+
+/* ==========================================
+            STORE TABLE
+========================================== */
+
+.store-summary {
+
+    margin-bottom: 40px;
+
+}
+
+.store-summary h2 {
+
+    margin-bottom: 20px;
+
+}
+
+table {
+
+    width: 100%;
+
+    border-collapse: collapse;
+
+    background: white;
+
+    border-radius: 16px;
+
+    overflow: hidden;
+
+    box-shadow: var(--shadow);
+
+}
+
+thead {
+
+    background: var(--primary);
+
+    color: white;
+
+}
+
+th {
+
+    padding: 18px;
+
+    text-align: left;
+
+}
+
+td {
+
+    padding: 18px;
+
+    border-bottom: 1px solid var(--border);
+
+}
+
+tbody tr:hover {
+
+    background: #F9FAFB;
+
+}
+
+/* ==========================================
+            FOOTER
+========================================== */
+
+footer {
+
+    text-align: center;
+
+    color: var(--sub-text);
+
+    margin-top: 40px;
+
+    padding-bottom: 40px;
+
+}

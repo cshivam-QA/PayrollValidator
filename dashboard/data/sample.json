@@ -1,0 +1,37 @@
+{
+    "application": {
+        "name": "XML Validator",
+        "version": "2.0",
+        "title": "Enterprise QA Dashboard"
+    },
+    "comparison": {
+        "integration": "Payroll Out",
+        "concept": "JIB",
+        "business_date": "20260621",
+        "generated_on": "12 Jul 2026 06:30 PM",
+        "execution_time": "2.31 sec"
+    },
+    "summary": {
+        "files_compared": 15,
+        "pass": 10,
+        "fail": 5,
+        "differences": 27,
+        "missing": 4,
+        "duplicates": 1,
+        "zero_values": 8
+    },
+    "insights": {
+        "top_failed_node": "PAY_PERIOD",
+        "top_failed_store": "00123",
+        "top_failed_attribute": "pay",
+        "accuracy": "99.81%",
+        "tolerance": "0.01"
+    },
+    "charts": {
+        "pass_fail": [],
+        "issue_distribution": [],
+        "top_nodes": [],
+        "top_stores": []
+    },
+    "stores": []
+}
