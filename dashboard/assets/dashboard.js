@@ -275,7 +275,61 @@ function showStoreDetails(store) {
         html += "</tbody></table>";
 
     }
+/* ==========================================
+   Duplicate Records
+========================================== */
 
+if (duplicates.length > 0) {
+
+    html += "<h5 class='mt-4'>Duplicate Records</h5>";
+
+    html += `
+    <table class="table table-bordered table-sm">
+
+        <thead>
+
+            <tr>
+
+                <th>Date</th>
+
+                <th>Key</th>
+
+                <th>Node</th>
+
+                <th>Side</th>
+
+                <th>Store</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody>
+    `;
+
+    duplicates.forEach(item => {
+
+        html += `
+        <tr>
+
+            <td>${item.Date}</td>
+
+            <td>${item.Key}</td>
+
+            <td>${item.Node}</td>
+
+            <td>${item.Side}</td>
+
+            <td>${item.Store}</td>
+
+        </tr>
+        `;
+
+    });
+
+    html += "</tbody></table>";
+
+}
     /* ==========================================
        No Validation Issues
     ========================================== */
