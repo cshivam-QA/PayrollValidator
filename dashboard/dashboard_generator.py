@@ -1,22 +1,129 @@
 from pathlib import Path
+import shutil
+
 from jinja2 import Environment, FileSystemLoader
-from datetime import datetime
+
+from dashboard.report_parser import ReportParser
 
 
-def generate_dashboard(summary_data):
+class DashboardGenerator:
+    """
+    Generates HTML Dashboard
+    from Master_Comparison_Report.xlsx
+    """
 
-    template_dir = Path(__file__).parent / "templates"
+    def __init__(self, report_path):
 
-    env = Environment(loader=FileSystemLoader(template_dir))
+        self.report_path = Path(report_path)
 
-    template = env.get_template("dashboard.html")
+        self.base_path = Path(__file__).resolve().parent
 
-    html = template.render(summary_data)
+        self.template_dir = self.base_path / "templates"
 
-    output_path = Path("reports") / "dashboard.html"
+        self.assets_dir = self.base_path / "assets"
 
-    output_path.parent.mkdir(exist_ok=True)
+        self.output_dir = (
+            self.base_path.parent
+            / "dist"
+            / "reports"
+        )
 
-    output_path.write_text(html, encoding="utf-8")
+        self.env = Environment(
+            loader=FileSystemLoader(self.template_dir)
+        )
 
-    return str(output_path)
+    # ======================================================
+    # Copy Assets
+    # ======================================================
+
+    def copy_assets(self):
+
+        destination = self.output_dir / "assets"
+
+        destination.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        assets = [
+            "style.css",
+            "dashboard.js"
+        ]
+
+        for asset in assets:
+
+            source = self.assets_dir / asset
+
+            if source.exists():
+
+                shutil.copy2(
+                    source,
+                    destination / asset
+                )
+
+    # ======================================================
+    # Generate Dashboard
+    # ======================================================
+
+    def generate(self):
+
+        parser = ReportParser(self.report_path)
+
+        dashboard_data = parser.parse()
+
+        template = self.env.get_template(
+            "dashboard.html"
+        )
+
+        html = template.render(
+            stores=dashboard_data["stores"],
+            summary=dashboard_data["summary"],
+            charts=dashboard_data["charts"],
+            details=dashboard_data["details"]
+        )
+
+        self.output_dir.mkdir(
+            parents=True,
+            exist_ok=True
+        )
+
+        output_file = (
+            self.output_dir
+            / f"{self.report_path.stem}.html"
+        )
+
+        output_file.write_text(
+            html,
+            encoding="utf-8"
+        )
+
+        self.copy_assets()
+
+        print()
+        print("=" * 60)
+        print(" Dashboard Generated Successfully ")
+        print("=" * 60)
+        print()
+
+        print(f"Location : {output_file}")
+        print()
+
+        return output_file
+    # ======================================================
+# Run Dashboard Generator
+# ======================================================
+
+if __name__ == "__main__":
+
+    report_path = (
+        Path(__file__).resolve().parent.parent
+        / "dist"
+        / "reports"
+        / "Master_Comparison_Report.xlsx"
+    )
+
+    if not report_path.exists():
+        print(f"Report not found: {report_path}")
+    else:
+        generator = DashboardGenerator(report_path)
+        generator.generate()

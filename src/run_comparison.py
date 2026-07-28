@@ -8,7 +8,17 @@ from labor_preprocessor import (
     filter_exception_records,
     aggregate_pay_period_tm1,
 )
+
 import os
+import sys
+import webbrowser
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from dashboard.dashboard_generator import DashboardGenerator
 
 
 def get_node_config(integration, client="bww"):
@@ -380,7 +390,7 @@ def run_comparison(
         )
     )
 
-    generate_master_report(
+    report_path = generate_master_report(
         summary,
         all_differences,
         all_missing_records,
@@ -388,8 +398,14 @@ def run_comparison(
         all_duplicate_records,
     )
 
+    dashboard = DashboardGenerator(Path(report_path))
+    html_path = dashboard.generate()
+
+    webbrowser.open(Path(html_path).resolve().as_uri())
+
     return {
         "success": True,
-        "report_path": "reports/Master_Comparison_Report.xlsx",
+        "report_path": report_path,
+        "dashboard_path": html_path,
         "total_files": len(summary),
     }

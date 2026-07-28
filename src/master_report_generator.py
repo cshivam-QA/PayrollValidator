@@ -34,3 +34,5 @@ def generate_master_report(
     print("Master Report Generated")
 
     print(output_file)
+    
+    return output_file
