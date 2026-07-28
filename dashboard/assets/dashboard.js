@@ -163,8 +163,12 @@ function showStoreDetails(store) {
     document.getElementById("modalStore").textContent = store;
 
     let html = "";
+    const differences = details.differences || [];
+    const missing = details.missing || [];
+    const duplicates = details.duplicates || [];
+    const zeroValues = details.zero_values || [];
 
-    if (details.differences.length > 0) {
+    if (differences.length > 0) {
 
         html += "<h5>Differences</h5>";
 
@@ -192,7 +196,7 @@ function showStoreDetails(store) {
             <tbody>
         `;
 
-        details.differences.forEach(item => {
+        differences.forEach(item => {
 
             html += `
             <tr>
@@ -214,9 +218,74 @@ function showStoreDetails(store) {
 
         html += "</tbody></table>";
 
-    } else {
+    }
 
-        html = "<p>No differences found.</p>";
+    /* ==========================================
+       Missing Records
+    ========================================== */
+
+    if (missing.length > 0) {
+
+        html += "<h5 class='mt-4'>Missing Records</h5>";
+
+        html += `
+        <table class="table table-bordered table-sm">
+
+            <thead>
+
+                <tr>
+
+                    <th>Key</th>
+
+                    <th>Date</th>
+
+                    <th>Missing In</th>
+
+                    <th>CB Attributes</th>
+
+                    <th>AC Attributes</th>
+
+                </tr>
+
+            </thead>
+
+            <tbody>
+        `;
+
+        missing.forEach(item => {
+
+            html += `
+            <tr>
+
+                <td>${item.Key}</td>
+
+                <td>${item.Date}</td>
+
+                <td>${item["Missing In"]}</td>
+
+                <td>${formatAttributes(item["CB Attributes"])}</td>
+
+                <td>${formatAttributes(item["AC Attributes"])}</td>
+
+            </tr>
+            `;
+
+        });
+
+        html += "</tbody></table>";
+
+    }
+
+    /* ==========================================
+       No Validation Issues
+    ========================================== */
+
+    if (
+        differences.length === 0 &&
+        missing.length === 0
+    ) {
+
+        html = "<p>No validation issues found.</p>";
 
     }
 
@@ -233,6 +302,63 @@ function showStoreDetails(store) {
 /* ======================================================
    Utility Functions
 ====================================================== */
+
+function formatAttributes(attributes) {
+
+    if (!attributes || attributes === "-") {
+        return "-";
+    }
+
+    // Agar object already hai
+    if (typeof attributes === "object") {
+
+        let formatted = "";
+
+        Object.entries(attributes).forEach(([key, value]) => {
+            formatted += `<strong>${key}</strong> : ${value}<br>`;
+        });
+
+        return `<div class="mb-0" style="font-family: monospace; white-space: pre-line;">${formatted}</div>`;
+    }
+
+    // Agar Python dict string hai
+    if (typeof attributes === "string") {
+
+        let text = attributes.trim();
+
+        // { } hatao
+        text = text.replace(/^\{|\}$/g, "");
+
+        // ',' ke basis par split
+        const pairs = text.split(",");
+
+        let formatted = "";
+
+        pairs.forEach(pair => {
+
+            const parts = pair.split(":");
+
+            if (parts.length >= 2) {
+
+                const key = parts[0].replace(/'/g, "").trim();
+
+                const value = parts.slice(1).join(":").replace(/'/g, "").trim();
+
+                formatted += `<strong>${key}</strong> : ${value}<br>`;
+
+            }
+
+        });
+
+        return `
+<div class="mb-0"
+     style="font-family: monospace; white-space: pre-line; line-height:1.5;">
+    ${formatted}
+</div>`;
+    }
+
+    return attributes;
+}
 
 function getVisibleRowCount() {
 
