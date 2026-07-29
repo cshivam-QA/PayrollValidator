@@ -1,0 +1,50 @@
+body {
+    font-family: Helvetica, Arial, sans-serif;
+    font-size: 11pt;
+    color: #222;
+    margin: 30px;
+}
+
+h1 {
+    color: #1565c0;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #444;
+    margin-top: 0;
+    margin-bottom: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+td,
+th {
+    border: 1px solid #cccccc;
+    padding: 8px;
+}
+
+th {
+    background: #f2f2f2;
+    text-align: left;
+}
+
+.section-title {
+    margin-top: 25px;
+    margin-bottom: 10px;
+    font-size: 14pt;
+    font-weight: bold;
+}
+
+.pass {
+    color: green;
+    font-weight: bold;
+}
+
+.fail {
+    color: red;
+    font-weight: bold;
+}

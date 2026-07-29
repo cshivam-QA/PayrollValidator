@@ -1528,6 +1528,47 @@ body{
     font-size:16px;
 
 }
+/* ==========================================
+   Report Download Buttons
+========================================== */
+
+.report-btn{
+
+    width:40px;
+
+    height:40px;
+
+    border-radius:10px;
+
+    border:1px solid rgba(255,255,255,.35);
+
+    background:transparent;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    transition:.25s ease;
+
+}
+
+.report-btn:hover{
+
+    background:rgba(255,255,255,.15);
+
+    border-color:#ffffff;
+
+    transform:translateY(-2px);
+
+}
+
+.report-btn:focus{
+
+    box-shadow:none;
+
+}
 /*==========================================================
  End Of File
 ==========================================================*/

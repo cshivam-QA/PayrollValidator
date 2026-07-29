@@ -151,7 +151,15 @@ QPushButton#runButton:hover {
         self.integration_dropdown = QComboBox()
         self.integration_dropdown.setFixedHeight(38)
         self.integration_dropdown.addItems(
-            ["Payroll", "Timekeeping", "Food Out", "Vendor Schedule", "Labor Forecast", "Schedule Out"]
+            [
+                "Payroll",
+                "Timekeeping",
+                "Food Out",
+                "Vendor Schedule",
+                "Labor Forecast",
+                "Schedule Out",
+                "PMIX OUT"
+            ]
         )
         self.folder_radio = QRadioButton("Folder Comparison")
         self.file_radio = QRadioButton("Single File Comparison")
@@ -323,6 +331,7 @@ font-size: 10px;
             self.status_label.setText("🟡 Running Comparison...")
 
             if self.folder_radio.isChecked():
+                print("Dropdown Value =", repr(self.integration_dropdown.currentText().lower()))
                 result = run_comparison(
                     self.cb_folder,
                     self.ac_folder,

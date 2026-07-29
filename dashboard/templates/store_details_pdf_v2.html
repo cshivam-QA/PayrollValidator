@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<title>{{ report_title }}</title>
+
+<style>
+
+@page{
+    size:A4;
+    margin:15mm;
+}
+
+body{
+    font-family:Helvetica,Arial,sans-serif;
+    font-size:10px;
+    color:#333;
+    line-height:1.4;
+}
+
+.header{
+
+    border-bottom:3px solid #1565C0;
+
+    padding-bottom:10px;
+
+    margin-bottom:18px;
+}
+
+.title{
+
+    font-size:24px;
+
+    color:#1565C0;
+
+    font-weight:bold;
+}
+
+.subtitle{
+
+    margin-top:4px;
+
+    font-size:15px;
+
+    color:#666;
+
+    font-weight:bold;
+}
+
+.section{
+
+    margin-top:18px;
+}
+
+.section-title{
+
+    background:#1565C0;
+
+    color:white;
+
+    padding:7px 10px;
+
+    font-size:12px;
+
+    font-weight:bold;
+}
+
+.info-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:10px;
+}
+
+.info-table td{
+
+    border:1px solid #DADADA;
+
+    padding:6px 8px;
+
+    vertical-align:middle;
+}
+
+.label{
+
+    width:170px;
+
+    background:#EEF5FD;
+
+    font-weight:bold;
+
+    color:#333;
+}
+
+.summary{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:12px;
+}
+
+.summary td{
+
+    width:25%;
+
+    border:1px solid #D9D9D9;
+
+    text-align:center;
+
+    background:#FAFAFA;
+
+    padding:10px;
+}
+
+.summary-title{
+
+    font-size:10px;
+
+    color:#666;
+
+    font-weight:bold;
+}
+
+.summary-value{
+
+    margin-top:5px;
+
+    font-size:22px;
+
+    color:#1565C0;
+
+    font-weight:bold;
+}
+.grid{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:10px;
+
+    table-layout:auto;
+}
+
+.grid thead{
+
+    display:table-header-group;
+}
+
+.grid th{
+
+    background:#1565C0;
+
+    color:white;
+
+    border:1px solid #C8D6E5;
+
+    padding:6px;
+
+    font-size:9px;
+
+    text-align:left;
+}
+
+.grid td{
+
+    border:1px solid #D9D9D9;
+
+    padding:5px;
+
+    font-size:9px;
+
+    vertical-align:top;
+
+    word-wrap:break-word;
+}
+
+.grid tr:nth-child(even){
+
+    background:#FAFAFA;
+}
+
+.empty{
+
+    text-align:center;
+
+    padding:14px;
+
+    color:#666;
+
+    font-style:italic;
+
+    border:1px solid #D9D9D9;
+}
+
+.footer{
+
+    margin-top:30px;
+
+    text-align:center;
+
+    font-size:9px;
+
+    color:#888;
+
+    border-top:1px solid #DDD;
+
+    padding-top:8px;
+}
+
+.pass{
+
+    color:#2E7D32;
+
+    font-weight:bold;
+}
+
+.fail{
+
+    color:#C62828;
+
+    font-weight:bold;
+}
+
+.page-break{
+
+    page-break-before:always;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+
+    <div class="title">
+
+        XML Integration Validator
+
+    </div>
+
+    <div class="subtitle">
+
+        {{ report_title }}
+
+    </div>
+
+</div>
+
+<table class="info-table">
+
+<tr>
+
+<td class="label">
+
+Integration
+
+</td>
+
+<td>
+
+{{ integration }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="label">
+
+Store Number
+
+</td>
+
+<td>
+
+{{ store }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="label">
+
+Business Date
+
+</td>
+
+<td>
+
+{{ business_date }}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="label">
+
+Validation Status
+
+</td>
+
+<td>
+
+{% if status=="PASS" %}
+
+<span class="pass">
+
+PASS
+
+</span>
+
+{% else %}
+
+<span class="fail">
+
+{{ status }}
+
+</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+<tr>
+
+<td class="label">
+
+Generated On
+
+</td>
+
+<td>
+
+{{ generated_on }}
+
+</td>
+
+</tr>
+
+</table>
+
+<div class="section">
+
+<div class="section-title">
+
+Summary
+
+</div>
+
+<table class="summary">
+
+<tr>
+    <td>
+
+<div class="summary-title">
+
+Differences
+
+</div>
+
+<div class="summary-value">
+
+{{ details.differences|length }}
+
+</div>
+
+</td>
+
+<td>
+
+<div class="summary-title">
+
+Missing Records
+
+</div>
+
+<div class="summary-value">
+
+{{ details.missing|length }}
+
+</div>
+
+</td>
+
+<td>
+
+<div class="summary-title">
+
+Duplicate Records
+
+</div>
+
+<div class="summary-value">
+
+{{ details.duplicates|length }}
+
+</div>
+
+</td>
+
+<td>
+
+<div class="summary-title">
+
+Zero Values
+
+</div>
+
+<div class="summary-value">
+
+{{ details.zero_values|length }}
+
+</div>
+
+</td>
+
+</tr>
+
+</table>
+
+</div>
+
+<div class="section">
+
+<div class="section-title">
+
+Store Information
+
+</div>
+
+<table class="info-table">
+
+<tr>
+    <td class="label">CB File</td>
+    <td>{{ details.cb_file }}</td>
+</tr>
+
+<tr>
+    <td class="label">AC File</td>
+    <td>{{ details.ac_file }}</td>
+</tr>
+
+</table>
+
+</div>
+
+{% set hidden_columns = [
+
+'Store',
+
+'Date',
+
+'Difference Type'
+
+] %}
+
+{% if details.differences %}
+
+<div class="section page-break">
+
+<div class="section-title">
+
+Differences
+
+</div>
+
+<table class="grid">
+
+<thead>
+
+<tr>
+
+{% for key in details.differences[0].keys() %}
+
+{% if key not in hidden_columns %}
+
+<th>
+
+{{ key }}
+
+</th>
+
+{% endif %}
+
+{% endfor %}
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in details.differences %}
+
+<tr>
+
+{% for key,value in row.items() %}
+
+{% if key not in hidden_columns %}
+
+<td>
+    {% if key == 'CB Value' %}
+
+<span style="color:#2E7D32;font-weight:bold;">
+
+{{ value }}
+
+</span>
+
+{% elif key == 'AC Value' %}
+
+<span style="color:#C62828;font-weight:bold;">
+
+{{ value }}
+
+</span>
+
+{% else %}
+
+{{ value }}
+
+{% endif %}
+
+</td>
+
+{% endif %}
+
+{% endfor %}
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endif %}
+
+{% if details.missing %}
+
+<div class="section">
+
+<div class="section-title">
+
+Missing Records
+
+</div>
+
+<table class="grid">
+
+<thead>
+
+<tr>
+
+{% for key in details.missing[0].keys() %}
+
+<th>
+
+{{ key }}
+
+</th>
+
+{% endfor %}
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in details.missing %}
+
+<tr>
+
+{% for value in row.values() %}
+
+<td>
+
+{{ value }}
+
+</td>
+
+{% endfor %}
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endif %}
+
+{% if details.duplicates %}
+
+<div class="section">
+
+<div class="section-title">
+
+Duplicate Records
+
+</div>
+
+<table class="grid">
+
+<thead>
+
+<tr>
+
+{% for key in details.duplicates[0].keys() %}
+
+<th>
+
+{{ key }}
+
+</th>
+
+{% endfor %}
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in details.duplicates %}
+
+<tr>
+
+{% for value in row.values() %}
+
+<td>
+
+{{ value }}
+
+</td>
+
+{% endfor %}
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endif %}
+{% if details.zero_values %}
+
+<div class="section">
+
+<div class="section-title">
+
+Zero Value Records
+
+</div>
+
+<table class="grid">
+
+<thead>
+
+<tr>
+
+{% for key in details.zero_values[0].keys() %}
+
+<th>
+
+{{ key }}
+
+</th>
+
+{% endfor %}
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for row in details.zero_values %}
+
+<tr>
+
+{% for value in row.values() %}
+
+<td>
+
+{{ value }}
+
+</td>
+
+{% endfor %}
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+{% endif %}
+
+
+{% if not details.differences
+      and not details.missing
+      and not details.duplicates
+      and not details.zero_values %}
+
+<div class="section">
+
+<div class="section-title">
+
+Validation Result
+
+</div>
+
+<div class="empty">
+
+✓ No validation issues found for this store.
+
+</div>
+
+</div>
+
+{% endif %}
+
+
+<div class="footer">
+
+Generated by <b>XML Integration Validator</b><br>
+
+This report was automatically generated. Please verify the source XML files before taking any business action.
+
+</div>
+
+</body>
+
+</html>

@@ -102,6 +102,11 @@ def get_integration_full(search_value):
     return data["full"]
 
 def get_node_config(integration, client="bww"):
+    integration = integration.strip().lower()
+
+    print("=" * 50)
+    print("FILE :", __file__)
+    print("Integration Received :", repr(integration))
 
     if integration == "payroll":
 
@@ -150,8 +155,16 @@ def get_node_config(integration, client="bww"):
         from schedule_out_config import NODE_CONFIG
 
         return NODE_CONFIG
+    elif integration == "pmix out":
 
-    raise Exception(f"Unsupported Integration: {integration}")
+        print("PMIX BLOCK EXECUTED")
+
+        from pmix_config import NODE_CONFIG
+
+        return NODE_CONFIG
+    else:
+
+        raise Exception(f"Unsupported Integration: {integration}")
 
 
 def run_comparison(
@@ -486,7 +499,7 @@ def run_comparison(
         all_zero_values,
         all_duplicate_records,
     )
-    generate_store_reports(
+    store_report_paths = generate_store_reports(
         summary,
         all_differences,
         all_missing_records,
@@ -494,7 +507,10 @@ def run_comparison(
         all_duplicate_records,
     )
 
-    dashboard = DashboardGenerator(Path(report_path))
+    dashboard = DashboardGenerator(
+    Path(report_path),
+    store_report_paths
+)
     html_path = dashboard.generate()
 
     webbrowser.open(Path(html_path).resolve().as_uri())

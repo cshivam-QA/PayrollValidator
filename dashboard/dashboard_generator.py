@@ -13,34 +13,27 @@ class DashboardGenerator:
     from Master_Comparison_Report.xlsx
     """
 
-    def __init__(self, report_path):
-
+    def __init__(self, report_path, store_report_paths=None):
         self.report_path = Path(report_path)
+        self.store_report_paths = store_report_paths or {}
 
         if getattr(sys, "frozen", False):
             self.base_path = Path(sys._MEIPASS) / "dashboard"
-
         else:
-
             self.base_path = Path(__file__).resolve().parent
 
         self.template_dir = self.base_path / "templates"
-
         self.assets_dir = self.base_path / "assets"
 
         # Output folder
         if getattr(sys, "frozen", False):
-
             # EXE ke paas reports folder banega
             output_root = Path(sys.executable).parent
-
         else:
-
             # Development mode
             output_root = Path(__file__).resolve().parent.parent.parent
 
         self.output_dir = output_root / "reports"
-
         self.env = Environment(
             loader=FileSystemLoader(self.template_dir)
         )
@@ -83,7 +76,9 @@ class DashboardGenerator:
 
         parser = ReportParser(self.report_path)
 
-        dashboard_data = parser.parse()
+        dashboard_data = parser.parse(
+            self.store_report_paths
+)
 
         template = self.env.get_template(
             "dashboard.html"

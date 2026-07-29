@@ -255,25 +255,47 @@ function showStoreDetails(store) {
         return;
     }
 
-    const downloadButton = document.getElementById("downloadStoreReport");
+const excelButton =
+    document.getElementById("downloadExcelReport");
 
-    if (downloadButton) {
+const pdfButton =
+    document.getElementById("downloadPdfReport");
 
-        downloadButton.onclick = () => {
+if (excelButton) {
 
-            if (!details.report_file) {
+    excelButton.onclick = () => {
 
-                alert("Store report not found.");
+        if (!details.report_file) {
 
-                return;
+            alert("Excel report not found.");
 
-            }
+            return;
 
-            window.open(details.report_file, "_blank");
+        }
 
-        };
+        window.open(details.report_file, "_blank");
 
-    }
+    };
+
+}
+
+if (pdfButton) {
+
+    pdfButton.onclick = () => {
+
+        if (!details.pdf_file) {
+
+            alert("PDF report not found.");
+
+            return;
+
+        }
+
+        window.open(details.pdf_file, "_blank");
+
+    };
+
+}
 
     const validationFailure =
         details.validation_failure || false;

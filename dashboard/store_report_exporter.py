@@ -1,7 +1,8 @@
 from pathlib import Path
 import sys
-import os
 import pandas as pd
+
+from dashboard.pdf_generator import PDFGenerator
 
 
 def _filter(df, store, business_date):
@@ -29,7 +30,7 @@ def generate_store_reports(
     duplicate_records,
 ):
     """
-    Generate one Excel report per Store + Business Date.
+    Generate one Excel report and one PDF report per Store + Business Date.
     """
 
     # Output folder
@@ -56,6 +57,8 @@ def generate_store_reports(
     generated = set()
     report_paths = {}
 
+    pdf_generator = PDFGenerator()
+
     for _, row in summary_df.iterrows():
 
         store = str(row.get("Store", "")).strip()
@@ -76,7 +79,11 @@ def generate_store_reports(
 
         file_path = output_folder / file_name
 
-        report_paths[key] = str(file_path)
+        # Initialize report paths
+        report_paths[key] = {
+            "excel": str(file_path),
+            "pdf": "",
+        }
 
         store_summary = summary_df[
             (summary_df["Store"].astype(str) == store)
@@ -93,6 +100,32 @@ def generate_store_reports(
         store_zero = _filter(zero_df, store, business_date)
         store_duplicate = _filter(duplicate_df, store, business_date)
 
+        store_details = {
+            "store": store,
+            "integration": row.get("Integration"),
+            "status": row.get("Status"),
+            "cb_date": row.get("CB Date"),
+            "ac_date": row.get("AC Date"),
+            "cb_file": row.get("CB File"),
+            "ac_file": row.get("AC File"),
+            "differences": store_diff.to_dict("records"),
+            "missing": store_missing.to_dict("records"),
+            "duplicates": store_duplicate.to_dict("records"),
+            "zero_values": store_zero.to_dict("records"),
+        }
+
+        report_info = {
+            "generated_on": pd.Timestamp.now().strftime(
+                "%d-%b-%Y %I:%M %p"
+            ),
+            "comparison": row.get("Integration"),
+        }
+
+        report_title = (
+            f"{row.get('Integration')} Validation Report"
+        )
+
+        # Excel Report
         with pd.ExcelWriter(file_path, engine="openpyxl") as writer:
 
             store_summary.to_excel(
@@ -124,6 +157,15 @@ def generate_store_reports(
                 sheet_name="DUPLICATES",
                 index=False,
             )
+
+        # PDF Report
+        pdf_path = pdf_generator.generate_store_pdf(
+            store_details=store_details,
+            report_info=report_info,
+            report_title=report_title,
+        )
+
+        report_paths[key]["pdf"] = str(pdf_path)
 
     print(f"Generated {len(report_paths)} Store Reports")
 

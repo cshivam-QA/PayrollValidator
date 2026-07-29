@@ -441,7 +441,7 @@
 
                         <button
                             class="btn btn-sm btn-outline-primary view-details"
-                            data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}"
+                            data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}">
 
                             <i class="bi bi-eye"></i>
 
@@ -450,8 +450,6 @@
                         </button>
 
                         </td>
-
-                    </td>
 
                 </tr>
 
@@ -518,14 +516,23 @@
 
     </h5>
 
-    <div class="d-flex align-items-center gap-2">
+    <div class="d-flex align-items-center gap-2 me-2">
 
         <button
-            id="downloadStoreReport"
-            class="btn btn-sm btn-outline-light"
-            title="Download Store Report">
+            id="downloadExcelReport"
+            class="btn btn-sm report-btn me-2"
+            title="Download Excel Report">
 
-            <i class="bi bi-download"></i>
+            <i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>
+
+        </button>
+
+        <button
+            id="downloadPdfReport"
+            class="btn btn-sm report-btn"
+            title="Download PDF Report">
+
+            <i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>
 
         </button>
 

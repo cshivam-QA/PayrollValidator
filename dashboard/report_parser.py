@@ -100,7 +100,7 @@ class ReportParser:
         for row in rows:
 
             if all(value is None for value in row):
-                continue
+                continue    
 
             stores.append(
                 dict(zip(headers, row))
@@ -245,28 +245,21 @@ class ReportParser:
                 or ""
             )
 
-            report_file = (
-                f"StoreReports/Store_{store_no}_{report_date}_Report.xlsx"
+            report_file = self.store_report_paths.get(
+                store_key,
+                {}
             )
 
             details[store_key].update({
-
                 "store": store_no,
-
                 "status": store.get("Status"),
-
                 "integration": store.get("Integration"),
-
                 "cb_date": store.get("CB Date") or store.get("Date"),
-
                 "ac_date": store.get("AC Date") or store.get("Date"),
-
                 "cb_file": store.get("CB File"),
-
                 "ac_file": store.get("AC File"),
-
-                "report_file": report_file
-
+                "report_file": report_file.get("excel", ""),
+                "pdf_file": report_file.get("pdf", "")
             })
 
             details[store_key]["validation_failure"] = (
@@ -435,8 +428,8 @@ class ReportParser:
     # Parser
     # ==========================================================
 
-    def parse(self):
-
+    def parse(self, store_report_paths=None):
+        self.store_report_paths = store_report_paths or {}
         self.load_workbook()
 
         stores = self.get_store_summary()
@@ -478,7 +471,9 @@ class ReportParser:
 
             "generated_on": datetime.now().strftime("%d-%b-%Y %I:%M %p"),
 
-            "comparison": stores[0].get("Integration", "") if stores else ""
+            "comparison": stores[0].get("Integration", "") if stores else "",
+
+            "report_title": report_title
 
         }
         return {
