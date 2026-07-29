@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 import shutil
 
@@ -16,17 +17,29 @@ class DashboardGenerator:
 
         self.report_path = Path(report_path)
 
-        self.base_path = Path(__file__).resolve().parent
+        if getattr(sys, "frozen", False):
+            self.base_path = Path(sys._MEIPASS) / "dashboard"
+
+        else:
+
+            self.base_path = Path(__file__).resolve().parent
 
         self.template_dir = self.base_path / "templates"
 
         self.assets_dir = self.base_path / "assets"
 
-        self.output_dir = (
-            self.base_path.parent
-            / "dist"
-            / "reports"
-        )
+        # Output folder
+        if getattr(sys, "frozen", False):
+
+            # EXE ke paas reports folder banega
+            output_root = Path(sys.executable).parent
+
+        else:
+
+            # Development mode
+            output_root = Path(__file__).resolve().parent.parent.parent
+
+        self.output_dir = output_root / "reports"
 
         self.env = Environment(
             loader=FileSystemLoader(self.template_dir)

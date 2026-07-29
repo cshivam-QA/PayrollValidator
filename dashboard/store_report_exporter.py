@@ -1,3 +1,5 @@
+from pathlib import Path
+import sys
 import os
 import pandas as pd
 
@@ -30,13 +32,16 @@ def generate_store_reports(
     Generate one Excel report per Store + Business Date.
     """
 
-    base_output = os.path.join("dist", "reports")
+    # Output folder
+    if getattr(sys, "frozen", False):
+        base_output = Path(sys.executable).parent / "reports"
+    else:
+        base_output = Path(__file__).resolve().parent.parent / "dist" / "reports"
 
-    os.makedirs(base_output, exist_ok=True)
+    base_output.mkdir(parents=True, exist_ok=True)
 
-    output_folder = os.path.join(base_output, "StoreReports")
-
-    os.makedirs(output_folder, exist_ok=True)
+    output_folder = base_output / "StoreReports"
+    output_folder.mkdir(parents=True, exist_ok=True)
 
     summary_df = pd.DataFrame(summary)
     diff_df = pd.DataFrame(differences)
@@ -69,9 +74,9 @@ def generate_store_reports(
 
         file_name = f"Store_{store}_{business_date}_Report.xlsx"
 
-        file_path = os.path.join(output_folder, file_name)
+        file_path = output_folder / file_name
 
-        report_paths[key] = file_path
+        report_paths[key] = str(file_path)
 
         store_summary = summary_df[
             (summary_df["Store"].astype(str) == store)

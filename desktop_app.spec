@@ -1,15 +1,25 @@
 # -*- mode: python ; coding: utf-8 -*-
 
-import os
+from PyInstaller.utils.hooks import collect_submodules
 
-project_dir = os.path.abspath(".")
+hidden = collect_submodules("jinja2")
 
 a = Analysis(
     ['desktop_app.py'],
-    pathex=[".","./src",],
+    pathex=[
+        '.',
+        './src',
+    ],
+
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+
+    datas=[
+        ('dashboard/templates', 'dashboard/templates'),
+        ('dashboard/assets', 'dashboard/assets'),
+    ],
+
+    hiddenimports=hidden,
+
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -25,11 +35,15 @@ exe = EXE(
     a.scripts,
     a.binaries,
     a.datas,
+
     [],
+
     name='XMLValidator',
+
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    console=False,
+
+    console=True,
 )
