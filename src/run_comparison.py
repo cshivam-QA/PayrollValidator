@@ -9,6 +9,9 @@ from labor_preprocessor import (
     aggregate_pay_period_tm1,
 )
 
+# NEW IMPORT
+from dashboard.store_report_exporter import generate_store_reports
+
 import os
 import sys
 import webbrowser
@@ -19,7 +22,84 @@ if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
 from dashboard.dashboard_generator import DashboardGenerator
+INTEGRATION_MAP = {
 
+    "AC_POS_SALES": {
+        "short": "Sales Out",
+        "full": "Sales Out Integration"
+    },
+
+    "ERS_LABORFCST": {
+        "short": "Labor Forecast",
+        "full": "Labor Forecast Integration"
+    },
+
+    "CASH_MANAGEMENT": {
+        "short": "Cash Management",
+        "full": "Cash Management Integration"
+    },
+
+    "PAYROLL_EXPORT": {
+        "short": "Payroll Out",
+        "full": "Payroll Out Integration"
+    },
+
+    "ERS_PMIX": {
+        "short": "PMIX Out",
+        "full": "PMIX Out Integration"
+    },
+
+    "ERS_LABORSCHED": {
+        "short": "Schedule Out",
+        "full": "Schedule Out Integration"
+    },
+
+    "TIMEKEEPING_EXPORT": {
+        "short": "Timekeeping Out",
+        "full": "Timekeeping Out Integration"
+    },
+
+    "VENDOR_SCHEDULES": {
+        "short": "Vendor Schedule",
+        "full": "Vendor Schedule Integration"
+    },
+
+    "INVENTORY_EXPORT": {
+        "short": "Food Out",
+        "full": "Food Out Integration"
+    }
+
+}
+
+
+def get_integration_short(search_value):
+
+    if not search_value:
+        return "Unknown"
+
+    data = INTEGRATION_MAP.get(
+        str(search_value).strip().upper()
+    )
+
+    if not data:
+        return "Unknown"
+
+    return data["short"]
+
+
+def get_integration_full(search_value):
+
+    if not search_value:
+        return "Unknown Integration"
+
+    data = INTEGRATION_MAP.get(
+        str(search_value).strip().upper()
+    )
+
+    if not data:
+        return "Unknown Integration"
+
+    return data["full"]
 
 def get_node_config(integration, client="bww"):
 
@@ -159,6 +239,7 @@ def run_comparison(
                     "AC Date": ac_info.get("date"),
                     "CB File": os.path.basename(cb_xml),
                     "AC File": os.path.basename(ac_xml),
+                    "Integration": get_integration_short(cb_info.get("search")),
                     "Status": (
                         "PASS"
                         if total_issues == 0
@@ -299,6 +380,7 @@ def run_comparison(
                 "AC Date": ac_info.get("date"),
                 "CB File": os.path.basename(cb_xml),
                 "AC File": os.path.basename(ac_xml),
+                "Integration": get_integration_short(cb_info.get("search")),
                 "Status": ("PASS" if total_issues == 0 else "FAIL"),
                 "Differences": file_difference_count,
                 "Missing Records": file_missing_count,
@@ -335,6 +417,9 @@ def run_comparison(
                     "CB File": os.path.basename(cb_files[key]),
                     "AC File": os.path.basename(ac_files[matching_ac_key]),
                     "Status": "BUSINESS DATE MISMATCH",
+                    "Integration": get_integration_short(
+            XMLLoader(cb_files[key]).get_root_info().get("search")
+),
                     "Differences": 0,
                     "Missing Records": 0,
                     "Zero Values": 0,
@@ -353,6 +438,7 @@ def run_comparison(
                     "CB File": os.path.basename(cb_files[key]),
                     "AC File": "Missing",
                     "Status": "AC FILE MISSING",
+                    "Integration": "-",
                     "Differences": 0,
                     "Missing Records": 0,
                     "Zero Values": 0,
@@ -375,6 +461,7 @@ def run_comparison(
                 "CB File": "Missing",
                 "AC File": os.path.basename(ac_files[key]),
                 "Status": "CB FILE MISSING",
+                "Integration": "-",
                 "Differences": 0,
                 "Missing Records": 0,
                 "Zero Values": 0,
@@ -389,8 +476,17 @@ def run_comparison(
             x.get("AC Date", ""),
         )
     )
-
+    print(summary[0])
+    import pandas as pd
+    print(pd.DataFrame(summary).columns.tolist())
     report_path = generate_master_report(
+        summary,
+        all_differences,
+        all_missing_records,
+        all_zero_values,
+        all_duplicate_records,
+    )
+    generate_store_reports(
         summary,
         all_differences,
         all_missing_records,

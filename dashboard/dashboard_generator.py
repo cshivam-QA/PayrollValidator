@@ -46,9 +46,10 @@ class DashboardGenerator:
         )
 
         assets = [
-            "style.css",
-            "dashboard.js"
-        ]
+           "style.css",
+           "dashboard.js",
+           "anyconnector-logo.png"
+]
 
         for asset in assets:
 
@@ -79,7 +80,9 @@ class DashboardGenerator:
             stores=dashboard_data["stores"],
             summary=dashboard_data["summary"],
             charts=dashboard_data["charts"],
-            details=dashboard_data["details"]
+            details=dashboard_data["details"],
+            report_title=dashboard_data["report_title"],
+            report_info=dashboard_data["report_info"]
         )
 
         self.output_dir.mkdir(

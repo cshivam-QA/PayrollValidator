@@ -11,7 +11,7 @@ def generate_master_report(
     output_file = "reports/" "Master_Comparison_Report.xlsx"
 
     with pd.ExcelWriter(output_file, engine="openpyxl") as writer:
-
+        print(pd.DataFrame(summary).columns.tolist())
         pd.DataFrame(summary).to_excel(writer, sheet_name="MASTER_SUMMARY", index=False)
 
         pd.DataFrame(differences).to_excel(

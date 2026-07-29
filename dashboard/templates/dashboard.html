@@ -40,46 +40,66 @@
 
 <div class="container-fluid dashboard-container">
 
-    <!-- ============================================ -->
-    <!-- Header -->
-    <!-- ============================================ -->
+<!-- ============================================ -->
+<!-- Header -->
+<!-- ============================================ -->
 
-    <div class="dashboard-header mb-4">
+<div class="dashboard-header mb-4">
 
-        <div>
+    <div class="header-left">
 
-            <h2>
+        <div class="header-icon">
+    <img src="assets/anyconnector-logo.png"
+         alt="AnyConnector Logo"
+         class="header-logo">
+</div>
 
-                <i class="bi bi-bar-chart-fill"></i>
+        <div class="header-text">
 
-                XML Validator Dashboard
+            <h2>XML Validator Dashboard</h2>
 
-            </h2>
-
-            <p>
-
-                CB → AC Migration Validation Report
-
-            </p>
-
-        </div>
-
-        <div class="text-end">
-
-            <h6>Version 2.0</h6>
-
-            <small>
-
-                {{ summary.total_stores }}
-
-                Store(s)
-
-            </small>
+            <p>{{ report_title }}</p>
 
         </div>
 
     </div>
 
+    <div class="header-right">
+
+        <div class="header-divider"></div>
+
+        <div class="generated-info">
+
+            <div class="generated-icon">
+                <i class="bi bi-calendar-event"></i>
+            </div>
+
+            <div class="generated-text">
+
+                <div class="generated-label">
+                    Generated On
+                </div>
+
+                <div class="generated-date">
+                    {{ report_info.generated_on.split(" ")[0] }}
+                </div>
+
+                <div class="generated-time">
+                    {{ report_info.generated_on.split(" ")[1] }}
+                    {{ report_info.generated_on.split(" ")[2] }}
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <div class="header-shine"></div>
+</div>
+
+<!-- ============================================ -->
+<!-- KPI -->
+<!-- ============================================ -->
     <!-- ============================================ -->
     <!-- KPI -->
     <!-- ============================================ -->
@@ -356,7 +376,7 @@
                 <tr>
 
                     <th>Store</th>
-
+   
                     <th>Status</th>
 
                     <th>Differences</th>
@@ -384,22 +404,29 @@
                     <td>
                                                 {% if store["Status"] == "PASS" %}
 
-                            <span class="badge bg-success">
+<span class="badge bg-success">
 
-                                PASS
+    PASS
 
-                            </span>
+</span>
 
-                        {% else %}
+{% elif store["Status"] == "FAIL" %}
 
-                            <span class="badge bg-danger">
+<span class="badge bg-danger">
 
-                                FAIL
+    FAIL
 
-                            </span>
+</span>
 
-                        {% endif %}
+{% else %}
 
+<span class="badge bg-warning text-dark">
+
+    {{ store["Status"] }}
+
+</span>
+
+{% endif %}
                     </td>
 
                     <td>{{ store["Differences"] }}</td>
@@ -414,13 +441,15 @@
 
                         <button
                             class="btn btn-sm btn-outline-primary view-details"
-                            data-store="{{ store['Store'] }}">
+                            data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}"
 
                             <i class="bi bi-eye"></i>
 
                             View
 
                         </button>
+
+                        </td>
 
                     </td>
 
@@ -471,28 +500,44 @@
 
 </div>
 <!-- ============================================ -->
+<!-- ============================================ -->
 <!-- Store Details Modal -->
 <!-- ============================================ -->
 
 <div class="modal fade" id="storeDetailsModal" tabindex="-1">
+
     <div class="modal-dialog modal-xl modal-dialog-scrollable">
 
         <div class="modal-content">
 
             <div class="modal-header">
 
-                <h5 class="modal-title">
-                    Store Details -
-                    <span id="modalStore"></span>
-                </h5>
+    <h5 class="modal-title">
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal">
-                </button>
+        <span id="modalStore"></span>
 
-            </div>
+    </h5>
+
+    <div class="d-flex align-items-center gap-2">
+
+        <button
+            id="downloadStoreReport"
+            class="btn btn-sm btn-outline-light"
+            title="Download Store Report">
+
+            <i class="bi bi-download"></i>
+
+        </button>
+
+        <button
+            type="button"
+            class="btn-close btn-close-white"
+            data-bs-dismiss="modal">
+        </button>
+
+    </div>
+
+</div>
 
             <div class="modal-body">
 
@@ -507,10 +552,8 @@
         </div>
 
     </div>
-</div>
 
-<!-- ============================================ -->
-<!-- Bootstrap -->
+</div>
 <!-- ============================================ -->
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

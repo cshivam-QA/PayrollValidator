@@ -14,7 +14,28 @@ from payroll_config import NODE_CONFIG
 from comparator import compare_nodes
 import os
 
+INTEGRATION_MAP = {
+    "AC_POS_SALES": "Sales Out Integration",
+    "ERS_LABORFCST": "Labor Forecast Integration",
+    "CASH_MANAGEMENT": "Cash Management Integration",
+    "PAYROLL_EXPORT": "Payroll Out Integration",
+    "ERS_PMIX": "PMIX Out Integration",
+    "ERS_LABORSCHED": "Schedule Out Integration",
+    "TIMEKEEPING_EXPORT": "Timekeeping Out Integration",
+    "VENDOR_SCHEDULES": "Vendor Schedule Integration",
+    "INVENTORY_EXPORT": "Food Out Integration",
+}
 
+
+def get_integration_name(search_value):
+
+    if not search_value:
+        return "Unknown Integration"
+
+    return INTEGRATION_MAP.get(
+        str(search_value).strip().upper(),
+        "Unknown Integration"
+    )
 cb_files, ac_files = get_matching_files()
 
 summary = []
@@ -150,48 +171,31 @@ for key in sorted(matched):
         )
 
     total_issues = (
-
         file_difference_count
         +
         file_missing_count
         +
         file_duplicate_count
-
     )
 
+    print("Search Value :", cb_info.get("search"))
+    print("Integration :", get_integration_name(cb_info.get("search")))
+
     summary.append({
-
-        "Store":
-        cb_info.get("location"),
-
-        "Date":
-        cb_info.get("date"),
-
-        "CB File":
-        os.path.basename(cb_xml),
-
-        "AC File":
-        os.path.basename(ac_xml),
-
-        "Status":
-        (
+        "Store": cb_info.get("location"),
+        "Date": cb_info.get("date"),
+        "Integration": get_integration_name(cb_info.get("search")),
+        "CB File": os.path.basename(cb_xml),
+        "AC File": os.path.basename(ac_xml),
+        "Status": (
             "PASS"
             if total_issues == 0
             else "FAIL"
         ),
-
-        "Differences":
-        file_difference_count,
-
-        "Missing Records":
-        file_missing_count,
-
-        "Zero Values":
-        file_zero_count,
-
-        "Duplicates":
-        file_duplicate_count
-
+        "Differences": file_difference_count,
+        "Missing Records": file_missing_count,
+        "Zero Values": file_zero_count,
+        "Duplicates": file_duplicate_count
     })
 
 
@@ -215,6 +219,8 @@ for key in sorted(missing_ac):
 
         "Status":
         "AC FILE MISSING",
+        "Integration":
+        "-",
 
         "Differences":
         0,
@@ -251,6 +257,8 @@ for key in sorted(missing_cb):
 
         "Status":
         "CB FILE MISSING",
+        "Integration":
+        "-",
 
         "Differences":
         0,

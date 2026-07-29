@@ -1,7 +1,7 @@
 /*
 ==========================================================
-XML Validator Dashboard
-Version : 2.0
+Any Connector XML Validator Dashboard
+Version : 3.0
 ==========================================================
 */
 
@@ -97,15 +97,10 @@ function filterTable() {
             statusValue === "ALL"
             || status === statusValue;
 
-        if (matchSearch && matchStatus) {
-
-            row.style.display = "";
-
-        } else {
-
-            row.style.display = "none";
-
-        }
+        row.style.display =
+            (matchSearch && matchStatus)
+                ? ""
+                : "none";
 
     });
 
@@ -129,13 +124,17 @@ function initializeRefreshButton() {
     });
 
 }
+
 /* ======================================================
-   View Details
+   View Buttons
 ====================================================== */
 
 function initializeViewButtons() {
 
-    const buttons = document.querySelectorAll(".view-details");
+    const buttons =
+        document.querySelectorAll(
+            ".view-details"
+        );
 
     buttons.forEach((button) => {
 
@@ -153,6 +152,98 @@ function initializeViewButtons() {
 }
 
 /* ======================================================
+   Dynamic Table Generator
+====================================================== */
+
+function generateDynamicTable(title, records) {
+
+    if (!records || records.length === 0) {
+        return "";
+    }
+
+    const headers = Object.keys(records[0]);
+
+    let html = `
+
+        <h5 class="mt-4">${title}</h5>
+
+        <div class="table-responsive">
+
+            <table class="table table-bordered table-sm dynamic-table">
+
+                <thead>
+
+                    <tr>
+
+    `;
+
+    headers.forEach(header => {
+
+        // Store column modal me already visible hai
+        if (header === "Store") return;
+
+        html += `<th>${header}</th>`;
+
+    });
+
+    html += `
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+    `;
+
+    records.forEach(record => {
+
+        html += "<tr>";
+
+        headers.forEach(header => {
+
+            if (header === "Store") return;
+
+            let value = record[header];
+
+            if (
+                value === undefined ||
+                value === null ||
+                value === ""
+            ) {
+
+                value = "-";
+
+            }
+
+            if (typeof value === "object") {
+
+                value = formatAttributes(value);
+
+            }
+
+            html += `<td>${value}</td>`;
+
+        });
+
+        html += "</tr>";
+
+    });
+
+    html += `
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    `;
+
+    return html;
+
+}
+/* ======================================================
    Store Details
 ====================================================== */
 
@@ -160,272 +251,544 @@ function showStoreDetails(store) {
 
     const details = dashboardDetails[store];
 
-    document.getElementById("modalStore").textContent = store;
+    if (!details) {
+        return;
+    }
+
+    const downloadButton = document.getElementById("downloadStoreReport");
+
+    if (downloadButton) {
+
+        downloadButton.onclick = () => {
+
+            if (!details.report_file) {
+
+                alert("Store report not found.");
+
+                return;
+
+            }
+
+            window.open(details.report_file, "_blank");
+
+        };
+
+    }
+
+    const validationFailure =
+        details.validation_failure || false;
+
+    const failureReason =
+        details.failure_reason || "";
+
+    if (!details) {
+
+        return;
+
+    }
+
+    document.getElementById("modalStore").textContent = "Store Details";
 
     let html = "";
-    const differences = details.differences || [];
-    const missing = details.missing || [];
-    const duplicates = details.duplicates || [];
-    const zeroValues = details.zero_values || [];
-
-    if (differences.length > 0) {
-
-        html += "<h5>Differences</h5>";
-
-        html += `
-        <table class="table table-bordered table-sm">
-
-            <thead>
-
-                <tr>
-
-                    <th>Node</th>
-
-                    <th>Key</th>
-
-                    <th>Attribute</th>
-
-                    <th>CB Value</th>
-
-                    <th>AC Value</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-        `;
-
-        differences.forEach(item => {
-
-            html += `
-            <tr>
-
-                <td>${item.Node}</td>
-
-                <td>${item.Key}</td>
-
-                <td>${item.Attribute}</td>
-
-                <td>${item["CB Value"]}</td>
-
-                <td>${item["AC Value"]}</td>
-
-            </tr>
-            `;
-
-        });
-
-        html += "</tbody></table>";
-
-    }
-
     /* ==========================================
-       Missing Records
-    ========================================== */
-
-    if (missing.length > 0) {
-
-        html += "<h5 class='mt-4'>Missing Records</h5>";
-
-        html += `
-        <table class="table table-bordered table-sm">
-
-            <thead>
-
-                <tr>
-
-                    <th>Key</th>
-
-                    <th>Date</th>
-
-                    <th>Missing In</th>
-
-                    <th>CB Attributes</th>
-
-                    <th>AC Attributes</th>
-
-                </tr>
-
-            </thead>
-
-            <tbody>
-        `;
-
-        missing.forEach(item => {
-
-            html += `
-            <tr>
-
-                <td>${item.Key}</td>
-
-                <td>${item.Date}</td>
-
-                <td>${item["Missing In"]}</td>
-
-                <td>${formatAttributes(item["CB Attributes"])}</td>
-
-                <td>${formatAttributes(item["AC Attributes"])}</td>
-
-            </tr>
-            `;
-
-        });
-
-        html += "</tbody></table>";
-
-    }
-/* ==========================================
-   Duplicate Records
+   Store Information Card
 ========================================== */
 
-if (duplicates.length > 0) {
+const infoCard = `
 
-    html += "<h5 class='mt-4'>Duplicate Records</h5>";
+<div class="card border-primary mb-4">
 
-    html += `
-    <table class="table table-bordered table-sm">
+    <div class="card-header bg-primary text-white fw-bold">
 
-        <thead>
+        Store Information
 
-            <tr>
+    </div>
 
-                <th>Date</th>
+    <div class="card-body">
 
-                <th>Key</th>
+        <div class="row">
 
-                <th>Node</th>
+            <div class="col-md-6">
 
-                <th>Side</th>
+                <table class="table table-borderless table-sm mb-0">
 
-                <th>Store</th>
+                    <tr>
 
-            </tr>
+                        <th width="140">Store No</th>
 
-        </thead>
+                        <td>${details.store || "-"}</td>
 
-        <tbody>
-    `;
+                    </tr>
 
-    duplicates.forEach(item => {
+                    <tr>
 
-        html += `
-        <tr>
+                        <th>Business Date</th>
 
-            <td>${item.Date}</td>
+                        <td>${details.cb_date || details.ac_date || "-"}</td>
 
-            <td>${item.Key}</td>
+                    </tr>
 
-            <td>${item.Node}</td>
+                </table>
 
-            <td>${item.Side}</td>
+            </div>
 
-            <td>${item.Store}</td>
+            <div class="col-md-6">
 
-        </tr>
-        `;
+                <table class="table table-borderless table-sm mb-0">
 
-    });
+                    <tr>
 
-    html += "</tbody></table>";
+                        <th width="120">CB File</th>
 
-}
+                        <td title="${details.cb_file || "-"}">
+
+                            ${details.cb_file || "-"}
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <th>AC File</th>
+
+                        <td title="${details.ac_file || "-"}">
+
+                            ${details.ac_file || "-"}
+
+                        </td>
+
+                    </tr>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+`;
     /* ==========================================
-       No Validation Issues
-    ========================================== */
+   Validation Failure
+========================================== */
 
-    if (
-        differences.length === 0 &&
-        missing.length === 0
-    ) {
+if (validationFailure) {
 
-        html = "<p>No validation issues found.</p>";
+    html = infoCard + `
 
-    }
+        <div class="alert alert-danger">
+
+            <h4 class="mb-3">
+
+                Validation Failed
+
+            </h4>
+
+            <p>
+
+                <strong>Reason :</strong>
+
+                ${failureReason}
+
+            </p>
+
+            <hr>
+
+            <table class="table table-bordered">
+
+                <tr>
+
+                    <th width="180">
+
+                        CB File
+
+                    </th>
+
+                    <td>
+
+                        ${details.cb_file || "-"}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        AC File
+
+                    </th>
+
+                    <td>
+
+                        ${details.ac_file || "-"}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        CB Date
+
+                    </th>
+
+                    <td>
+
+                        ${details.cb_date || "-"}
+
+                    </td>
+
+                </tr>
+
+                <tr>
+
+                    <th>
+
+                        AC Date
+
+                    </th>
+
+                    <td>
+
+                        ${details.ac_date || "-"}
+
+                    </td>
+
+                </tr>
+
+            </table>
+
+        </div>
+
+    `;
 
     document.getElementById("modalContent").innerHTML = html;
 
     const modal = new bootstrap.Modal(
-        document.getElementById("storeDetailsModal")
+        document.getElementById(
+            "storeDetailsModal"
+        )
+    );
+
+    modal.show();
+
+    return;
+
+}
+
+    const differences =
+        details.differences || [];
+        html += infoCard;
+
+    const missing =
+        details.missing || [];
+
+    const duplicates =
+        details.duplicates || [];
+
+    const zeroValues =
+        details.zero_values || [];
+
+    /* ==========================================
+       Summary Card
+    ========================================== */
+
+    html += `
+
+        <div class="row mb-3">
+
+            <div class="col-md-3">
+
+                <div class="card border-0 bg-light">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="mb-1">Differences</h6>
+
+                        <h4 class="mb-0 text-danger">
+
+                            ${differences.length}
+
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 bg-light">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="mb-1">Missing</h6>
+
+                        <h4 class="mb-0 text-warning">
+
+                            ${missing.length}
+
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 bg-light">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="mb-1">Duplicates</h6>
+
+                        <h4 class="mb-0 text-primary">
+
+                            ${duplicates.length}
+
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="col-md-3">
+
+                <div class="card border-0 bg-light">
+
+                    <div class="card-body text-center">
+
+                        <h6 class="mb-1">Zero Values</h6>
+
+                        <h4 class="mb-0 text-info">
+
+                            ${zeroValues.length}
+
+                        </h4>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    `;
+
+    /* ==========================================
+       Dynamic Tables
+    ========================================== */
+
+    html += generateDynamicTable(
+
+        "Differences",
+
+        differences
+
+    );
+
+    html += generateDynamicTable(
+
+        "Missing Records",
+
+        missing
+
+    );
+
+    html += generateDynamicTable(
+
+        "Duplicate Records",
+
+        duplicates
+
+    );
+
+    html += generateDynamicTable(
+
+        "Zero Value Records",
+
+        zeroValues
+
+    );
+
+    /* ==========================================
+       No Issues
+    ========================================== */
+
+if (
+
+    differences.length === 0 &&
+
+    missing.length === 0 &&
+
+    duplicates.length === 0 &&
+
+    zeroValues.length === 0
+
+) {
+
+    html = infoCard + `
+
+        <div class="alert alert-success mb-0">
+
+            <strong>
+
+                ✓ No validation issues found for this store.
+
+            </strong>
+
+        </div>
+
+    `;
+
+}
+
+    document.getElementById(
+
+        "modalContent"
+
+    ).innerHTML = html;
+
+    const modal = new bootstrap.Modal(
+
+        document.getElementById(
+
+            "storeDetailsModal"
+
+        )
+
     );
 
     modal.show();
 
 }
-
 /* ======================================================
    Utility Functions
 ====================================================== */
 
 function formatAttributes(attributes) {
 
-    if (!attributes || attributes === "-") {
+    if (
+        attributes === null ||
+        attributes === undefined ||
+        attributes === "" ||
+        attributes === "-"
+    ) {
+
         return "-";
+
     }
 
-    // Agar object already hai
+    /* ------------------------------------------
+       Already Object
+    ------------------------------------------ */
+
     if (typeof attributes === "object") {
 
-        let formatted = "";
+        let html = "";
 
         Object.entries(attributes).forEach(([key, value]) => {
-            formatted += `<strong>${key}</strong> : ${value}<br>`;
+
+            html += `
+                <div class="mb-1">
+                    <strong>${key}</strong> :
+                    ${value}
+                </div>
+            `;
+
         });
 
-        return `<div class="mb-0" style="font-family: monospace; white-space: pre-line;">${formatted}</div>`;
+        return html;
+
     }
 
-    // Agar Python dict string hai
+    /* ------------------------------------------
+       Python Dictionary String
+    ------------------------------------------ */
+
     if (typeof attributes === "string") {
 
         let text = attributes.trim();
 
-        // { } hatao
-        text = text.replace(/^\{|\}$/g, "");
+        if (
+            text.startsWith("{") &&
+            text.endsWith("}")
+        ) {
 
-        // ',' ke basis par split
-        const pairs = text.split(",");
+            text = text.substring(
+                1,
+                text.length - 1
+            );
 
-        let formatted = "";
+            let html = "";
 
-        pairs.forEach(pair => {
+            text.split(",").forEach(pair => {
 
-            const parts = pair.split(":");
+                const parts = pair.split(":");
 
-            if (parts.length >= 2) {
+                if (parts.length < 2) return;
 
-                const key = parts[0].replace(/'/g, "").trim();
+                const key =
+                    parts[0]
+                        .replace(/'/g, "")
+                        .trim();
 
-                const value = parts.slice(1).join(":").replace(/'/g, "").trim();
+                const value =
+                    parts
+                        .slice(1)
+                        .join(":")
+                        .replace(/'/g, "")
+                        .trim();
 
-                formatted += `<strong>${key}</strong> : ${value}<br>`;
+                html += `
+                    <div class="mb-1">
+                        <strong>${key}</strong> :
+                        ${value}
+                    </div>
+                `;
 
-            }
+            });
 
-        });
+            return html;
 
-        return `
-<div class="mb-0"
-     style="font-family: monospace; white-space: pre-line; line-height:1.5;">
-    ${formatted}
-</div>`;
+        }
+
     }
 
     return attributes;
+
 }
+
+/* ======================================================
+   Visible Store Count
+====================================================== */
 
 function getVisibleRowCount() {
 
-    const rows =
-        document.querySelectorAll(
-            "#storeTable tbody tr"
-        );
+    const rows = document.querySelectorAll(
+        "#storeTable tbody tr"
+    );
 
     let count = 0;
 
-    rows.forEach((row) => {
+    rows.forEach(row => {
 
-        if (row.style.display !== "none") {
+        if (
+            row.style.display !== "none"
+        ) {
 
             count++;
 
@@ -442,12 +805,20 @@ function getVisibleRowCount() {
 ====================================================== */
 
 console.log(
-    "XML Validator Dashboard Loaded Successfully"
+    "====================================="
+);
+
+console.log(
+    "Any Connector XML Validator Loaded"
 );
 
 console.log(
     "Visible Stores :",
     getVisibleRowCount()
+);
+
+console.log(
+    "====================================="
 );
 
 /* ======================================================
@@ -456,21 +827,21 @@ console.log(
 
 /*
 
-Planned Features
+Roadmap
 
-✔ Export Excel
+✔ Download Failed Report
 
 ✔ Export PDF
 
-✔ Drill Down
+✔ Export Excel
 
-✔ Theme Toggle
-
-✔ Pagination
+✔ Charts
 
 ✔ Sorting
 
-✔ Charts (Optional)
+✔ Pagination
+
+✔ Theme Toggle
 
 ✔ Auto Refresh
 
