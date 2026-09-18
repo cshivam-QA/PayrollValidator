@@ -67,6 +67,10 @@ INTEGRATION_MAP = {
     "INVENTORY_EXPORT": {
         "short": "Food Out",
         "full": "Food Out Integration"
+    },
+    "ERS_DPKEYS": {
+        "short": "ERS DPKeys",
+        "full": "ERS DPKeys Integration"
     }
 
 }
@@ -160,6 +164,11 @@ def get_node_config(integration, client="bww"):
         print("PMIX BLOCK EXECUTED")
 
         from pmix_config import NODE_CONFIG
+
+        return NODE_CONFIG
+    elif integration == "ers dpkeys":
+
+        from ers_dpkeys_config import NODE_CONFIG
 
         return NODE_CONFIG
     else:

@@ -5,6 +5,7 @@ def validate_xml_structure(xml_loader, integration):
         "food out": ".//Inventory",
         "vendor schedule": ".//Custom/VDRS",
         "schedule out": ".//Labor/SCH0/SCH1",
+        "ers dpkeys": ".//KEYS/KEY",
 
         # NEW
         "pmix out": ".//PMix/SM0/SM1",

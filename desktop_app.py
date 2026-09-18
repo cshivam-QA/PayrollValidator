@@ -158,7 +158,8 @@ QPushButton#runButton:hover {
                 "Vendor Schedule",
                 "Labor Forecast",
                 "Schedule Out",
-                "PMIX OUT"
+                "PMIX OUT",
+                "ERS DPKeys"
             ]
         )
         self.folder_radio = QRadioButton("Folder Comparison")
