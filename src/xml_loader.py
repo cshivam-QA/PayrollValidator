@@ -5,7 +5,18 @@ class XMLLoader:
 
     def __init__(self, file_path):
         self.file_path = file_path
-        self.tree = ET.parse(file_path)
+
+        try:
+            self.tree = ET.parse(file_path)
+        except ET.ParseError as e:
+            raise ValueError(
+                f"Invalid or corrupt XML file: {file_path} ({e})"
+            ) from e
+        except OSError as e:
+            raise ValueError(
+                f"Unable to read XML file: {file_path} ({e})"
+            ) from e
+
         self.root = self.tree.getroot()
 
     def get_root(self):

@@ -6,6 +6,7 @@ def validate_xml_structure(xml_loader, integration):
         "vendor schedule": ".//Custom/VDRS",
         "schedule out": ".//Labor/SCH0/SCH1",
         "ers dpkeys": ".//KEYS/KEY",
+        "labor forecast": ".//DNV/DNV1",
 
         # NEW
         "pmix out": ".//PMix/SM0/SM1",

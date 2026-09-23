@@ -27,7 +27,12 @@ def get_xml_key(file_path):
 
         return f"{store}_{business_date}"
 
-    except Exception:
+    except Exception as e:
+
+        print(
+            f"WARNING: Skipping unreadable/invalid XML file: "
+            f"{file_path} ({e})"
+        )
 
         return None
 
