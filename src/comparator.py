@@ -3,6 +3,15 @@ from key_builder import KeyBuilder
 
 EXCLUDED_ATTRIBUTES = {"DAILY": ["otr"], "SHIFT": ["otr"], "PAY_PERIOD": ["otr"]}
 
+ATTRIBUTE_TOLERANCE = {
+    "r": 0.1,
+    "wkh": 0.1,
+    "pay": 0.1,
+    "rp": 0.1,
+    "op": 0.1,
+    "dp": 0.1,
+}
+
 EXCLUDED_ZERO_ATTRIBUTES = ("trh",)
 OPTIONAL_ZERO_ATTRIBUTES = {"rh"}
 
@@ -191,6 +200,21 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
             cb_norm = normalize_value(cb_val)
             ac_norm = normalize_value(ac_val)
+
+            lower_attr = attr.lower()
+
+            if lower_attr in ATTRIBUTE_TOLERANCE:
+
+                try:
+                    tolerance = ATTRIBUTE_TOLERANCE[lower_attr]
+                    cb_num = float(cb_val)
+                    ac_num = float(ac_val)
+
+                    if abs(cb_num - ac_num) <= (tolerance + 1e-9):
+                        continue
+
+                except (TypeError, ValueError):
+                    pass
 
             if cb_norm != ac_norm:
 

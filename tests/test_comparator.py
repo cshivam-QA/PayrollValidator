@@ -45,3 +45,27 @@ def test_formatting_only_difference_is_not_reported():
     )
 
     assert differences == []
+
+
+def test_pay_difference_within_tolerance_is_not_reported():
+    # "pay" allows up to 0.1 difference before it counts as a mismatch.
+    cb_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "262.66"})]
+    ac_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "262.65"})]
+
+    differences, _, _, _ = compare_nodes(
+        cb_nodes, ac_nodes, "PAY_PERIOD", "Root/PAY_PERIOD", ["e"]
+    )
+
+    assert differences == []
+
+
+def test_pay_difference_beyond_tolerance_is_reported():
+    cb_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "244.81"})]
+    ac_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "1155.84"})]
+
+    differences, _, _, _ = compare_nodes(
+        cb_nodes, ac_nodes, "PAY_PERIOD", "Root/PAY_PERIOD", ["e"]
+    )
+
+    assert len(differences) == 1
+    assert differences[0]["Attribute"] == "pay"
