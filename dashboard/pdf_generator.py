@@ -1,10 +1,42 @@
 from pathlib import Path
 from datetime import datetime
+from io import BytesIO
+import ast
+import base64
 import re
 import sys
 
 from jinja2 import Environment, FileSystemLoader
 from xhtml2pdf import pisa
+
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
+
+
+def parse_attrs(value):
+    """
+    Jinja filter: parses a Python-dict-repr string (e.g. the
+    "{'e': '123', 'j': '456'}" produced by str(node.attrib)) into a
+    real dict for pretty key/value rendering. Returns {} for anything
+    that isn't a parseable dict (missing/empty/"-").
+    """
+
+    if not value or value == "-":
+        return {}
+
+    if isinstance(value, dict):
+        return value
+
+    try:
+        parsed = ast.literal_eval(str(value))
+        if isinstance(parsed, dict):
+            return parsed
+    except (ValueError, SyntaxError):
+        pass
+
+    return {}
 
 
 class PDFGenerator:
@@ -22,6 +54,7 @@ class PDFGenerator:
             output_root = Path.cwd()
 
         self.template_dir = self.base_path / "templates"
+        self.assets_dir = self.base_path / "assets"
 
         self.output_dir = (
             output_root
@@ -37,6 +70,35 @@ class PDFGenerator:
         self.env = Environment(
             loader=FileSystemLoader(self.template_dir)
         )
+
+        self.env.filters["parse_attrs"] = parse_attrs
+
+    # =====================================================
+    # Logo as embedded Base64 data URI
+    # =====================================================
+
+    def get_logo_data_uri(self):
+
+        logo_path = self.assets_dir / "anyconnector-logo.png"
+
+        if not logo_path.exists():
+            return ""
+
+        try:
+            if Image is not None:
+                image = Image.open(logo_path).convert("RGBA")
+                image.thumbnail((96, 96))
+                buffer = BytesIO()
+                image.save(buffer, format="PNG", optimize=True)
+                data = buffer.getvalue()
+            else:
+                data = logo_path.read_bytes()
+        except Exception:
+            data = logo_path.read_bytes()
+
+        encoded = base64.b64encode(data).decode("ascii")
+
+        return f"data:image/png;base64,{encoded}"
 
     # =====================================================
     # HTML -> PDF
@@ -145,7 +207,9 @@ class PDFGenerator:
             "report_title": report_title
             or f"{integration} Validation Report",
 
-            "details": store_details
+            "details": store_details,
+
+            "logo_data_uri": self.get_logo_data_uri()
 
         }
 
