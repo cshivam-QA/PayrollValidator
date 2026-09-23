@@ -39,6 +39,29 @@ def parse_attrs(value):
     return {}
 
 
+def fmt_num(value, decimals=2):
+    """Jinja filter: formats a numeric string to N decimals; leaves
+    non-numeric values (e.g. "-") untouched."""
+
+    try:
+        return f"{float(value):.{decimals}f}"
+    except (TypeError, ValueError):
+        return value
+
+
+
+def format_business_date(value):
+    """Formats a YYYYMMDD business date string as DD-Mon-YYYY, matching
+    the "Generated On" format. Leaves already-formatted/odd values as-is."""
+
+    value = str(value).strip()
+
+    try:
+        return datetime.strptime(value, "%Y%m%d").strftime("%d-%b-%Y")
+    except ValueError:
+        return value
+
+
 class PDFGenerator:
     """
     Generates Store Validation PDF Reports
@@ -72,6 +95,7 @@ class PDFGenerator:
         )
 
         self.env.filters["parse_attrs"] = parse_attrs
+        self.env.filters["fmt_num"] = fmt_num
 
     # =====================================================
     # Logo as embedded Base64 data URI
@@ -87,7 +111,9 @@ class PDFGenerator:
         try:
             if Image is not None:
                 image = Image.open(logo_path).convert("RGBA")
-                image.thumbnail((96, 96))
+                # Sized generously (print resolution) so it stays crisp
+                # at the small ~10mm print height the header uses.
+                image.thumbnail((240, 240))
                 buffer = BytesIO()
                 image.save(buffer, format="PNG", optimize=True)
                 data = buffer.getvalue()
@@ -193,7 +219,7 @@ class PDFGenerator:
 
             "store": store_details.get("store"),
 
-            "business_date": business_date,
+            "business_date": format_business_date(business_date) if business_date else "",
 
             "status": store_details.get("status"),
 
@@ -206,6 +232,8 @@ class PDFGenerator:
 
             "report_title": report_title
             or f"{integration} Validation Report",
+
+            "app_name": "XML Integration Validator",
 
             "details": store_details,
 
