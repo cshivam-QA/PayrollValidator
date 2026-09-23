@@ -1,10 +1,17 @@
 import sys
+import base64
+from io import BytesIO
 from pathlib import Path
 import shutil
 
 from jinja2 import Environment, FileSystemLoader
 
 from dashboard.report_parser import ReportParser
+
+try:
+    from PIL import Image
+except ImportError:
+    Image = None
 
 
 class DashboardGenerator:
@@ -69,6 +76,36 @@ class DashboardGenerator:
                 )
 
     # ======================================================
+    # Logo as embedded Base64 data URI
+    # (keeps the generated dashboard a single, self-contained
+    # file that opens identically on any machine, with no
+    # dependency on a sibling "assets" folder)
+    # ======================================================
+
+    def get_logo_data_uri(self):
+
+        logo_path = self.assets_dir / "anyconnector-logo.png"
+
+        if not logo_path.exists():
+            return ""
+
+        try:
+            if Image is not None:
+                image = Image.open(logo_path).convert("RGBA")
+                image.thumbnail((128, 128))
+                buffer = BytesIO()
+                image.save(buffer, format="PNG", optimize=True)
+                data = buffer.getvalue()
+            else:
+                data = logo_path.read_bytes()
+        except Exception:
+            data = logo_path.read_bytes()
+
+        encoded = base64.b64encode(data).decode("ascii")
+
+        return f"data:image/png;base64,{encoded}"
+
+    # ======================================================
     # Generate Dashboard
     # ======================================================
 
@@ -90,7 +127,8 @@ class DashboardGenerator:
             charts=dashboard_data["charts"],
             details=dashboard_data["details"],
             report_title=dashboard_data["report_title"],
-            report_info=dashboard_data["report_info"]
+            report_info=dashboard_data["report_info"],
+            logo_data_uri=self.get_logo_data_uri()
         )
 
         self.output_dir.mkdir(

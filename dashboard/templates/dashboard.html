@@ -1,586 +1,697 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="en" data-theme="light">
 <head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XML Validator Dashboard</title>
 
-    <meta charset="UTF-8">
+<script>
+(function () {
+    try {
+        var saved = localStorage.getItem("xmlValidatorTheme");
+        if (saved === "dark" || saved === "light") {
+            document.documentElement.setAttribute("data-theme", saved);
+        }
+    } catch (e) {}
+})();
+</script>
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+<style>
+:root {
+    /* Fixed, theme-independent solid colors for KPI tiles and status badges
+       so they stay equally vivid/legible in both light and dark mode. */
+    --kpi-1:#4f5fe0; --kpi-1-glow:rgba(79,95,224,0.35);
+    --kpi-2:#149164; --kpi-2-glow:rgba(20,145,100,0.35);
+    --kpi-3:#dd4650; --kpi-3-glow:rgba(221,70,80,0.35);
+    --kpi-4:#d69a2d; --kpi-4-glow:rgba(214,154,45,0.35);
+    --kpi-5:#1aacbd; --kpi-5-glow:rgba(26,172,189,0.35);
+    --kpi-6:#5f6ea3; --kpi-6-glow:rgba(95,110,163,0.35);
+    --kpi-7:#8452e0; --kpi-7-glow:rgba(132,82,224,0.35);
+    --kpi-8:#cf4488; --kpi-8-glow:rgba(207,68,136,0.35);
+    --badge-success:#128a5c; --badge-danger:#d1454c; --badge-warning:#af7c0c;
+}
+:root, [data-theme="light"] {
+    --bg:#e9ecf6; --surface:#ffffff; --surface-2:#f2f3fa; --border:#d8dcee;
+    --text:#161a22; --text-secondary:#4b5166;
+    --accent:#3457e0; --accent-solid:#3457e0; --accent-hover:#2743bd; --accent-contrast:#ffffff;
+    --purple2:#7c5cff;
+    --panel-tint:linear-gradient(135deg, rgba(52,87,224,0.07), rgba(124,92,255,0.05));
+    --success:#17915a; --success-bg:rgba(23,145,90,0.10); --success-fg:#14764a; --success-border:rgba(23,145,90,0.30);
+    --danger:#d13b3b; --danger-bg:rgba(209,59,59,0.10); --danger-fg:#b83030; --danger-border:rgba(209,59,59,0.30);
+    --warning:#b07a0a; --warning-bg:rgba(176,122,10,0.10); --warning-fg:#8f6408; --warning-border:rgba(176,122,10,0.30);
+    --info:#0f7f96; --info-bg:rgba(15,127,150,0.10); --info-border:rgba(15,127,150,0.30);
+    --secondary:#6b7280; --secondary-bg:rgba(107,114,128,0.10); --secondary-border:rgba(107,114,128,0.30);
+    --purple:#7245e0; --purple-bg:rgba(114,69,224,0.10); --purple-border:rgba(114,69,224,0.30);
+    --shadow:0 1px 2px rgba(20,25,40,0.06), 0 10px 24px rgba(20,25,40,0.08);
+    --shadow-hover:0 16px 36px rgba(20,25,40,0.14);
+    --modal-backdrop:rgba(15,18,25,0.5);
+    --glow-1:rgba(79,95,224,0.07); --glow-2:rgba(20,145,100,0.06);
+}
+[data-theme="dark"] {
+    --bg:#0d0b1a; --surface:#17142c; --surface-2:#1e1a38; --border:#322c54;
+    --text:#f2f1f8; --text-secondary:#9c98b8;
+    --accent:#8c9dff; --accent-solid:#5468e8; --accent-hover:#6f83f2; --accent-contrast:#ffffff;
+    --purple2:#b48bff;
+    --panel-tint:linear-gradient(135deg, rgba(124,92,255,0.10), rgba(82,214,236,0.05));
+    --success:#3ed989; --success-bg:rgba(62,217,137,0.16); --success-fg:#78e8ac; --success-border:rgba(62,217,137,0.35);
+    --danger:#f2695f; --danger-bg:rgba(242,105,95,0.16); --danger-fg:#f6968d; --danger-border:rgba(242,105,95,0.38);
+    --warning:#e6b754; --warning-bg:rgba(230,183,84,0.16); --warning-fg:#efcb87; --warning-border:rgba(230,183,84,0.38);
+    --info:#52d6ec; --info-bg:rgba(82,214,236,0.16); --info-border:rgba(82,214,236,0.38);
+    --secondary:#a29ec2; --secondary-bg:rgba(162,158,194,0.16); --secondary-border:rgba(162,158,194,0.35);
+    --purple:#c3a6ff; --purple-bg:rgba(195,166,255,0.16); --purple-border:rgba(195,166,255,0.38);
+    --shadow:0 1px 2px rgba(0,0,0,0.4), 0 8px 20px rgba(0,0,0,0.35);
+    --shadow-hover:0 16px 40px rgba(0,0,0,0.55);
+    --modal-backdrop:rgba(0,0,0,0.68);
+    --glow-1:rgba(124,92,255,0.24); --glow-2:rgba(59,209,197,0.12);
+}
 
-    <title>XML Validator Dashboard</title>
+* { box-sizing:border-box; }
+html, body { margin:0; padding:0; }
+body {
+    position:relative;
+    font-family:"Segoe UI", system-ui, -apple-system, "Helvetica Neue", sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    -webkit-font-smoothing:antialiased;
+}
+body::before {
+    content:""; position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+        radial-gradient(1100px 650px at 12% -12%, var(--glow-1), transparent 60%),
+        radial-gradient(950px 600px at 105% 8%, var(--glow-2), transparent 55%);
+}
+.wrap { position:relative; z-index:1; width:100%; margin:0; padding:22px clamp(20px, 3vw, 48px) 48px; }
 
-    <!-- Bootstrap -->
+/* Header */
+.dash-header {
+    position:relative; overflow:hidden;
+    display:flex; align-items:center; justify-content:space-between;
+    gap:20px; padding:20px 26px; background:var(--panel-tint), var(--surface);
+    border:1px solid var(--border); border-radius:16px; margin-bottom:22px;
+    box-shadow:var(--shadow);
+}
+.dash-header::before {
+    content:""; position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, var(--accent-solid), var(--purple2));
+}
+.dash-header-left { display:flex; align-items:center; gap:16px; min-width:0; }
+.dash-logo {
+    width:46px; height:46px; border-radius:12px; flex:0 0 auto;
+    background:var(--surface-2); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; overflow:hidden;
+}
+.dash-logo img { width:30px; height:30px; object-fit:contain; }
+.dash-title h1 { margin:0; font-size:22px; font-weight:800; color:var(--text); letter-spacing:-.2px; }
+.dash-title p { margin:3px 0 0 0; font-size:12.5px; font-weight:600; color:var(--accent-solid); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dash-header-right { display:flex; align-items:center; gap:12px; flex:0 0 auto; }
+.generated-chip {
+    display:flex; align-items:center; gap:10px; padding:9px 14px;
+    background:var(--surface-2); border:1px solid var(--border); border-radius:10px;
+}
+.generated-chip .lbl { font-size:10px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.4px; }
+.generated-chip .val { font-size:13px; font-weight:700; color:var(--text); }
+.theme-toggle {
+    display:flex; align-items:center; justify-content:center;
+    width:40px; height:40px; border-radius:10px; border:1px solid var(--border);
+    background:var(--surface-2); color:var(--text-secondary); cursor:pointer;
+    transition:color .15s ease, border-color .15s ease, transform .15s ease;
+}
+.theme-toggle:hover { color:var(--accent); border-color:var(--accent); transform:translateY(-1px); }
+.theme-toggle svg.icon-moon { display:none; }
+[data-theme="dark"] .theme-toggle svg.icon-sun { display:none; }
+[data-theme="dark"] .theme-toggle svg.icon-moon { display:block; }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet">
+/* KPI grid */
+.kpi-grid { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:16px; margin-bottom:16px; }
+@media (max-width:1100px){ .kpi-grid { grid-template-columns:repeat(2, minmax(0,1fr)); } }
+@media (max-width:560px){ .kpi-grid { grid-template-columns:1fr; } }
+.kpi-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    padding:18px 20px; display:flex; align-items:center; gap:15px; box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+}
+.kpi-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-hover); border-color:var(--accent); }
+.kpi-ic { width:44px; height:44px; border-radius:12px; display:flex; align-items:center; justify-content:center; flex:0 0 auto; border:1px solid transparent; }
+.kpi-num { font-size:24px; font-weight:800; color:var(--text); line-height:1; letter-spacing:-.3px; }
+.kpi-lbl { font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.4px; margin-top:5px; }
 
-    <!-- Bootstrap Icons -->
+/* Bold solid KPI tiles (kpi-1..kpi-8) */
+.kpi-card[class*="kpi-"] { border:1px solid rgba(255,255,255,0.14); color:#fff; }
+.kpi-card[class*="kpi-"] .kpi-num { color:#ffffff; }
+.kpi-card[class*="kpi-"] .kpi-lbl { color:rgba(255,255,255,0.85); }
+.kpi-ic-solid {
+    width:44px; height:44px; border-radius:12px; flex:0 0 auto;
+    background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;
+}
+.kpi-card.kpi-1 { background:var(--kpi-1); box-shadow:0 10px 24px var(--kpi-1-glow); }
+.kpi-card.kpi-1:hover { box-shadow:0 16px 34px var(--kpi-1-glow); }
+.kpi-card.kpi-2 { background:var(--kpi-2); box-shadow:0 10px 24px var(--kpi-2-glow); }
+.kpi-card.kpi-2:hover { box-shadow:0 16px 34px var(--kpi-2-glow); }
+.kpi-card.kpi-3 { background:var(--kpi-3); box-shadow:0 10px 24px var(--kpi-3-glow); }
+.kpi-card.kpi-3:hover { box-shadow:0 16px 34px var(--kpi-3-glow); }
+.kpi-card.kpi-4 { background:var(--kpi-4); box-shadow:0 10px 24px var(--kpi-4-glow); }
+.kpi-card.kpi-4:hover { box-shadow:0 16px 34px var(--kpi-4-glow); }
+.kpi-card.kpi-5 { background:var(--kpi-5); box-shadow:0 10px 24px var(--kpi-5-glow); }
+.kpi-card.kpi-5:hover { box-shadow:0 16px 34px var(--kpi-5-glow); }
+.kpi-card.kpi-6 { background:var(--kpi-6); box-shadow:0 10px 24px var(--kpi-6-glow); }
+.kpi-card.kpi-6:hover { box-shadow:0 16px 34px var(--kpi-6-glow); }
+.kpi-card.kpi-7 { background:var(--kpi-7); box-shadow:0 10px 24px var(--kpi-7-glow); }
+.kpi-card.kpi-7:hover { box-shadow:0 16px 34px var(--kpi-7-glow); }
+.kpi-card.kpi-8 { background:var(--kpi-8); box-shadow:0 10px 24px var(--kpi-8-glow); }
+.kpi-card.kpi-8:hover { box-shadow:0 16px 34px var(--kpi-8-glow); }
 
-    <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-        rel="stylesheet">
+/* Toolbar */
+.toolbar {
+    display:flex; gap:12px; align-items:center; margin-bottom:18px;
+    background:var(--panel-tint), var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:12px 14px; box-shadow:var(--shadow); flex-wrap:wrap;
+}
+.search-field { position:relative; flex:1; min-width:240px; }
+.search-field svg { position:absolute; left:13px; top:11px; color:var(--text-secondary); pointer-events:none; }
+.search-field input {
+    width:100%; height:40px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); font-size:13px; padding:0 14px 0 38px; font-family:inherit;
+    transition:border-color .15s ease;
+}
+.search-field input:focus, .select-field select:focus { outline:none; border-color:var(--accent); }
+.select-field select {
+    height:40px; background:var(--surface-2); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); font-size:13px; padding:0 12px; font-family:inherit; min-width:150px;
+    transition:border-color .15s ease;
+}
+.results-count {
+    display:flex; align-items:center; height:40px; padding:0 16px; white-space:nowrap;
+    border-radius:10px; background:var(--surface-2); border:1px solid var(--border);
+    color:var(--text-secondary); font-size:12.5px; font-weight:700;
+}
+.results-count strong { color:var(--text); margin:0 4px; font-weight:800; }
 
-    <!-- Google Font -->
+/* Table card */
+.table-card {
+    background:var(--panel-tint), var(--surface); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow); overflow:hidden;
+}
+.table-card h2 {
+    margin:0; padding:18px 20px 14px 20px; font-size:14.5px; font-weight:800; color:var(--text);
+    display:flex; align-items:center; gap:9px;
+}
+.data-table { width:100%; border-collapse:collapse; }
+.data-table th {
+    font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;
+    letter-spacing:.5px; text-align:left; padding:0 20px 12px 20px; border-bottom:1px solid var(--border);
+}
+.data-table td { font-size:13px; color:var(--text); padding:14px 20px; border-bottom:1px solid var(--border); }
+.data-table tbody tr { transition:background .1s ease; }
+.data-table tbody tr:hover { background:var(--surface-2); }
+.data-table tbody tr:last-child td { border-bottom:none; }
+.badge {
+    display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
+    padding:5px 12px; border-radius:20px; white-space:nowrap; color:#ffffff;
+}
+.badge::before { content:""; width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,0.85); flex:0 0 auto; }
+.badge-success { background:var(--badge-success); }
+.badge-danger { background:var(--badge-danger); }
+.badge-warning { background:var(--badge-warning); }
+.view-link {
+    display:inline-flex; align-items:center; gap:5px; border:none; background:none; cursor:pointer;
+    color:var(--accent); font-weight:700; font-size:12.5px; font-family:inherit; padding:0;
+}
+.view-link:hover { color:var(--accent-hover); }
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+/* Footer */
+.dash-footer {
+    display:flex; justify-content:space-between; padding-top:20px; margin-top:8px;
+    font-size:11px; color:var(--text-secondary);
+}
 
-    <!-- Custom CSS -->
+/* Modal */
+.modal-backdrop {
+    position:fixed; inset:0; background:var(--modal-backdrop); z-index:1000;
+    display:none; align-items:flex-start; justify-content:center; padding:36px 20px; overflow-y:auto;
+}
+.modal-backdrop.open { display:flex; }
+.modal-box {
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    width:100%; max-width:980px; box-shadow:var(--shadow-hover); display:flex; flex-direction:column;
+}
+.modal-head {
+    display:flex; align-items:center; justify-content:space-between; padding:18px 22px;
+    border-bottom:1px solid var(--border); flex:0 0 auto;
+}
+.modal-head h3 { margin:0; font-size:16.5px; font-weight:800; color:var(--text); }
+.modal-actions { display:flex; align-items:center; gap:6px; }
+.icon-btn {
+    display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:9px;
+    border:1px solid var(--border); background:var(--surface-2); cursor:pointer; color:var(--text-secondary);
+    transition:border-color .15s ease, color .15s ease;
+}
+.icon-btn:hover { color:var(--text); border-color:var(--accent); }
+.modal-body { padding:22px; overflow-y:auto; max-height:70vh; }
 
-    <link
-        rel="stylesheet"
-        href="assets/style.css">
+.info-card { border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
+.info-card-head { background:var(--accent-solid); color:var(--accent-contrast); font-weight:700; font-size:13px; padding:11px 18px; }
+.info-card-body { display:grid; grid-template-columns:1fr 1fr; gap:0; padding:16px 18px; background:var(--surface-2); }
+.info-row { display:flex; gap:8px; padding:5px 0; font-size:13px; }
+.info-row .k { flex:0 0 120px; color:var(--text-secondary); font-weight:600; }
+.info-row .v { color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
+.mini-stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+.mini-stat { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:15px; text-align:center; }
+.mini-stat .lbl { font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.3px; }
+.mini-stat .val { font-size:21px; font-weight:800; margin-top:5px; }
+
+.alert-box { border-radius:14px; padding:16px 18px; margin-bottom:6px; border:1px solid transparent; }
+.alert-danger-box { background:var(--danger-bg); border-color:var(--danger-border); color:var(--danger-fg); }
+.alert-success-box { background:var(--success-bg); border-color:var(--success-border); color:var(--success-fg); font-weight:700; }
+.alert-box h4 { margin:0 0 8px 0; font-size:15px; }
+
+.dtable-title { margin:22px 0 8px 0; font-size:13.5px; font-weight:700; color:var(--text); }
+.dtable-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
+.dtable { width:100%; border-collapse:collapse; }
+.dtable th {
+    font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.4px;
+    text-align:left; padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--border);
+}
+.dtable td { font-size:12.5px; color:var(--text); padding:10px 14px; border-bottom:1px solid var(--border); }
+.dtable tbody tr:hover { background:var(--surface-2); }
+.dtable tbody tr:last-child td { border-bottom:none; }
+
+@media (max-width:720px) {
+    .info-card-body { grid-template-columns:1fr; }
+    .mini-stats { grid-template-columns:repeat(2, minmax(0,1fr)); }
+}
+</style>
 </head>
 
 <body>
+<div class="wrap">
 
-<div class="container-fluid dashboard-container">
-
-<!-- ============================================ -->
-<!-- Header -->
-<!-- ============================================ -->
-
-<div class="dashboard-header mb-4">
-
-    <div class="header-left">
-
-        <div class="header-icon">
-    <img src="assets/anyconnector-logo.png"
-         alt="AnyConnector Logo"
-         class="header-logo">
-</div>
-
-        <div class="header-text">
-
-            <h2>XML Validator Dashboard</h2>
-
-            <p>{{ report_title }}</p>
-
+    <!-- Header -->
+    <div class="dash-header">
+        <div class="dash-header-left">
+            <div class="dash-logo">
+                {% if logo_data_uri %}
+                <img src="{{ logo_data_uri }}" alt="AnyConnector Logo">
+                {% endif %}
+            </div>
+            <div class="dash-title">
+                <h1>XML Validator Dashboard</h1>
+                <p>{{ report_title }}</p>
+            </div>
         </div>
-
+        <div class="dash-header-right">
+            <div class="generated-chip">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div>
+                    <div class="lbl">Generated On</div>
+                    <div class="val">{{ report_info.generated_on.split(" ")[0] }} · {{ report_info.generated_on.split(" ")[1] }} {{ report_info.generated_on.split(" ")[2] }}</div>
+                </div>
+            </div>
+            <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle dark/light theme">
+                <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+        </div>
     </div>
 
-    <div class="header-right">
-
-        <div class="header-divider"></div>
-
-        <div class="generated-info">
-
-            <div class="generated-icon">
-                <i class="bi bi-calendar-event"></i>
-            </div>
-
-            <div class="generated-text">
-
-                <div class="generated-label">
-                    Generated On
-                </div>
-
-                <div class="generated-date">
-                    {{ report_info.generated_on.split(" ")[0] }}
-                </div>
-
-                <div class="generated-time">
-                    {{ report_info.generated_on.split(" ")[1] }}
-                    {{ report_info.generated_on.split(" ")[2] }}
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-    <div class="header-shine"></div>
-</div>
-
-<!-- ============================================ -->
-<!-- KPI -->
-<!-- ============================================ -->
-    <!-- ============================================ -->
-    <!-- KPI -->
-    <!-- ============================================ -->
-
-    <div class="row g-3 mb-3">
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-primary">
-
-                    <i class="bi bi-shop"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Total Stores</h6>
-
-                    <h2>{{ summary.total_stores }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-success">
-
-                    <i class="bi bi-check-circle-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Passed</h6>
-
-                    <h2>{{ summary.passed }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-danger">
-
-                    <i class="bi bi-x-circle-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Failed</h6>
-
-                    <h2>{{ summary.failed }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-warning">
-
-                    <i class="bi bi-graph-up-arrow"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Accuracy</h6>
-
-                    <h2>{{ summary.accuracy }}%</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <!-- KPI row 1 -->
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-1"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div><div><div class="kpi-num">{{ summary.total_stores }}</div><div class="kpi-lbl">Total Stores</div></div></div>
+        <div class="kpi-card kpi-2"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="kpi-num">{{ summary.passed }}</div><div class="kpi-lbl">Passed</div></div></div>
+        <div class="kpi-card kpi-3"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div><div class="kpi-num">{{ summary.failed }}</div><div class="kpi-lbl">Failed</div></div></div>
+        <div class="kpi-card kpi-4"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div><div class="kpi-num">{{ summary.accuracy }}%</div><div class="kpi-lbl">Accuracy</div></div></div>
     </div>
 
-    <div class="row g-3 mb-3">
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-info">
-
-                    <i class="bi bi-exclamation-circle-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Differences</h6>
-
-                    <h2>{{ summary.differences }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-secondary">
-
-                    <i class="bi bi-file-earmark-x-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Missing</h6>
-
-                    <h2>{{ summary.missing }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-dark">
-
-                    <i class="bi bi-files"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Duplicates</h6>
-
-                    <h2>{{ summary.duplicates }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="col-xl-3 col-md-6">
-
-            <div class="kpi-card">
-
-                <div class="kpi-icon bg-primary">
-
-                    <i class="bi bi-0-circle-fill"></i>
-
-                </div>
-
-                <div>
-
-                    <h6>Zero Values</h6>
-
-                    <h2>{{ summary.zero_values }}</h2>
-
-                </div>
-
-            </div>
-
-        </div>
-
+    <!-- KPI row 2 -->
+    <div class="kpi-grid">
+        <div class="kpi-card kpi-5"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="kpi-num">{{ summary.differences }}</div><div class="kpi-lbl">Differences</div></div></div>
+        <div class="kpi-card kpi-6"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div><div class="kpi-num">{{ summary.missing }}</div><div class="kpi-lbl">Missing</div></div></div>
+        <div class="kpi-card kpi-7"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div><div class="kpi-num">{{ summary.duplicates }}</div><div class="kpi-lbl">Duplicates</div></div></div>
+        <div class="kpi-card kpi-8"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><div><div class="kpi-num">{{ summary.zero_values }}</div><div class="kpi-lbl">Zero Values</div></div></div>
     </div>
 
-    <!-- ============================================ -->
     <!-- Toolbar -->
-    <!-- ============================================ -->
-
-    <div class="table-card mb-2">
-
-        <div class="row g-3 align-items-center">
-
-            <div class="col-lg-4">
-
-                <input
-                    id="storeSearch"
-                    class="form-control"
-                    type="text"
-                    placeholder="🔍 Search Store">
-
-            </div>
-
-            <div class="col-lg-3">
-
-                <select
-                    id="statusFilter"
-                    class="form-select">
-
-                    <option value="ALL">
-
-                        All Status
-
-                    </option>
-
-                    <option value="PASS">
-
-                        PASS
-
-                    </option>
-
-                    <option value="FAIL">
-
-                        FAIL
-
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="col-lg-5 text-end">
-
-                <button
-                    class="btn btn-primary">
-
-                    <i class="bi bi-arrow-clockwise"></i>
-
-                    Refresh
-
-                </button>
-
-            </div>
-
+    <div class="toolbar">
+        <div class="search-field">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <label for="storeSearch" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Search store</label>
+            <input id="storeSearch" type="text" placeholder="Search store…">
         </div>
-
+        <div class="select-field">
+            <label for="statusFilter" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Filter by status</label>
+            <select id="statusFilter">
+                <option value="ALL">All Status</option>
+                <option value="PASS">PASS</option>
+                <option value="FAIL">FAIL</option>
+            </select>
+        </div>
+        <div class="results-count" id="resultsCount">Showing 0 of 0 stores</div>
     </div>
 
-    <!-- ============================================ -->
     <!-- Store Summary -->
-    <!-- ============================================ -->
-
-    <div class="table-card mt-2">
-
-        <h4 class="mb-2">
-
-            <i class="bi bi-table"></i>
-
+    <div class="table-card">
+        <h2>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
             Store Summary
-
-        </h4>
-
-        <div class="table-responsive">
-
-            <table
-                class="table table-hover"
-                id="storeTable">
-
+        </h2>
+        <div style="overflow-x:auto;">
+            <table class="data-table" id="storeTable">
                 <thead>
-
                 <tr>
-
                     <th>Store</th>
-   
                     <th>Status</th>
-
                     <th>Differences</th>
-
                     <th>Missing</th>
-
                     <th>Duplicates</th>
-
                     <th>Zero Values</th>
-
                     <th>Details</th>
-
                 </tr>
-
                 </thead>
-
                 <tbody>
-
                 {% for store in stores %}
-
                 <tr>
-
                     <td>{{ store["Store"] }}</td>
-
                     <td>
-                                                {% if store["Status"] == "PASS" %}
-
-<span class="badge bg-success">
-
-    PASS
-
-</span>
-
-{% elif store["Status"] == "FAIL" %}
-
-<span class="badge bg-danger">
-
-    FAIL
-
-</span>
-
-{% else %}
-
-<span class="badge bg-warning text-dark">
-
-    {{ store["Status"] }}
-
-</span>
-
-{% endif %}
+                        {% if store["Status"] == "PASS" %}
+                        <span class="badge badge-success">PASS</span>
+                        {% elif store["Status"] == "FAIL" %}
+                        <span class="badge badge-danger">FAIL</span>
+                        {% else %}
+                        <span class="badge badge-warning">{{ store["Status"] }}</span>
+                        {% endif %}
                     </td>
-
                     <td>{{ store["Differences"] }}</td>
-
                     <td>{{ store["Missing Records"] }}</td>
-
                     <td>{{ store["Duplicates"] }}</td>
-
                     <td>{{ store["Zero Values"] }}</td>
-
                     <td>
-
-                        <button
-                            class="btn btn-sm btn-outline-primary view-details"
-                            data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}">
-
-                            <i class="bi bi-eye"></i>
-
+                        <button type="button" class="view-link view-details" data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             View
-
                         </button>
-
-                        </td>
-
+                    </td>
                 </tr>
-
                 {% endfor %}
-
                 </tbody>
-
             </table>
-
         </div>
-
     </div>
 
-    <!-- ============================================ -->
     <!-- Footer -->
-    <!-- ============================================ -->
-
-    <footer class="dashboard-footer mt-4">
-
-        <div class="row">
-
-            <div class="col-md-6">
-
-                <small>
-
-                    XML Validator Dashboard
-                    • Version 2.0
-
-                </small>
-
-            </div>
-
-            <div class="col-md-6 text-end">
-
-                <small>
-
-                    Powered by Python • OpenPyXL • Jinja2 • Bootstrap 5
-
-                </small>
-
-            </div>
-
-        </div>
-
-    </footer>
-
+    <div class="dash-footer">
+        <span>XML Validator Dashboard · Version 2.0</span>
+        <span>Powered by Python · OpenPyXL · Jinja2</span>
+    </div>
 </div>
-<!-- ============================================ -->
-<!-- ============================================ -->
+
 <!-- Store Details Modal -->
-<!-- ============================================ -->
-
-<div class="modal fade" id="storeDetailsModal" tabindex="-1">
-
-    <div class="modal-dialog modal-xl modal-dialog-scrollable">
-
-        <div class="modal-content">
-
-            <div class="modal-header">
-
-    <h5 class="modal-title">
-
-        <span id="modalStore"></span>
-
-    </h5>
-
-    <div class="d-flex align-items-center gap-2 me-2">
-
-        <button
-            id="downloadExcelReport"
-            class="btn btn-sm report-btn me-2"
-            title="Download Excel Report">
-
-            <i class="bi bi-file-earmark-excel-fill text-success fs-5"></i>
-
-        </button>
-
-        <button
-            id="downloadPdfReport"
-            class="btn btn-sm report-btn"
-            title="Download PDF Report">
-
-            <i class="bi bi-file-earmark-pdf-fill text-danger fs-5"></i>
-
-        </button>
-
-        <button
-            type="button"
-            class="btn-close btn-close-white"
-            data-bs-dismiss="modal">
-        </button>
-
-    </div>
-
-</div>
-
-            <div class="modal-body">
-
-                <div id="modalContent">
-
-                    Loading...
-
-                </div>
-
+<div class="modal-backdrop" id="storeDetailsModal">
+    <div class="modal-box">
+        <div class="modal-head">
+            <h3 id="modalStore">Store Details</h3>
+            <div class="modal-actions">
+                <button type="button" class="icon-btn" id="downloadExcelReport" title="Download Excel Report" aria-label="Download Excel report">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </button>
+                <button type="button" class="icon-btn" id="downloadPdfReport" title="Download PDF Report" aria-label="Download PDF report">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </button>
+                <button type="button" class="icon-btn" id="modalCloseBtn" aria-label="Close">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
+                </button>
             </div>
-
         </div>
-
+        <div class="modal-body">
+            <div id="modalContent">Loading…</div>
+        </div>
     </div>
-
 </div>
-<!-- ============================================ -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- ============================================ -->
-<!-- Dashboard Script -->
-<!-- ============================================ -->
 
 <!-- Dashboard Data -->
-
 <script>
-
 const dashboardDetails = {{ details | tojson }};
-
 </script>
 
 <!-- Dashboard Script -->
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    initializeDashboard();
+});
 
-<script src="assets/dashboard.js"></script>
+function initializeDashboard() {
+    initializeThemeToggle();
+    initializeSearch();
+    initializeStatusFilter();
+    initializeViewButtons();
+    initializeModalClose();
+    updateResultsCount();
+}
+
+/* Theme toggle */
+function initializeThemeToggle() {
+    const toggle = document.getElementById("themeToggle");
+    if (!toggle) return;
+
+    toggle.addEventListener("click", () => {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("xmlValidatorTheme", next); } catch (e) {}
+    });
+}
+
+/* Search */
+function initializeSearch() {
+    const searchBox = document.getElementById("storeSearch");
+    if (!searchBox) return;
+    searchBox.addEventListener("keyup", filterTable);
+}
+
+/* Status filter */
+function initializeStatusFilter() {
+    const filter = document.getElementById("statusFilter");
+    if (!filter) return;
+    filter.addEventListener("change", filterTable);
+}
+
+/* Table filter */
+function filterTable() {
+    const searchValue = document.getElementById("storeSearch").value.toUpperCase();
+    const statusValue = document.getElementById("statusFilter").value;
+    const rows = document.querySelectorAll("#storeTable tbody tr");
+
+    rows.forEach((row) => {
+        const store = row.cells[0].innerText.toUpperCase();
+        const status = row.cells[1].innerText.trim().toUpperCase();
+        const matchSearch = store.includes(searchValue);
+        const matchStatus = statusValue === "ALL" || status === statusValue;
+        row.style.display = (matchSearch && matchStatus) ? "" : "none";
+    });
+
+    updateResultsCount();
+}
+
+/* Results count */
+function updateResultsCount() {
+    const countEl = document.getElementById("resultsCount");
+    if (!countEl) return;
+
+    const rows = document.querySelectorAll("#storeTable tbody tr");
+    const total = rows.length;
+    let visible = 0;
+
+    rows.forEach((row) => {
+        if (row.style.display !== "none") visible++;
+    });
+
+    countEl.innerHTML = `Showing <strong>${visible}</strong> of <strong>${total}</strong> stores`;
+}
+
+/* View buttons */
+function initializeViewButtons() {
+    const buttons = document.querySelectorAll(".view-details");
+    buttons.forEach((button) => {
+        button.addEventListener("click", () => {
+            showStoreDetails(button.dataset.store);
+        });
+    });
+}
+
+/* Modal close (backdrop click, close button, escape key) */
+function initializeModalClose() {
+    const backdrop = document.getElementById("storeDetailsModal");
+    const closeBtn = document.getElementById("modalCloseBtn");
+
+    if (closeBtn) closeBtn.addEventListener("click", hideModal);
+
+    if (backdrop) {
+        backdrop.addEventListener("click", (e) => {
+            if (e.target === backdrop) hideModal();
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") hideModal();
+    });
+}
+
+function showModal() {
+    const backdrop = document.getElementById("storeDetailsModal");
+    if (backdrop) backdrop.classList.add("open");
+}
+
+function hideModal() {
+    const backdrop = document.getElementById("storeDetailsModal");
+    if (backdrop) backdrop.classList.remove("open");
+}
+
+/* Dynamic table generator */
+function generateDynamicTable(title, records) {
+    if (!records || records.length === 0) return "";
+
+    const headers = Object.keys(records[0]);
+    let html = `<div class="dtable-title">${title}</div><div class="dtable-wrap"><table class="dtable"><thead><tr>`;
+
+    headers.forEach((header) => {
+        if (header === "Store") return;
+        html += `<th>${header}</th>`;
+    });
+
+    html += `</tr></thead><tbody>`;
+
+    records.forEach((record) => {
+        html += "<tr>";
+        headers.forEach((header) => {
+            if (header === "Store") return;
+            let value = record[header];
+            if (value === undefined || value === null || value === "") value = "-";
+            if (typeof value === "object") value = formatAttributes(value);
+            html += `<td>${value}</td>`;
+        });
+        html += "</tr>";
+    });
+
+    html += `</tbody></table></div>`;
+    return html;
+}
+
+/* Store details */
+function showStoreDetails(store) {
+    const details = dashboardDetails[store];
+    if (!details) return;
+
+    const excelButton = document.getElementById("downloadExcelReport");
+    const pdfButton = document.getElementById("downloadPdfReport");
+
+    if (excelButton) {
+        excelButton.onclick = () => {
+            if (!details.report_file) { alert("Excel report not found."); return; }
+            window.open(details.report_file, "_blank");
+        };
+    }
+
+    if (pdfButton) {
+        pdfButton.onclick = () => {
+            if (!details.pdf_file) { alert("PDF report not found."); return; }
+            window.open(details.pdf_file, "_blank");
+        };
+    }
+
+    const validationFailure = details.validation_failure || false;
+    const failureReason = details.failure_reason || "";
+
+    document.getElementById("modalStore").textContent = `Store ${details.store || ""}`.trim();
+
+    const infoCard = `
+        <div class="info-card">
+            <div class="info-card-head">Store Information</div>
+            <div class="info-card-body">
+                <div>
+                    <div class="info-row"><span class="k">Store No</span><span class="v">${details.store || "-"}</span></div>
+                    <div class="info-row"><span class="k">Business Date</span><span class="v">${details.cb_date || details.ac_date || "-"}</span></div>
+                </div>
+                <div>
+                    <div class="info-row"><span class="k">CB File</span><span class="v" title="${details.cb_file || "-"}">${details.cb_file || "-"}</span></div>
+                    <div class="info-row"><span class="k">AC File</span><span class="v" title="${details.ac_file || "-"}">${details.ac_file || "-"}</span></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    let html = "";
+
+    if (validationFailure) {
+        html = infoCard + `
+            <div class="alert-box alert-danger-box">
+                <h4>Validation Failed</h4>
+                <p><strong>Reason:</strong> ${failureReason}</p>
+            </div>
+        `;
+        document.getElementById("modalContent").innerHTML = html;
+        showModal();
+        return;
+    }
+
+    const differences = details.differences || [];
+    const missing = details.missing || [];
+    const duplicates = details.duplicates || [];
+    const zeroValues = details.zero_values || [];
+
+    html += infoCard;
+
+    html += `
+        <div class="mini-stats">
+            <div class="mini-stat"><div class="lbl">Differences</div><div class="val" style="color:var(--danger)">${differences.length}</div></div>
+            <div class="mini-stat"><div class="lbl">Missing</div><div class="val" style="color:var(--warning)">${missing.length}</div></div>
+            <div class="mini-stat"><div class="lbl">Duplicates</div><div class="val" style="color:var(--purple)">${duplicates.length}</div></div>
+            <div class="mini-stat"><div class="lbl">Zero Values</div><div class="val" style="color:var(--info)">${zeroValues.length}</div></div>
+        </div>
+    `;
+
+    html += generateDynamicTable("Differences", differences);
+    html += generateDynamicTable("Missing Records", missing);
+    html += generateDynamicTable("Duplicate Records", duplicates);
+    html += generateDynamicTable("Zero Value Records", zeroValues);
+
+    if (differences.length === 0 && missing.length === 0 && duplicates.length === 0 && zeroValues.length === 0) {
+        html = infoCard + `<div class="alert-box alert-success-box">✓ No validation issues found for this store.</div>`;
+    }
+
+    document.getElementById("modalContent").innerHTML = html;
+    showModal();
+}
+
+/* Utility */
+function formatAttributes(attributes) {
+    if (attributes === null || attributes === undefined || attributes === "" || attributes === "-") return "-";
+
+    if (typeof attributes === "object") {
+        let html = "";
+        Object.entries(attributes).forEach(([key, value]) => {
+            html += `<div><strong>${key}</strong>: ${value}</div>`;
+        });
+        return html;
+    }
+
+    if (typeof attributes === "string") {
+        let text = attributes.trim();
+        if (text.startsWith("{") && text.endsWith("}")) {
+            text = text.substring(1, text.length - 1);
+            let html = "";
+            text.split(",").forEach((pair) => {
+                const parts = pair.split(":");
+                if (parts.length < 2) return;
+                const key = parts[0].replace(/'/g, "").trim();
+                const value = parts.slice(1).join(":").replace(/'/g, "").trim();
+                html += `<div><strong>${key}</strong>: ${value}</div>`;
+            });
+            return html;
+        }
+    }
+
+    return attributes;
+}
+</script>
 
 </body>
-
 </html>
