@@ -4,9 +4,11 @@ from file_matcher import get_matching_files
 from master_report_generator import generate_master_report
 from comparator import compare_nodes
 from xml_validator import validate_xml_structure
+from ers_dpkeys_comparator import compare_ers_dpkeys
 from labor_preprocessor import (
     filter_exception_records,
     aggregate_pay_period_tm1,
+    aggregate_pay_period_by_employee_job,
 )
 
 # NEW IMPORT
@@ -182,9 +184,10 @@ def run_comparison(
     integration="payroll",
     cb_file=None,
     ac_file=None,
+    client="bww",
 ):
 
-    node_config = get_node_config(integration)
+    node_config = get_node_config(integration, client)
 
     if cb_file and ac_file:
 
@@ -335,35 +338,12 @@ def run_comparison(
         file_zero_count = 0
 
         file_duplicate_count = 0
-
-        for config in node_config:
-
-            if config["node"] == "NV":
-                cb_nodes = cb.get_nv_nodes()
-                ac_nodes = ac.get_nv_nodes()
-            else:
-                cb_nodes = cb.get_nodes(config["path"])
-                ac_nodes = ac.get_nodes(config["path"])
-
-            if (
-                integration in ["payroll", "timekeeping"]
-                and config["node"] == "EXCEPTIONS"
-            ):
-                cb_nodes = filter_exception_records(cb.get_root(), cb_nodes)
-                ac_nodes = filter_exception_records(ac.get_root(), ac_nodes)
-            if (
-                integration == "payroll"
-                and config["node"] == "PAY_PERIOD"
-            ):
-                cb_nodes = aggregate_pay_period_tm1(cb_nodes)
+        if integration == "ers dpkeys":
 
             differences, zero_values, missing_records, duplicate_records = (
-                compare_nodes(
-                    cb_nodes,
-                    ac_nodes,
-                    config["node"],
-                    config["display_path"],
-                    config["key_fields"],
+                compare_ers_dpkeys(
+                    cb.get_root(),
+                    ac.get_root(),
                 )
             )
 
@@ -392,6 +372,65 @@ def run_comparison(
             file_missing_count += len(missing_records)
             file_zero_count += len(zero_values)
             file_duplicate_count += len(duplicate_records)
+
+        else:
+            for config in node_config:
+
+                if config["node"] == "NV":
+                    cb_nodes = cb.get_nv_nodes()
+                    ac_nodes = ac.get_nv_nodes()
+                else:
+                    cb_nodes = cb.get_nodes(config["path"])
+                    ac_nodes = ac.get_nodes(config["path"])
+
+                if (
+                    integration in ["payroll", "timekeeping"]
+                    and config["node"] == "EXCEPTIONS"
+                ):
+                    cb_nodes = filter_exception_records(cb.get_root(), cb_nodes)
+                    ac_nodes = filter_exception_records(ac.get_root(), ac_nodes)
+                if (
+                    integration == "payroll"
+                    and config["node"] == "PAY_PERIOD"
+                ):
+                    cb_nodes = aggregate_pay_period_tm1(cb_nodes)
+                    ac_nodes = aggregate_pay_period_by_employee_job(ac_nodes)
+
+                differences, zero_values, missing_records, duplicate_records = (
+                    compare_nodes(
+                        cb_nodes,
+                        ac_nodes,
+                        config["node"],
+                        config["display_path"],
+                        config["key_fields"],
+                    )
+                )
+
+                for row in differences:
+                    row["Store"] = cb_info.get("location")
+                    row["Date"] = cb_info.get("date")
+
+                for row in missing_records:
+                    row["Store"] = cb_info.get("location")
+                    row["Date"] = cb_info.get("date")
+
+                for row in zero_values:
+                    row["Store"] = cb_info.get("location")
+                    row["Date"] = cb_info.get("date")
+
+                for row in duplicate_records:
+                    row["Store"] = cb_info.get("location")
+                    row["Date"] = cb_info.get("date")
+
+                all_differences.extend(differences)
+                all_missing_records.extend(missing_records)
+                all_zero_values.extend(zero_values)
+                all_duplicate_records.extend(duplicate_records)
+
+                file_difference_count += len(differences)
+                file_missing_count += len(missing_records)
+                file_zero_count += len(zero_values)
+                file_duplicate_count += len(duplicate_records)
 
         total_issues = file_difference_count + file_missing_count + file_duplicate_count
 

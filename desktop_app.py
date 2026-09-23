@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
     QComboBox,
     QRadioButton,
 )
+from PySide6.QtGui import QIcon
 
 import sys
 import os
@@ -25,6 +26,10 @@ src_path = os.path.join(base_path, "src")
 if src_path not in sys.path:
     sys.path.insert(0, src_path)
 
+APP_ICON_PATH = os.path.join(
+    base_path, "dashboard", "assets", "anyconnector-logo.png"
+)
+
 from run_comparison import run_comparison
 
 
@@ -35,6 +40,7 @@ class PayrollValidator(QWidget):
         super().__init__()
 
         self.setWindowTitle("XML Integration Validator")
+        self.setWindowIcon(QIcon(APP_ICON_PATH))
 
         self.resize(1100, 500)
         self.setStyleSheet("""
@@ -162,6 +168,21 @@ QPushButton#runButton:hover {
                 "ERS DPKeys"
             ]
         )
+        self.client_label = QLabel("Food Out Client")
+
+        self.client_dropdown = QComboBox()
+        self.client_dropdown.setFixedHeight(38)
+        self.client_dropdown.addItems(
+            [
+                "BWW",
+                "Arby's",
+                "Little Caesars",
+            ]
+        )
+        self.integration_dropdown.currentTextChanged.connect(
+            self.update_client_visibility
+        )
+
         self.folder_radio = QRadioButton("Folder Comparison")
         self.file_radio = QRadioButton("Single File Comparison")
 
@@ -238,6 +259,8 @@ font-size: 10px;
 
         layout.addWidget(self.integration_label)
         layout.addWidget(self.integration_dropdown)
+        layout.addWidget(self.client_label)
+        layout.addWidget(self.client_dropdown)
         radio_layout = QHBoxLayout()
 
         radio_layout.addWidget(self.folder_radio)
@@ -264,7 +287,20 @@ font-size: 10px;
         layout.addWidget(self.version_label)
 
         self.update_mode()
+        self.update_client_visibility()
         self.setLayout(layout)
+
+    FOOD_OUT_CLIENT_MAP = {
+        "BWW": "bww",
+        "Arby's": "arbys",
+        "Little Caesars": "lc",
+    }
+
+    def update_client_visibility(self):
+        is_food_out = self.integration_dropdown.currentText() == "Food Out"
+
+        self.client_label.setVisible(is_food_out)
+        self.client_dropdown.setVisible(is_food_out)
 
     def select_cb_folder(self):
         folder = QFileDialog.getExistingDirectory(self, "Select CB Folder")
@@ -331,18 +367,24 @@ font-size: 10px;
         try:
             self.status_label.setText("🟡 Running Comparison...")
 
+            selected_client = self.FOOD_OUT_CLIENT_MAP.get(
+                self.client_dropdown.currentText(), "bww"
+            )
+
             if self.folder_radio.isChecked():
                 print("Dropdown Value =", repr(self.integration_dropdown.currentText().lower()))
                 result = run_comparison(
                     self.cb_folder,
                     self.ac_folder,
                     self.integration_dropdown.currentText().lower(),
+                    client=selected_client,
                 )
             else:
                 result = run_comparison(
                     integration=self.integration_dropdown.currentText().lower(),
                     cb_file=self.cb_file,
                     ac_file=self.ac_file,
+                    client=selected_client,
                 )
 
             self.status_label.setText("🟢 Comparison Completed")
@@ -373,6 +415,7 @@ font-size: 10px;
 
             os.startfile(folder)
 app = QApplication(sys.argv)
+app.setWindowIcon(QIcon(APP_ICON_PATH))
 
 window = PayrollValidator()
 
