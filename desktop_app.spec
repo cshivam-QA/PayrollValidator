@@ -2,7 +2,7 @@
 
 from PyInstaller.utils.hooks import collect_submodules
 
-hidden = collect_submodules("jinja2")
+hidden = collect_submodules("jinja2") + collect_submodules("reportlab.graphics.barcode")
 
 a = Analysis(
     ['desktop_app.py'],
@@ -23,7 +23,33 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    excludes=[
+        # Unrelated ML/data-science and web-framework packages present in
+        # this machine's global Python environment. Confirmed (via grep)
+        # that no project code or PDF/report dependency (xhtml2pdf,
+        # reportlab, pypdf, pyhanko, svglib) imports any of these.
+        'torch',
+        'torchgen',
+        'transformers',
+        'sympy',
+        'mpmath',
+        'scipy',
+        'sklearn',
+        'huggingface_hub',
+        'joblib',
+        'fsspec',
+        'networkx',
+        'pygments',
+        'rich',
+        'markdown_it',
+        'pytest',
+        '_pytest',
+        'google',
+        'fastapi',
+        'pydantic',
+        'faiss',
+        'faiss_cpu',
+    ],
     noarchive=False,
     optimize=0,
 )
@@ -45,5 +71,7 @@ exe = EXE(
     strip=False,
     upx=True,
 
-    console=True,
+    console=False,
+
+    icon='dashboard/assets/anyconnector-logo.ico',
 )
