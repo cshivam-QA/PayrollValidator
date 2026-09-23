@@ -1,5 +1,6 @@
 import sys
 import base64
+from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 import shutil
@@ -106,6 +107,40 @@ class DashboardGenerator:
         return f"data:image/png;base64,{encoded}"
 
     # ======================================================
+    # Run context (business date range covered by this report)
+    # ======================================================
+
+    def format_business_date(self, value):
+
+        value = str(value).strip()
+
+        try:
+            return datetime.strptime(value, "%Y%m%d").strftime("%d-%b-%Y")
+        except ValueError:
+            return value
+
+    def get_run_date_range(self, stores):
+
+        dates = set()
+
+        for store in stores:
+            for key in ("CB Date", "AC Date"):
+                value = store.get(key)
+                if value:
+                    dates.add(str(value))
+
+        if not dates:
+            return ""
+
+        sorted_dates = sorted(dates)
+        formatted = [self.format_business_date(d) for d in sorted_dates]
+
+        if len(formatted) == 1:
+            return formatted[0]
+
+        return f"{formatted[0]} – {formatted[-1]}"
+
+    # ======================================================
     # Generate Dashboard
     # ======================================================
 
@@ -128,7 +163,8 @@ class DashboardGenerator:
             details=dashboard_data["details"],
             report_title=dashboard_data["report_title"],
             report_info=dashboard_data["report_info"],
-            logo_data_uri=self.get_logo_data_uri()
+            logo_data_uri=self.get_logo_data_uri(),
+            run_date_range=self.get_run_date_range(dashboard_data["stores"])
         )
 
         self.output_dir.mkdir(

@@ -23,11 +23,11 @@
     --kpi-1:#4f5fe0; --kpi-1-glow:rgba(79,95,224,0.35);
     --kpi-2:#149164; --kpi-2-glow:rgba(20,145,100,0.35);
     --kpi-3:#dd4650; --kpi-3-glow:rgba(221,70,80,0.35);
-    --kpi-4:#d69a2d; --kpi-4-glow:rgba(214,154,45,0.35);
+    --kpi-4:#b8790a; --kpi-4-glow:rgba(184,121,10,0.35);
     --kpi-5:#1aacbd; --kpi-5-glow:rgba(26,172,189,0.35);
     --kpi-6:#5f6ea3; --kpi-6-glow:rgba(95,110,163,0.35);
     --kpi-7:#8452e0; --kpi-7-glow:rgba(132,82,224,0.35);
-    --kpi-8:#cf4488; --kpi-8-glow:rgba(207,68,136,0.35);
+    --kpi-8:#b13d75; --kpi-8-glow:rgba(177,61,117,0.35);
     --badge-success:#128a5c; --badge-danger:#d1454c; --badge-warning:#af7c0c;
 }
 :root, [data-theme="light"] {
@@ -63,7 +63,12 @@
     --shadow-hover:0 16px 40px rgba(0,0,0,0.55);
     --modal-backdrop:rgba(0,0,0,0.68);
     --glow-1:rgba(124,92,255,0.24); --glow-2:rgba(59,209,197,0.12);
+    /* Muted/desaturated variants for the two cards that ran too bright on dark bg */
+    --kpi-5:#1c7580; --kpi-5-glow:rgba(28,117,128,0.22);
+    --kpi-6:#454f74; --kpi-6-glow:rgba(69,79,116,0.22);
 }
+[data-theme="dark"] .kpi-card.kpi-5 { box-shadow:var(--shadow); }
+[data-theme="dark"] .kpi-card.kpi-5:hover { box-shadow:var(--shadow-hover); }
 
 * { box-sizing:border-box; }
 html, body { margin:0; padding:0; }
@@ -101,8 +106,15 @@ body::before {
     display:flex; align-items:center; justify-content:center; overflow:hidden;
 }
 .dash-logo img { width:30px; height:30px; object-fit:contain; }
+.dash-title-row { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
 .dash-title h1 { margin:0; font-size:22px; font-weight:800; color:var(--text); letter-spacing:-.2px; }
 .dash-title p { margin:3px 0 0 0; font-size:12.5px; font-weight:600; color:var(--accent-solid); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.status-pill {
+    display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800;
+    padding:4px 12px; border-radius:20px; border:1px solid transparent; white-space:nowrap;
+}
+.status-pill-fail { background:var(--danger-bg); border-color:var(--danger-border); color:var(--danger-fg); }
+.status-pill-pass { background:var(--success-bg); border-color:var(--success-border); color:var(--success-fg); }
 .dash-header-right { display:flex; align-items:center; gap:12px; flex:0 0 auto; }
 .generated-chip {
     display:flex; align-items:center; gap:10px; padding:9px 14px;
@@ -139,9 +151,10 @@ body::before {
 .kpi-card[class*="kpi-"] { border:1px solid rgba(255,255,255,0.14); color:#fff; }
 .kpi-card[class*="kpi-"] .kpi-num { color:#ffffff; }
 .kpi-card[class*="kpi-"] .kpi-lbl { color:rgba(255,255,255,0.85); }
+.kpi-sub { font-size:10.5px; font-weight:600; color:rgba(255,255,255,0.75); margin-top:3px; }
 .kpi-ic-solid {
     width:44px; height:44px; border-radius:12px; flex:0 0 auto;
-    background:rgba(255,255,255,0.18); display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,0.18); color:#ffffff; display:flex; align-items:center; justify-content:center;
 }
 .kpi-card.kpi-1 { background:var(--kpi-1); box-shadow:0 10px 24px var(--kpi-1-glow); }
 .kpi-card.kpi-1:hover { box-shadow:0 16px 34px var(--kpi-1-glow); }
@@ -160,13 +173,22 @@ body::before {
 .kpi-card.kpi-8 { background:var(--kpi-8); box-shadow:0 10px 24px var(--kpi-8-glow); }
 .kpi-card.kpi-8:hover { box-shadow:0 16px 34px var(--kpi-8-glow); }
 
+/* Muted (zero-value) KPI variant */
+.kpi-card.kpi-muted { background:var(--surface); box-shadow:var(--shadow); border:1px solid var(--border); }
+.kpi-card.kpi-muted:hover { box-shadow:var(--shadow-hover); }
+.kpi-card.kpi-muted .kpi-num { color:var(--text); }
+.kpi-card.kpi-muted .kpi-lbl { color:var(--text-secondary); }
+.kpi-card.kpi-muted .kpi-sub { color:var(--text-secondary); }
+.kpi-card.kpi-muted .kpi-ic-solid { background:var(--surface-2); color:var(--text-secondary); }
+
+
 /* Toolbar */
 .toolbar {
     display:flex; gap:12px; align-items:center; margin-bottom:18px;
     background:var(--panel-tint), var(--surface); border:1px solid var(--border); border-radius:14px;
     padding:12px 14px; box-shadow:var(--shadow); flex-wrap:wrap;
 }
-.search-field { position:relative; flex:1; min-width:240px; }
+.search-field { position:relative; flex:0 1 340px; min-width:200px; }
 .search-field svg { position:absolute; left:13px; top:11px; color:var(--text-secondary); pointer-events:none; }
 .search-field input {
     width:100%; height:40px; background:var(--surface-2); border:1px solid var(--border);
@@ -179,6 +201,26 @@ body::before {
     border-radius:10px; color:var(--text); font-size:13px; padding:0 12px; font-family:inherit; min-width:150px;
     transition:border-color .15s ease;
 }
+.chip-group { display:flex; gap:8px; flex-wrap:wrap; }
+.chip {
+    display:flex; align-items:center; gap:7px; height:40px; padding:0 15px; border-radius:10px;
+    border:1px solid var(--border); background:var(--surface-2); color:var(--text-secondary);
+    font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; transition:all .15s ease;
+}
+.chip:hover { border-color:var(--accent); color:var(--text); }
+.chip.active { background:var(--accent-solid); border-color:var(--accent-solid); color:#ffffff; }
+.chip-count {
+    font-size:11px; font-weight:800; padding:1px 7px; border-radius:10px;
+    background:rgba(75,81,102,0.12); color:inherit;
+}
+.chip.active .chip-count { background:rgba(255,255,255,0.25); }
+.btn-export {
+    display:flex; align-items:center; gap:7px; height:40px; padding:0 16px; border-radius:10px;
+    border:1px solid var(--border); background:var(--surface-2); color:var(--text);
+    font-size:13px; font-weight:700; font-family:inherit; cursor:pointer; transition:all .15s ease;
+}
+.btn-export:hover { border-color:var(--accent); color:var(--accent); transform:translateY(-1px); }
+.toolbar-actions { display:flex; align-items:center; gap:10px; margin-left:auto; }
 .results-count {
     display:flex; align-items:center; height:40px; padding:0 16px; white-space:nowrap;
     border-radius:10px; background:var(--surface-2); border:1px solid var(--border);
@@ -195,14 +237,51 @@ body::before {
     margin:0; padding:18px 20px 14px 20px; font-size:14.5px; font-weight:800; color:var(--text);
     display:flex; align-items:center; gap:9px;
 }
+
+/* Overview: Pass/Fail donut */
+.overview-card {
+    display:flex; align-items:center; gap:22px; margin-bottom:18px; padding:18px 24px;
+    background:var(--panel-tint), var(--surface); border:1px solid var(--border); border-radius:14px;
+    box-shadow:var(--shadow); flex-wrap:wrap;
+}
+.mini-donut {
+    position:relative; width:84px; height:84px; border-radius:50%; flex:0 0 auto;
+}
+.mini-donut-hole {
+    position:absolute; inset:12px; border-radius:50%; background:var(--surface);
+    display:flex; align-items:center; justify-content:center;
+    font-size:15px; font-weight:800; color:var(--text);
+}
+.overview-donut-block { display:flex; align-items:center; gap:22px; flex:0 0 auto; }
+.overview-divider { width:1px; align-self:stretch; background:var(--border); }
+.overview-text { display:flex; flex-direction:column; gap:8px; }
+.overview-title { font-size:13px; font-weight:800; color:var(--text); margin-bottom:4px; }
+.mini-donut-legend { display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+.dl-item { display:flex; align-items:center; gap:7px; font-size:12.5px; font-weight:700; color:var(--text-secondary); }
+.dl-dot { width:9px; height:9px; border-radius:50%; flex:0 0 auto; }
+.issue-breakdown { flex:1; min-width:240px; display:flex; flex-direction:column; }
+.issue-bars { display:flex; flex-direction:column; gap:9px; }
+.issue-bar-row { display:flex; align-items:center; gap:12px; }
+.issue-bar-label { flex:0 0 78px; font-size:11.5px; font-weight:700; color:var(--text-secondary); }
+.issue-bar-track { flex:1; height:9px; border-radius:5px; background:var(--surface-2); overflow:hidden; }
+.issue-bar-fill { height:100%; border-radius:5px; }
+.issue-bar-value { flex:0 0 26px; text-align:right; font-size:12.5px; font-weight:800; color:var(--text); }
+.issue-bar-muted .issue-bar-label,
+.issue-bar-muted .issue-bar-value { color:var(--text-secondary); opacity:0.55; font-weight:600; }
 .data-table { width:100%; border-collapse:collapse; }
 .data-table th {
-    font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;
-    letter-spacing:.5px; text-align:left; padding:0 20px 12px 20px; border-bottom:1px solid var(--border);
+    font-size:10.5px; font-weight:800; color:var(--text-secondary); text-transform:uppercase;
+    letter-spacing:.5px; text-align:left; padding:0 20px 12px 20px; border-bottom:2px solid var(--border);
 }
-.data-table td { font-size:13px; color:var(--text); padding:14px 20px; border-bottom:1px solid var(--border); }
+.data-table td { font-size:13.5px; font-weight:600; color:var(--text); padding:14px 20px; border-bottom:1px solid var(--border); }
+.data-table th.col-center, .data-table td.col-center { text-align:center; }
+.data-table th.col-store, .data-table td.col-store { padding-right:8px; }
+.data-table th.col-status, .data-table td.col-status { padding-left:8px; padding-right:10px; text-align:center; }
+.num-hot { font-weight:800; color:var(--danger-fg); }
+.num-zero { color:var(--text-secondary); opacity:0.5; }
 .data-table tbody tr { transition:background .1s ease; }
-.data-table tbody tr:hover { background:var(--surface-2); }
+.data-table tbody tr:nth-child(even) { background:var(--surface-2); }
+.data-table tbody tr:hover { background:var(--info-bg); }
 .data-table tbody tr:last-child td { border-bottom:none; }
 .badge {
     display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:700;
@@ -246,6 +325,14 @@ body::before {
     transition:border-color .15s ease, color .15s ease;
 }
 .icon-btn:hover { color:var(--text); border-color:var(--accent); }
+.dl-btn {
+    display:flex; align-items:center; gap:7px; height:34px; padding:0 14px; border-radius:9px;
+    border:1px solid transparent; cursor:pointer; font-size:12.5px; font-weight:700; font-family:inherit;
+    transition:transform .15s ease, box-shadow .15s ease;
+}
+.dl-btn:hover { transform:translateY(-1px); }
+.dl-btn-excel { background:var(--success-bg); border-color:var(--success-border); color:var(--success-fg); }
+.dl-btn-pdf { background:var(--danger-bg); border-color:var(--danger-border); color:var(--danger-fg); }
 .modal-body { padding:22px; overflow-y:auto; max-height:70vh; }
 
 .info-card { border:1px solid var(--border); border-radius:14px; overflow:hidden; margin-bottom:20px; }
@@ -256,25 +343,45 @@ body::before {
 .info-row .v { color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
 .mini-stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:20px; }
-.mini-stat { background:var(--surface-2); border:1px solid var(--border); border-radius:12px; padding:15px; text-align:center; }
-.mini-stat .lbl { font-size:11.5px; font-weight:600; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.3px; }
-.mini-stat .val { font-size:21px; font-weight:800; margin-top:5px; }
+.mini-stat {
+    border:1px solid rgba(255,255,255,0.14); border-radius:12px; padding:15px; text-align:center; color:#ffffff;
+}
+.mini-stat .lbl { font-size:11.5px; font-weight:700; color:rgba(255,255,255,0.85); text-transform:uppercase; letter-spacing:.3px; }
+.mini-stat .val { font-size:22px; font-weight:800; margin-top:5px; color:#ffffff; }
+.mini-stat-differences { background:var(--kpi-5); box-shadow:0 8px 20px var(--kpi-5-glow); }
+.mini-stat-missing { background:var(--kpi-6); box-shadow:0 8px 20px var(--kpi-6-glow); }
+.mini-stat-duplicates { background:var(--kpi-7); box-shadow:0 8px 20px var(--kpi-7-glow); }
+.mini-stat-zero { background:var(--kpi-8); box-shadow:0 8px 20px var(--kpi-8-glow); }
 
 .alert-box { border-radius:14px; padding:16px 18px; margin-bottom:6px; border:1px solid transparent; }
 .alert-danger-box { background:var(--danger-bg); border-color:var(--danger-border); color:var(--danger-fg); }
 .alert-success-box { background:var(--success-bg); border-color:var(--success-border); color:var(--success-fg); font-weight:700; }
 .alert-box h4 { margin:0 0 8px 0; font-size:15px; }
 
-.dtable-title { margin:22px 0 8px 0; font-size:13.5px; font-weight:700; color:var(--text); }
+.dtable-title { display:flex; align-items:center; gap:8px; margin:22px 0 10px 0; font-size:13.5px; font-weight:800; color:var(--text); }
+.dtable-title::before { content:""; width:4px; height:14px; border-radius:2px; background:var(--accent-solid); }
 .dtable-wrap { overflow-x:auto; border:1px solid var(--border); border-radius:12px; }
 .dtable { width:100%; border-collapse:collapse; }
 .dtable th {
-    font-size:10.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase; letter-spacing:.4px;
-    text-align:left; padding:10px 14px; background:var(--surface-2); border-bottom:1px solid var(--border);
+    font-size:10.5px; font-weight:800; color:var(--accent-contrast); text-transform:uppercase; letter-spacing:.4px;
+    text-align:center; padding:11px 14px; background:var(--accent-solid); border-right:1px solid rgba(255,255,255,0.14);
 }
-.dtable td { font-size:12.5px; color:var(--text); padding:10px 14px; border-bottom:1px solid var(--border); }
-.dtable tbody tr:hover { background:var(--surface-2); }
+.dtable th:last-child { border-right:none; }
+.dtable td {
+    font-size:12.5px; font-weight:600; color:var(--text); text-align:center; padding:10px 14px;
+    border-bottom:1px solid var(--border); border-right:1px solid var(--border);
+}
+.dtable td:last-child { border-right:none; }
+.dtable tbody tr:nth-child(even) { background:var(--surface-2); }
+.dtable tbody tr:hover { background:var(--info-bg); }
 .dtable tbody tr:last-child td { border-bottom:none; }
+.kv-list { display:flex; flex-direction:column; gap:4px; text-align:left; padding:2px 0; }
+.kv-row {
+    display:flex; align-items:baseline; gap:8px; font-size:11.5px;
+    padding:3px 8px; background:var(--bg); border-radius:6px;
+}
+.kv-k { font-weight:600; color:var(--accent); flex:0 0 auto; }
+.kv-v { color:var(--text); font-family:"Consolas","Courier New",monospace; word-break:break-word; }
 
 @media (max-width:720px) {
     .info-card-body { grid-template-columns:1fr; }
@@ -295,13 +402,29 @@ body::before {
                 {% endif %}
             </div>
             <div class="dash-title">
-                <h1>XML Validator Dashboard</h1>
+                <div class="dash-title-row">
+                    <h1>XML Validator Dashboard</h1>
+                    {% if (summary.failed or 0) > 0 %}
+                    <span class="status-pill status-pill-fail">&#9679; {{ summary.failed }} of {{ summary.total_stores }} failed</span>
+                    {% else %}
+                    <span class="status-pill status-pill-pass">&#9679; All {{ summary.total_stores }} passed</span>
+                    {% endif %}
+                </div>
                 <p>{{ report_title }}</p>
             </div>
         </div>
         <div class="dash-header-right">
+            {% if run_date_range %}
             <div class="generated-chip">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <div>
+                    <div class="lbl">Business Date{{ "s" if "–" in run_date_range else "" }}</div>
+                    <div class="val">{{ run_date_range }}</div>
+                </div>
+            </div>
+            {% endif %}
+            <div class="generated-chip">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text-secondary)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                 <div>
                     <div class="lbl">Generated On</div>
                     <div class="val">{{ report_info.generated_on.split(" ")[0] }} · {{ report_info.generated_on.split(" ")[1] }} {{ report_info.generated_on.split(" ")[2] }}</div>
@@ -314,21 +437,88 @@ body::before {
         </div>
     </div>
 
+    {% set stores_list = stores or [] %}
+    {% set diff_stores = stores_list | selectattr("Differences", "gt", 0) | list | length %}
+    {% set missing_stores = stores_list | selectattr("Missing Records", "gt", 0) | list | length %}
+    {% set dup_stores = stores_list | selectattr("Duplicates", "gt", 0) | list | length %}
+    {% set zero_stores = stores_list | selectattr("Zero Values", "gt", 0) | list | length %}
+
+    {% set pass_rate_val = summary.accuracy or 0 %}
+    {% if pass_rate_val >= 100 %}
+        {% set pass_rate_class = 'kpi-2' %}
+    {% elif pass_rate_val >= 50 %}
+        {% set pass_rate_class = 'kpi-4' %}
+    {% else %}
+        {% set pass_rate_class = 'kpi-3' %}
+    {% endif %}
+
     <!-- KPI row 1 -->
     <div class="kpi-grid">
-        <div class="kpi-card kpi-1"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div><div><div class="kpi-num">{{ summary.total_stores }}</div><div class="kpi-lbl">Total Stores</div></div></div>
-        <div class="kpi-card kpi-2"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="kpi-num">{{ summary.passed }}</div><div class="kpi-lbl">Passed</div></div></div>
-        <div class="kpi-card kpi-3"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div><div class="kpi-num">{{ summary.failed }}</div><div class="kpi-lbl">Failed</div></div></div>
-        <div class="kpi-card kpi-4"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div><div class="kpi-num">{{ summary.accuracy }}%</div><div class="kpi-lbl">Accuracy</div></div></div>
+        <div class="kpi-card kpi-1"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div><div><div class="kpi-num">{{ summary.total_stores }}</div><div class="kpi-lbl">Total Stores</div></div></div>
+        <div class="kpi-card kpi-2{{ ' kpi-muted' if not summary.passed }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="kpi-num">{{ summary.passed }}</div><div class="kpi-lbl">Passed</div></div></div>
+        <div class="kpi-card kpi-3{{ ' kpi-muted' if not summary.failed }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div><div class="kpi-num">{{ summary.failed }}</div><div class="kpi-lbl">Failed</div></div></div>
+        <div class="kpi-card {{ pass_rate_class }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div><div class="kpi-num">{{ summary.accuracy }}%</div><div class="kpi-lbl">Pass Rate</div></div></div>
     </div>
 
     <!-- KPI row 2 -->
     <div class="kpi-grid">
-        <div class="kpi-card kpi-5"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="kpi-num">{{ summary.differences }}</div><div class="kpi-lbl">Differences</div></div></div>
-        <div class="kpi-card kpi-6"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div><div class="kpi-num">{{ summary.missing }}</div><div class="kpi-lbl">Missing</div></div></div>
-        <div class="kpi-card kpi-7"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div><div class="kpi-num">{{ summary.duplicates }}</div><div class="kpi-lbl">Duplicates</div></div></div>
-        <div class="kpi-card kpi-8"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><div><div class="kpi-num">{{ summary.zero_values }}</div><div class="kpi-lbl">Zero Values</div></div></div>
+        <div class="kpi-card kpi-5{{ ' kpi-muted' if not summary.differences }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="kpi-num">{{ summary.differences }}</div><div class="kpi-lbl">Differences</div>{% if summary.differences %}<div class="kpi-sub">across {{ diff_stores }} store{{ "s" if diff_stores != 1 else "" }}</div>{% endif %}</div></div>
+        <div class="kpi-card kpi-6{{ ' kpi-muted' if not summary.missing }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div><div class="kpi-num">{{ summary.missing }}</div><div class="kpi-lbl">Missing</div>{% if summary.missing %}<div class="kpi-sub">across {{ missing_stores }} store{{ "s" if missing_stores != 1 else "" }}</div>{% endif %}</div></div>
+        <div class="kpi-card kpi-7{{ ' kpi-muted' if not summary.duplicates }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div><div class="kpi-num">{{ summary.duplicates }}</div><div class="kpi-lbl">Duplicates</div>{% if summary.duplicates %}<div class="kpi-sub">across {{ dup_stores }} store{{ "s" if dup_stores != 1 else "" }}</div>{% endif %}</div></div>
+        <div class="kpi-card kpi-8{{ ' kpi-muted' if not summary.zero_values }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><div><div class="kpi-num">{{ summary.zero_values }}</div><div class="kpi-lbl">Zero Values</div>{% if summary.zero_values %}<div class="kpi-sub">across {{ zero_stores }} store{{ "s" if zero_stores != 1 else "" }}</div>{% endif %}</div></div>
     </div>
+
+    <!-- Overview: Pass/Fail breakdown -->
+    {% set pf_total = (summary.passed or 0) + (summary.failed or 0) %}
+    {% if pf_total > 0 %}
+        {% set pass_pct = ((summary.passed or 0) / pf_total * 100) | round(1) %}
+    {% else %}
+        {% set pass_pct = 0 %}
+    {% endif %}
+    {% set issue_max = [summary.differences or 0, summary.missing or 0, summary.duplicates or 0, summary.zero_values or 0] | max %}
+    {% if issue_max == 0 %}{% set issue_max = 1 %}{% endif %}
+    {% if pf_total > 0 %}
+    <div class="overview-card">
+        <div class="overview-donut-block">
+            <div class="mini-donut" style="background:conic-gradient(var(--kpi-2) 0% {{ pass_pct }}%, var(--kpi-3) {{ pass_pct }}% 100%);">
+                <div class="mini-donut-hole">{{ pass_pct }}%</div>
+            </div>
+            <div class="overview-text">
+                <div class="overview-title">Pass Rate Overview</div>
+                <div class="mini-donut-legend">
+                    <span class="dl-item"><span class="dl-dot" style="background:var(--kpi-2);"></span>Pass &mdash; {{ summary.passed }} store{{ "s" if summary.passed != 1 else "" }}</span>
+                    <span class="dl-item"><span class="dl-dot" style="background:var(--kpi-3);"></span>Fail &mdash; {{ summary.failed }} store{{ "s" if summary.failed != 1 else "" }}</span>
+                </div>
+            </div>
+        </div>
+        <div class="overview-divider"></div>
+        <div class="issue-breakdown">
+            <div class="overview-title">Issue Breakdown</div>
+            <div class="issue-bars">
+                <div class="issue-bar-row{{ ' issue-bar-muted' if not summary.differences }}">
+                    <span class="issue-bar-label">Differences</span>
+                    <div class="issue-bar-track"><div class="issue-bar-fill" style="width:{{ ((summary.differences or 0) / issue_max * 100) | round(1) }}%; background:{{ 'var(--kpi-5)' if summary.differences else 'var(--border)' }};"></div></div>
+                    <span class="issue-bar-value">{{ summary.differences }}</span>
+                </div>
+                <div class="issue-bar-row{{ ' issue-bar-muted' if not summary.missing }}">
+                    <span class="issue-bar-label">Missing</span>
+                    <div class="issue-bar-track"><div class="issue-bar-fill" style="width:{{ ((summary.missing or 0) / issue_max * 100) | round(1) }}%; background:{{ 'var(--kpi-6)' if summary.missing else 'var(--border)' }};"></div></div>
+                    <span class="issue-bar-value">{{ summary.missing }}</span>
+                </div>
+                <div class="issue-bar-row{{ ' issue-bar-muted' if not summary.duplicates }}">
+                    <span class="issue-bar-label">Duplicates</span>
+                    <div class="issue-bar-track"><div class="issue-bar-fill" style="width:{{ ((summary.duplicates or 0) / issue_max * 100) | round(1) }}%; background:{{ 'var(--kpi-7)' if summary.duplicates else 'var(--border)' }};"></div></div>
+                    <span class="issue-bar-value">{{ summary.duplicates }}</span>
+                </div>
+                <div class="issue-bar-row{{ ' issue-bar-muted' if not summary.zero_values }}">
+                    <span class="issue-bar-label">Zero Values</span>
+                    <div class="issue-bar-track"><div class="issue-bar-fill" style="width:{{ ((summary.zero_values or 0) / issue_max * 100) | round(1) }}%; background:{{ 'var(--kpi-8)' if summary.zero_values else 'var(--border)' }};"></div></div>
+                    <span class="issue-bar-value">{{ summary.zero_values }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 
     <!-- Toolbar -->
     <div class="toolbar">
@@ -337,15 +527,18 @@ body::before {
             <label for="storeSearch" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Search store</label>
             <input id="storeSearch" type="text" placeholder="Search store…">
         </div>
-        <div class="select-field">
-            <label for="statusFilter" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);">Filter by status</label>
-            <select id="statusFilter">
-                <option value="ALL">All Status</option>
-                <option value="PASS">PASS</option>
-                <option value="FAIL">FAIL</option>
-            </select>
+        <div class="chip-group" id="statusChips">
+            <button type="button" class="chip active" data-status="ALL">All <span class="chip-count">{{ summary.total_stores }}</span></button>
+            <button type="button" class="chip" data-status="PASS">Pass <span class="chip-count">{{ summary.passed }}</span></button>
+            <button type="button" class="chip" data-status="FAIL">Fail <span class="chip-count">{{ summary.failed }}</span></button>
         </div>
-        <div class="results-count" id="resultsCount">Showing 0 of 0 stores</div>
+        <div class="toolbar-actions">
+            <button type="button" class="btn-export" id="exportCsvBtn">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export CSV
+            </button>
+            <div class="results-count" id="resultsCount">Showing 0 of 0 stores</div>
+        </div>
     </div>
 
     <!-- Store Summary -->
@@ -358,20 +551,20 @@ body::before {
             <table class="data-table" id="storeTable">
                 <thead>
                 <tr>
-                    <th>Store</th>
-                    <th>Status</th>
-                    <th>Differences</th>
-                    <th>Missing</th>
-                    <th>Duplicates</th>
-                    <th>Zero Values</th>
-                    <th>Details</th>
+                    <th class="col-store">Store</th>
+                    <th class="col-status">Status</th>
+                    <th class="col-center">Differences</th>
+                    <th class="col-center">Missing</th>
+                    <th class="col-center">Duplicates</th>
+                    <th class="col-center">Zero Values</th>
+                    <th class="col-center">Details</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% for store in stores %}
+                {% for store in stores | sort(attribute='Differences', reverse=true) | sort(attribute='Status') %}
                 <tr>
-                    <td>{{ store["Store"] }}</td>
-                    <td>
+                    <td class="col-store" data-value="{{ store['Store'] }}">{{ store["Store"] }}</td>
+                    <td class="col-status" data-value="{{ store['Status'] }}">
                         {% if store["Status"] == "PASS" %}
                         <span class="badge badge-success">PASS</span>
                         {% elif store["Status"] == "FAIL" %}
@@ -380,11 +573,11 @@ body::before {
                         <span class="badge badge-warning">{{ store["Status"] }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ store["Differences"] }}</td>
-                    <td>{{ store["Missing Records"] }}</td>
-                    <td>{{ store["Duplicates"] }}</td>
-                    <td>{{ store["Zero Values"] }}</td>
-                    <td>
+                    <td class="col-center" data-value="{{ store['Differences'] }}">{% if store["Differences"] %}<span class="num-hot">{{ store["Differences"] }}</span>{% else %}<span class="num-zero">&mdash;</span>{% endif %}</td>
+                    <td class="col-center" data-value="{{ store['Missing Records'] }}">{% if store["Missing Records"] %}<span class="num-hot">{{ store["Missing Records"] }}</span>{% else %}<span class="num-zero">&mdash;</span>{% endif %}</td>
+                    <td class="col-center" data-value="{{ store['Duplicates'] }}">{% if store["Duplicates"] %}<span class="num-hot">{{ store["Duplicates"] }}</span>{% else %}<span class="num-zero">&mdash;</span>{% endif %}</td>
+                    <td class="col-center" data-value="{{ store['Zero Values'] }}">{% if store["Zero Values"] %}<span class="num-hot">{{ store["Zero Values"] }}</span>{% else %}<span class="num-zero">&mdash;</span>{% endif %}</td>
+                    <td class="col-center">
                         <button type="button" class="view-link view-details" data-store="{{ store['Store'] }}|{{ store['CB Date'] or store['AC Date'] }}">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                             View
@@ -410,11 +603,30 @@ body::before {
         <div class="modal-head">
             <h3 id="modalStore">Store Details</h3>
             <div class="modal-actions">
-                <button type="button" class="icon-btn" id="downloadExcelReport" title="Download Excel Report" aria-label="Download Excel report">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <button type="button" class="dl-btn dl-btn-excel" id="downloadExcelReport" title="Download Excel Report" aria-label="Download Excel report">
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path d="M10 2 H29 L38 11 V44 A2 2 0 0 1 36 46 H10 A2 2 0 0 1 8 44 V4 A2 2 0 0 1 10 2 Z" fill="#ffffff" stroke="#20242c" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M29 2 L29 11 H38 Z" fill="#e7e9ee" stroke="#20242c" stroke-width="2" stroke-linejoin="round"/>
+                        <rect x="14" y="15" width="18" height="13" fill="none" stroke="#1e7d46" stroke-width="1.6"/>
+                        <line x1="14" y1="20" x2="32" y2="20" stroke="#1e7d46" stroke-width="1.4"/>
+                        <line x1="14" y1="24.5" x2="32" y2="24.5" stroke="#1e7d46" stroke-width="1.4"/>
+                        <line x1="23" y1="15" x2="23" y2="28" stroke="#1e7d46" stroke-width="1.4"/>
+                        <rect x="5" y="30" width="34" height="12" rx="1" fill="#1e7d46"/>
+                        <text x="22" y="39" font-family="Arial, Helvetica, sans-serif" font-size="7.5" font-weight="800" fill="#ffffff" text-anchor="middle">XLSX</text>
+                    </svg>
+                    Excel
                 </button>
-                <button type="button" class="icon-btn" id="downloadPdfReport" title="Download PDF Report" aria-label="Download PDF report">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                <button type="button" class="dl-btn dl-btn-pdf" id="downloadPdfReport" title="Download PDF Report" aria-label="Download PDF report">
+                    <svg width="20" height="20" viewBox="0 0 48 48">
+                        <path d="M10 2 H29 L38 11 V44 A2 2 0 0 1 36 46 H10 A2 2 0 0 1 8 44 V4 A2 2 0 0 1 10 2 Z" fill="#ffffff" stroke="#20242c" stroke-width="2" stroke-linejoin="round"/>
+                        <path d="M29 2 L29 11 H38 Z" fill="#e7e9ee" stroke="#20242c" stroke-width="2" stroke-linejoin="round"/>
+                        <line x1="14" y1="16" x2="32" y2="16" stroke="#20242c" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="14" y1="20.5" x2="32" y2="20.5" stroke="#20242c" stroke-width="2" stroke-linecap="round"/>
+                        <line x1="14" y1="25" x2="26" y2="25" stroke="#20242c" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="5" y="30" width="34" height="12" rx="1" fill="#e5342a"/>
+                        <text x="22" y="39" font-family="Arial, Helvetica, sans-serif" font-size="9" font-weight="800" fill="#ffffff" text-anchor="middle">PDF</text>
+                    </svg>
+                    PDF
                 </button>
                 <button type="button" class="icon-btn" id="modalCloseBtn" aria-label="Close">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>
@@ -438,12 +650,15 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeDashboard();
 });
 
+let currentStatusFilter = "ALL";
+
 function initializeDashboard() {
     initializeThemeToggle();
     initializeSearch();
     initializeStatusFilter();
     initializeViewButtons();
     initializeModalClose();
+    initializeExportButton();
     updateResultsCount();
 }
 
@@ -467,28 +682,66 @@ function initializeSearch() {
     searchBox.addEventListener("keyup", filterTable);
 }
 
-/* Status filter */
+/* Status filter (chips) */
 function initializeStatusFilter() {
-    const filter = document.getElementById("statusFilter");
-    if (!filter) return;
-    filter.addEventListener("change", filterTable);
+    const chips = document.querySelectorAll("#statusChips .chip");
+    if (!chips.length) return;
+
+    chips.forEach((chip) => {
+        chip.addEventListener("click", () => {
+            chips.forEach((c) => c.classList.remove("active"));
+            chip.classList.add("active");
+            currentStatusFilter = chip.dataset.status;
+            filterTable();
+        });
+    });
 }
 
 /* Table filter */
 function filterTable() {
     const searchValue = document.getElementById("storeSearch").value.toUpperCase();
-    const statusValue = document.getElementById("statusFilter").value;
     const rows = document.querySelectorAll("#storeTable tbody tr");
 
     rows.forEach((row) => {
-        const store = row.cells[0].innerText.toUpperCase();
-        const status = row.cells[1].innerText.trim().toUpperCase();
+        const store = row.cells[0].dataset.value.toUpperCase();
+        const status = row.cells[1].dataset.value.trim().toUpperCase();
         const matchSearch = store.includes(searchValue);
-        const matchStatus = statusValue === "ALL" || status === statusValue;
+        const matchStatus = currentStatusFilter === "ALL" || status === currentStatusFilter;
         row.style.display = (matchSearch && matchStatus) ? "" : "none";
     });
 
     updateResultsCount();
+}
+
+/* Export CSV */
+function initializeExportButton() {
+    const button = document.getElementById("exportCsvBtn");
+    if (!button) return;
+    button.addEventListener("click", exportTableToCSV);
+}
+
+function exportTableToCSV() {
+    const rows = document.querySelectorAll("#storeTable tbody tr");
+    const headers = ["Store", "Status", "Differences", "Missing", "Duplicates", "Zero Values"];
+    const escapeCsv = (v) => `"${String(v).replace(/"/g, '""')}"`;
+    const lines = [headers.map(escapeCsv).join(",")];
+
+    rows.forEach((row) => {
+        if (row.style.display === "none") return;
+        const values = [0, 1, 2, 3, 4, 5].map((i) => row.cells[i].dataset.value);
+        lines.push(values.map(escapeCsv).join(","));
+    });
+
+    const csv = lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "store_summary.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 }
 
 /* Results count */
@@ -565,7 +818,8 @@ function generateDynamicTable(title, records) {
             if (header === "Store") return;
             let value = record[header];
             if (value === undefined || value === null || value === "") value = "-";
-            if (typeof value === "object") value = formatAttributes(value);
+            const looksLikeDict = typeof value === "string" && value.trim().startsWith("{") && value.trim().endsWith("}");
+            if (typeof value === "object" || looksLikeDict) value = formatAttributes(value);
             html += `<td>${value}</td>`;
         });
         html += "</tr>";
@@ -641,10 +895,10 @@ function showStoreDetails(store) {
 
     html += `
         <div class="mini-stats">
-            <div class="mini-stat"><div class="lbl">Differences</div><div class="val" style="color:var(--danger)">${differences.length}</div></div>
-            <div class="mini-stat"><div class="lbl">Missing</div><div class="val" style="color:var(--warning)">${missing.length}</div></div>
-            <div class="mini-stat"><div class="lbl">Duplicates</div><div class="val" style="color:var(--purple)">${duplicates.length}</div></div>
-            <div class="mini-stat"><div class="lbl">Zero Values</div><div class="val" style="color:var(--info)">${zeroValues.length}</div></div>
+            <div class="mini-stat mini-stat-differences"><div class="lbl">Differences</div><div class="val">${differences.length}</div></div>
+            <div class="mini-stat mini-stat-missing"><div class="lbl">Missing</div><div class="val">${missing.length}</div></div>
+            <div class="mini-stat mini-stat-duplicates"><div class="lbl">Duplicates</div><div class="val">${duplicates.length}</div></div>
+            <div class="mini-stat mini-stat-zero"><div class="lbl">Zero Values</div><div class="val">${zeroValues.length}</div></div>
         </div>
     `;
 
@@ -666,26 +920,26 @@ function formatAttributes(attributes) {
     if (attributes === null || attributes === undefined || attributes === "" || attributes === "-") return "-";
 
     if (typeof attributes === "object") {
-        let html = "";
+        let rows = "";
         Object.entries(attributes).forEach(([key, value]) => {
-            html += `<div><strong>${key}</strong>: ${value}</div>`;
+            rows += `<div class="kv-row"><span class="kv-k">${key}</span><span class="kv-v">${value}</span></div>`;
         });
-        return html;
+        return `<div class="kv-list">${rows}</div>`;
     }
 
     if (typeof attributes === "string") {
         let text = attributes.trim();
         if (text.startsWith("{") && text.endsWith("}")) {
             text = text.substring(1, text.length - 1);
-            let html = "";
+            let rows = "";
             text.split(",").forEach((pair) => {
                 const parts = pair.split(":");
                 if (parts.length < 2) return;
                 const key = parts[0].replace(/'/g, "").trim();
                 const value = parts.slice(1).join(":").replace(/'/g, "").trim();
-                html += `<div><strong>${key}</strong>: ${value}</div>`;
+                rows += `<div class="kv-row"><span class="kv-k">${key}</span><span class="kv-v">${value}</span></div>`;
             });
-            return html;
+            return `<div class="kv-list">${rows}</div>`;
         }
     }
 
