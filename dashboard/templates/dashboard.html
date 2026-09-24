@@ -827,10 +827,15 @@ function hideModal() {
 }
 
 /* Dynamic table generator */
-function generateDynamicTable(title, records) {
+function generateDynamicTable(title, records, columnOrder) {
     if (!records || records.length === 0) return "";
 
-    const headers = Object.keys(records[0]);
+    const allKeys = Object.keys(records[0]);
+    let headers = allKeys;
+    if (columnOrder && columnOrder.length) {
+        headers = columnOrder.filter((h) => allKeys.includes(h));
+        allKeys.forEach((h) => { if (!headers.includes(h)) headers.push(h); });
+    }
     let html = `<div class="dtable-title">${title}</div><div class="dtable-wrap"><table class="dtable"><thead><tr>`;
 
     headers.forEach((header) => {
@@ -930,8 +935,12 @@ function showStoreDetails(store) {
         </div>
     `;
 
-    html += generateDynamicTable("Differences", differences);
-    html += generateDynamicTable("Missing Records", missing);
+    html += generateDynamicTable("Differences", differences, [
+        "Date", "Attribute", "CB Value", "AC Value", "Node", "Key", "Difference Type", "Path"
+    ]);
+    html += generateDynamicTable("Missing Records", missing, [
+        "Date", "CB Attributes", "AC Attributes", "Missing In", "Key", "Node"
+    ]);
     html += generateDynamicTable("Duplicate Records", duplicates);
     html += generateDynamicTable("Zero Value Records", zeroValues);
 
