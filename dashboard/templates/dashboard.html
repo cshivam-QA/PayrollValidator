@@ -181,6 +181,38 @@ body::before {
 .kpi-card.kpi-muted .kpi-sub { color:var(--text-secondary); }
 .kpi-card.kpi-muted .kpi-ic-solid { background:var(--surface-2); color:var(--text-secondary); }
 
+/* KPI strip: single-row, content-sized, no bold full-bleed color fill */
+.kpi-strip {
+    display:flex; align-items:stretch;
+    background:var(--surface); border:1px solid var(--border); border-radius:16px;
+    box-shadow:var(--shadow); margin-bottom:16px; overflow-x:auto;
+}
+.kpi-item {
+    flex:1 1 0; min-width:118px; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center;
+    gap:6px; padding:16px 10px; border-right:1px solid var(--border);
+}
+.kpi-item:last-child { border-right:none; }
+.kpi-item-icon {
+    width:36px; height:36px; border-radius:10px; flex:0 0 auto;
+    display:flex; align-items:center; justify-content:center;
+}
+.kpi-item .kpi-num { font-size:20px; }
+.kpi-item .kpi-lbl { margin-top:0; }
+.kpi-item .kpi-sub { font-size:9.5px; font-weight:600; color:var(--text-secondary); margin-top:0; }
+
+.kpi-item-icon.kpi-1 { background:var(--kpi-1-glow); color:var(--kpi-1); }
+.kpi-item-icon.kpi-2 { background:var(--kpi-2-glow); color:var(--kpi-2); }
+.kpi-item-icon.kpi-3 { background:var(--kpi-3-glow); color:var(--kpi-3); }
+.kpi-item-icon.kpi-4 { background:var(--kpi-4-glow); color:var(--kpi-4); }
+.kpi-item-icon.kpi-5 { background:var(--kpi-5-glow); color:var(--kpi-5); }
+.kpi-item-icon.kpi-6 { background:var(--kpi-6-glow); color:var(--kpi-6); }
+.kpi-item-icon.kpi-7 { background:var(--kpi-7-glow); color:var(--kpi-7); }
+.kpi-item-icon.kpi-8 { background:var(--kpi-8-glow); color:var(--kpi-8); }
+.kpi-item.kpi-muted .kpi-item-icon { background:var(--surface-2); color:var(--text-secondary); }
+
+@media (max-width:900px){ .kpi-item { min-width:100px; padding:14px 6px; } .kpi-item .kpi-num { font-size:18px; } }
+
 
 /* Toolbar */
 .toolbar {
@@ -452,20 +484,16 @@ body::before {
         {% set pass_rate_class = 'kpi-3' %}
     {% endif %}
 
-    <!-- KPI row 1 -->
-    <div class="kpi-grid">
-        <div class="kpi-card kpi-1"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div><div><div class="kpi-num">{{ summary.total_stores }}</div><div class="kpi-lbl">Total Stores</div></div></div>
-        <div class="kpi-card kpi-2{{ ' kpi-muted' if not summary.passed }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div><div class="kpi-num">{{ summary.passed }}</div><div class="kpi-lbl">Passed</div></div></div>
-        <div class="kpi-card kpi-3{{ ' kpi-muted' if not summary.failed }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div><div class="kpi-num">{{ summary.failed }}</div><div class="kpi-lbl">Failed</div></div></div>
-        <div class="kpi-card {{ pass_rate_class }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div><div class="kpi-num">{{ summary.accuracy }}%</div><div class="kpi-lbl">Pass Rate</div></div></div>
-    </div>
-
-    <!-- KPI row 2 -->
-    <div class="kpi-grid">
-        <div class="kpi-card kpi-5{{ ' kpi-muted' if not summary.differences }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><div class="kpi-num">{{ summary.differences }}</div><div class="kpi-lbl">Differences</div>{% if summary.differences %}<div class="kpi-sub">across {{ diff_stores }} store{{ "s" if diff_stores != 1 else "" }}</div>{% endif %}</div></div>
-        <div class="kpi-card kpi-6{{ ' kpi-muted' if not summary.missing }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div><div class="kpi-num">{{ summary.missing }}</div><div class="kpi-lbl">Missing</div>{% if summary.missing %}<div class="kpi-sub">across {{ missing_stores }} store{{ "s" if missing_stores != 1 else "" }}</div>{% endif %}</div></div>
-        <div class="kpi-card kpi-7{{ ' kpi-muted' if not summary.duplicates }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div><div class="kpi-num">{{ summary.duplicates }}</div><div class="kpi-lbl">Duplicates</div>{% if summary.duplicates %}<div class="kpi-sub">across {{ dup_stores }} store{{ "s" if dup_stores != 1 else "" }}</div>{% endif %}</div></div>
-        <div class="kpi-card kpi-8{{ ' kpi-muted' if not summary.zero_values }}"><div class="kpi-ic-solid"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><div><div class="kpi-num">{{ summary.zero_values }}</div><div class="kpi-lbl">Zero Values</div>{% if summary.zero_values %}<div class="kpi-sub">across {{ zero_stores }} store{{ "s" if zero_stores != 1 else "" }}</div>{% endif %}</div></div>
+    <!-- KPI strip: single line, content-sized items -->
+    <div class="kpi-strip">
+        <div class="kpi-item kpi-1"><div class="kpi-item-icon kpi-1"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21V8l9-5 9 5v13"/><path d="M9 21V12h6v9"/></svg></div><div class="kpi-num">{{ summary.total_stores }}</div><div class="kpi-lbl">Total Stores</div></div>
+        <div class="kpi-item kpi-2{{ ' kpi-muted' if not summary.passed }}"><div class="kpi-item-icon kpi-2"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><div class="kpi-num">{{ summary.passed }}</div><div class="kpi-lbl">Passed</div></div>
+        <div class="kpi-item kpi-3{{ ' kpi-muted' if not summary.failed }}"><div class="kpi-item-icon kpi-3"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div><div class="kpi-num">{{ summary.failed }}</div><div class="kpi-lbl">Failed</div></div>
+        <div class="kpi-item {{ pass_rate_class }}"><div class="kpi-item-icon {{ pass_rate_class }}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><div class="kpi-num">{{ summary.accuracy }}%</div><div class="kpi-lbl">Pass Rate</div></div>
+        <div class="kpi-item kpi-5{{ ' kpi-muted' if not summary.differences }}"><div class="kpi-item-icon kpi-5"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div class="kpi-num">{{ summary.differences }}</div><div class="kpi-lbl">Differences</div>{% if summary.differences %}<div class="kpi-sub">{{ diff_stores }} store{{ "s" if diff_stores != 1 else "" }}</div>{% endif %}</div>
+        <div class="kpi-item kpi-6{{ ' kpi-muted' if not summary.missing }}"><div class="kpi-item-icon kpi-6"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5z"/><line x1="9" y1="13" x2="15" y2="13"/></svg></div><div class="kpi-num">{{ summary.missing }}</div><div class="kpi-lbl">Missing</div>{% if summary.missing %}<div class="kpi-sub">{{ missing_stores }} store{{ "s" if missing_stores != 1 else "" }}</div>{% endif %}</div>
+        <div class="kpi-item kpi-7{{ ' kpi-muted' if not summary.duplicates }}"><div class="kpi-item-icon kpi-7"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><div class="kpi-num">{{ summary.duplicates }}</div><div class="kpi-lbl">Duplicates</div>{% if summary.duplicates %}<div class="kpi-sub">{{ dup_stores }} store{{ "s" if dup_stores != 1 else "" }}</div>{% endif %}</div>
+        <div class="kpi-item kpi-8{{ ' kpi-muted' if not summary.zero_values }}"><div class="kpi-item-icon kpi-8"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.9" y1="4.9" x2="19.1" y2="19.1"/></svg></div><div class="kpi-num">{{ summary.zero_values }}</div><div class="kpi-lbl">Zero Values</div>{% if summary.zero_values %}<div class="kpi-sub">{{ zero_stores }} store{{ "s" if zero_stores != 1 else "" }}</div>{% endif %}</div>
     </div>
 
     <!-- Overview: Pass/Fail breakdown -->
