@@ -40,6 +40,17 @@ from flask import (
     url_for,
 )
 
+# The pipeline's "generated on" timestamps use datetime.now()/pd.Timestamp.now()
+# with no explicit timezone, which follows the host machine's system clock.
+# That's fine on someone's own (IST) desktop, but a cloud host like Render
+# defaults to UTC. Force IST here at the process level so those unmodified
+# call sites report the right time without editing report_parser.py /
+# pdf_generator.py / store_report_exporter.py. time.tzset() is POSIX-only
+# (no-op guard keeps this harmless on local Windows development).
+os.environ["TZ"] = "Asia/Kolkata"
+if hasattr(time, "tzset"):
+    time.tzset()
+
 # ---------------------------------------------------------------------------
 # Make the existing src/ package importable, exactly like desktop_app.py does.
 # ---------------------------------------------------------------------------
