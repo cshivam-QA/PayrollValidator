@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: xml-integration-validator
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-web.txt
+    startCommand: gunicorn --chdir webapp app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.14

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>XML Integration Validator</title>
+<style>
+  :root {
+    --bg:#1e1e1e; --panel:#252526; --border:#3c3c3c; --text:#ffffff;
+    --muted:#cccccc; --accent:#0078d4; --accent-hover:#1f8fff;
+    --run:#28a745; --run-hover:#34c759;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Segoe UI", Arial, sans-serif; font-size:14px;
+    display:flex; justify-content:center; padding:32px 16px;
+  }
+  .card {
+    width:100%; max-width:640px; background:var(--panel);
+    border:1px solid var(--border); border-radius:12px; padding:28px 30px;
+  }
+  h1 { margin:0; font-size:20px; color:#4da6ff; }
+  .subtitle { margin:4px 0 20px; color:var(--muted); font-size:13px; }
+  label { display:block; margin:16px 0 6px; font-weight:600; }
+  select, input[type=file] {
+    width:100%; background:#2d2d30; border:1px solid #555; border-radius:6px;
+    color:var(--text); padding:8px; font-size:13px;
+  }
+  .mode-row { display:flex; gap:24px; margin-top:16px; }
+  .mode-row label { margin:0; font-weight:normal; display:flex; align-items:center; gap:6px; }
+  .hint { color:var(--muted); font-size:11.5px; margin-top:4px; }
+  .flash {
+    background:#4a1f1f; border:1px solid #a33; color:#ffb3b3;
+    padding:10px 12px; border-radius:8px; margin-bottom:16px; font-size:13px;
+  }
+  button {
+    margin-top:24px; width:100%; background:var(--run); color:#fff; border:none;
+    border-radius:8px; padding:12px; font-size:14px; font-weight:bold; cursor:pointer;
+  }
+  button:hover { background:var(--run-hover); }
+  #folderFields, #fileFields { display:none; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>XML Integration Validator</h1>
+    <p class="subtitle">Compare CB and AC integration XML files</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="post" action="{{ url_for('run') }}" enctype="multipart/form-data">
+      <label for="integration">Integration</label>
+      <select name="integration" id="integration">
+        {% for item in integrations %}
+        <option value="{{ item }}">{{ item }}</option>
+        {% endfor %}
+      </select>
+
+      <div id="clientField" style="display:none;">
+        <label for="client">Food Out Client</label>
+        <select name="client" id="client">
+          {% for c in clients %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="mode-row">
+        <label><input type="radio" name="mode" value="folder" checked> Multiple files (folder-style)</label>
+        <label><input type="radio" name="mode" value="file"> Single file pair</label>
+      </div>
+
+      <div id="folderFields">
+        <label for="cb_files">CB folder</label>
+        <input type="file" id="cb_files" name="cb_files" accept=".xml" multiple webkitdirectory directory>
+
+        <label for="ac_files">AC folder</label>
+        <input type="file" id="ac_files" name="ac_files" accept=".xml" multiple webkitdirectory directory>
+        <div class="hint">Pick the whole folder (browser will show a "Upload" confirmation for all files inside it). Non-XML files inside the folder are ignored automatically. Store and business date are read from inside each XML file, so file names don't need to follow any pattern.</div>
+      </div>
+
+      <div id="fileFields">
+        <label for="cb_file">CB XML file</label>
+        <input type="file" id="cb_file" name="cb_file" accept=".xml">
+
+        <label for="ac_file">AC XML file</label>
+        <input type="file" id="ac_file" name="ac_file" accept=".xml">
+      </div>
+
+      <button type="submit">Run Comparison</button>
+    </form>
+  </div>
+
+  <script>
+    const integrationSelect = document.getElementById("integration");
+    const clientField = document.getElementById("clientField");
+    const folderFields = document.getElementById("folderFields");
+    const fileFields = document.getElementById("fileFields");
+    const modeRadios = document.querySelectorAll('input[name="mode"]');
+
+    function updateClientVisibility() {
+      clientField.style.display = integrationSelect.value === "Food Out" ? "block" : "none";
+    }
+
+    function updateModeVisibility() {
+      const mode = document.querySelector('input[name="mode"]:checked').value;
+      folderFields.style.display = mode === "folder" ? "block" : "none";
+      fileFields.style.display = mode === "file" ? "block" : "none";
+    }
+
+    integrationSelect.addEventListener("change", updateClientVisibility);
+    modeRadios.forEach(r => r.addEventListener("change", updateModeVisibility));
+
+    updateClientVisibility();
+    updateModeVisibility();
+  </script>
+</body>
+</html>

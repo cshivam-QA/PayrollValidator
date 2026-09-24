@@ -1,0 +1,13 @@
+# Minimal dependencies for the web front-end (webapp/app.py) and the
+# comparison pipeline it calls (src/, dashboard/). Deliberately excludes
+# desktop-only packages from requirements.txt (PySide6, PyInstaller,
+# Streamlit, Altair, ...) that the deployed website never imports.
+
+Flask==3.1.3
+gunicorn==23.0.0
+Jinja2==3.1.6
+pandas==3.0.3
+openpyxl==3.1.5
+pillow==12.2.0
+xhtml2pdf==0.2.17
+reportlab==4.5.1

@@ -10,5 +10,7 @@ Generated_Test_Data/
 ac_files/
 cb_files/
 
+webapp/runs/
+
 *.xml
 *.xlsx
