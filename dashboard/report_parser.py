@@ -122,7 +122,16 @@ class ReportParser:
             if str(store["Status"]).upper() == "PASS"
         )
 
-        failed = total_stores - passed
+        failed = sum(
+            1
+            for store in stores
+            if str(store["Status"]).upper() == "FAIL"
+        )
+
+        # Statuses that aren't a real pass/fail comparison result (a
+        # missing CB/AC file, or a business-date mismatch) shouldn't
+        # inflate the "Failed" count - they're their own category.
+        other_status = total_stores - passed - failed
 
         total_differences = sum(
             int(store["Differences"] or 0)
@@ -156,6 +165,8 @@ class ReportParser:
             "passed": passed,
 
             "failed": failed,
+
+            "other_status": other_status,
 
             "accuracy": accuracy,
 

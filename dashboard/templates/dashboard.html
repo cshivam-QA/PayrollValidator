@@ -559,6 +559,9 @@ body::before {
             <button type="button" class="chip active" data-status="ALL">All <span class="chip-count">{{ summary.total_stores }}</span></button>
             <button type="button" class="chip" data-status="PASS">Pass <span class="chip-count">{{ summary.passed }}</span></button>
             <button type="button" class="chip" data-status="FAIL">Fail <span class="chip-count">{{ summary.failed }}</span></button>
+            {% if summary.other_status %}
+            <button type="button" class="chip" data-status="OTHER">Other <span class="chip-count">{{ summary.other_status }}</span></button>
+            {% endif %}
         </div>
         <div class="toolbar-actions">
             <button type="button" class="btn-export" id="exportCsvBtn">
@@ -734,7 +737,9 @@ function filterTable() {
         const store = row.cells[0].dataset.value.toUpperCase();
         const status = row.cells[1].dataset.value.trim().toUpperCase();
         const matchSearch = store.includes(searchValue);
-        const matchStatus = currentStatusFilter === "ALL" || status === currentStatusFilter;
+        const matchStatus =
+            currentStatusFilter === "ALL" ||
+            (currentStatusFilter === "OTHER" ? (status !== "PASS" && status !== "FAIL") : status === currentStatusFilter);
         row.style.display = (matchSearch && matchStatus) ? "" : "none";
     });
 
