@@ -69,3 +69,18 @@ def test_pay_difference_beyond_tolerance_is_reported():
 
     assert len(differences) == 1
     assert differences[0]["Attribute"] == "pay"
+
+
+def test_pay_difference_within_tolerance_is_reported_when_tolerance_disabled():
+    # Payroll Out V2 runs with apply_tolerance=False so it reports every
+    # exact mismatch, including ones the 0.1 tolerance would normally hide.
+    cb_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "262.66"})]
+    ac_nodes = [make_node("PAY_PERIOD", {"e": "100", "pay": "262.65"})]
+
+    differences, _, _, _ = compare_nodes(
+        cb_nodes, ac_nodes, "PAY_PERIOD", "Root/PAY_PERIOD", ["e"],
+        apply_tolerance=False,
+    )
+
+    assert len(differences) == 1
+    assert differences[0]["Attribute"] == "pay"

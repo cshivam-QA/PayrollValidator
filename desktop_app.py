@@ -159,6 +159,7 @@ QPushButton#runButton:hover {
         self.integration_dropdown.addItems(
             [
                 "Payroll",
+                "Payroll Out V2",
                 "Timekeeping",
                 "Food Out",
                 "Vendor Schedule",

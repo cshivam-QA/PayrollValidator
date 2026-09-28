@@ -51,7 +51,7 @@ def build_node_map(nodes, key_fields):
     return node_map, duplicates
 
 
-def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
+def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields, apply_tolerance=True):
 
     differences = []
     zero_values = []
@@ -203,7 +203,7 @@ def compare_nodes(cb_nodes, ac_nodes, node_name, path, key_fields):
 
             lower_attr = attr.lower()
 
-            if lower_attr in ATTRIBUTE_TOLERANCE:
+            if apply_tolerance and lower_attr in ATTRIBUTE_TOLERANCE:
 
                 try:
                     tolerance = ATTRIBUTE_TOLERANCE[lower_attr]

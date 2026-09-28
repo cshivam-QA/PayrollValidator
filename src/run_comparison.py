@@ -114,7 +114,7 @@ def get_node_config(integration, client="bww"):
     print("FILE :", __file__)
     print("Integration Received :", repr(integration))
 
-    if integration == "payroll":
+    if integration in ("payroll", "payroll out v2"):
 
         from payroll_config import NODE_CONFIG
 
@@ -384,13 +384,13 @@ def run_comparison(
                     ac_nodes = ac.get_nodes(config["path"])
 
                 if (
-                    integration in ["payroll", "timekeeping"]
+                    integration in ["payroll", "payroll out v2", "timekeeping"]
                     and config["node"] == "EXCEPTIONS"
                 ):
                     cb_nodes = filter_exception_records(cb.get_root(), cb_nodes)
                     ac_nodes = filter_exception_records(ac.get_root(), ac_nodes)
                 if (
-                    integration == "payroll"
+                    integration in ["payroll", "payroll out v2"]
                     and config["node"] == "PAY_PERIOD"
                 ):
                     cb_nodes = aggregate_pay_period_tm1(cb_nodes)
@@ -403,6 +403,7 @@ def run_comparison(
                         config["node"],
                         config["display_path"],
                         config["key_fields"],
+                        apply_tolerance=(integration != "payroll out v2"),
                     )
                 )
 

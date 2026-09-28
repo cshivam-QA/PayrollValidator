@@ -1,6 +1,7 @@
 def validate_xml_structure(xml_loader, integration):
     validation_paths = {
         "payroll": ".//H0/H1",
+        "payroll out v2": ".//H0/H1",
         "timekeeping": ".//Labor",
         "food out": ".//Inventory",
         "vendor schedule": ".//Custom/VDRS",

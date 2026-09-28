@@ -73,6 +73,7 @@ run_comparison_module.webbrowser.open = lambda *a, **kw: True
 
 INTEGRATIONS = [
     "Payroll",
+    "Payroll Out V2",
     "Timekeeping",
     "Food Out",
     "Vendor Schedule",
