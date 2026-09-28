@@ -14,3 +14,6 @@ webapp/runs/
 
 *.xml
 *.xlsx
+
+# Permanent sample report bundled with the web app (not user data)
+!webapp/static_sample/*.xlsx

@@ -343,5 +343,36 @@ def download(run_id, filename):
     return send_file(target, as_attachment=True, download_name=target.name)
 
 
+# ---------------------------------------------------------------------------
+# Permanent sample report (checked into the repo under static_sample/, not
+# the ephemeral runs/ folder, so this link never expires and survives
+# redeploys - unlike a normal /view/<run_id> link, which is pruned after
+# RUN_MAX_AGE_SECONDS).
+# ---------------------------------------------------------------------------
+
+SAMPLE_DIR = Path(__file__).resolve().parent / "static_sample"
+
+
+@app.route("/sample", methods=["GET"])
+def sample():
+    html_path = SAMPLE_DIR / "dashboard.html"
+    if not html_path.exists():
+        return "Sample report not found.", 404
+    return html_path.read_text(encoding="utf-8")
+
+
+@app.route("/sample/download/<path:filename>", methods=["GET"])
+def sample_download(filename):
+    output_dir = SAMPLE_DIR.resolve()
+    target = (output_dir / filename).resolve()
+
+    if output_dir not in target.parents and target != output_dir:
+        return "Not found", 404
+    if not target.exists():
+        return "Not found", 404
+
+    return send_file(target, as_attachment=True, download_name=target.name)
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=False)
