@@ -14,9 +14,15 @@
   body {
     margin:0; background:var(--bg); color:var(--text);
     font-family:"Segoe UI", Arial, sans-serif; font-size:14px;
-    display:flex; justify-content:center; padding:32px 16px;
+    display:flex; justify-content:center; align-items:center; padding:32px 16px;
+    position:relative; min-height:100vh; overflow-x:hidden;
   }
+
+  /* Animated network background (Vanta.js NET effect) */
+  #vanta-bg { position:fixed; inset:0; z-index:0; }
+
   .card {
+    position:relative; z-index:1;
     width:100%; max-width:640px; background:var(--panel);
     border:1px solid var(--border); border-radius:12px; padding:28px 30px;
   }
@@ -43,6 +49,7 @@
 </style>
 </head>
 <body>
+  <div id="vanta-bg"></div>
   <div class="card">
     <h1>XML Integration Validator</h1>
     <p class="subtitle">Compare CB and AC integration XML files</p>
@@ -96,6 +103,27 @@
     </form>
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
+  <script>
+    if (window.VANTA && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      VANTA.NET({
+        el: "#vanta-bg",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        color: 0x4da6ff,
+        backgroundColor: 0x1e1e1e,
+        points: 9.00,
+        maxDistance: 22.00,
+        spacing: 17.00
+      });
+    }
+  </script>
   <script>
     const integrationSelect = document.getElementById("integration");
     const clientField = document.getElementById("clientField");
