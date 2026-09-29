@@ -233,7 +233,7 @@ def _inject_master_download_banner(html: str, master_url: str) -> str:
         '<div style="position:sticky;top:0;z-index:9999;background:#111827;'
         'color:#fff;padding:8px 16px;font:600 12px/1.4 Segoe UI,Arial,sans-serif;'
         'display:flex;justify-content:space-between;align-items:center;">'
-        '<span>XML Integration Validator &mdash; web preview</span>'
+        '<span>XML Integration Validator</span>'
         f'<a href="{master_url}" style="color:#8ab4ff;text-decoration:none;'
         'border:1px solid #8ab4ff;border-radius:6px;padding:4px 10px;">'
         "Download Master Excel Report</a></div>"

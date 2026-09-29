@@ -61,7 +61,7 @@
       {% endif %}
     {% endwith %}
 
-    <form method="post" action="{{ url_for('run') }}" enctype="multipart/form-data">
+    <form method="post" action="{{ url_for('run') }}" enctype="multipart/form-data" target="_blank">
       <label for="integration">Integration</label>
       <select name="integration" id="integration">
         {% for item in integrations %}
