@@ -29,6 +29,7 @@ import threading
 import time
 import uuid
 from pathlib import Path
+from urllib.parse import quote
 
 from flask import (
     Flask,
@@ -219,9 +220,7 @@ def _rewrite_dashboard_links(html: str, run_id: str, output_dir: Path, used_name
                 continue
             stored_name = _copy_into(value, output_dir, used_names)
             entry[key] = (
-                url_for("download", run_id=run_id, filename=stored_name)
-                if stored_name
-                else ""
+                f"/download/{run_id}/{quote(stored_name)}" if stored_name else ""
             )
 
     new_json = json.dumps(details)
@@ -257,6 +256,47 @@ def index():
     )
 
 
+def _write_status(run_dir: Path, state: str, message: str = "") -> None:
+    (run_dir / "status.json").write_text(
+        json.dumps({"state": state, "message": message}), encoding="utf-8"
+    )
+
+
+def _process_run(run_id: str, run_dir: Path, run_kwargs: dict) -> None:
+    """Runs the actual comparison in the background so the request that
+    triggered it can return immediately with a "processing" page instead
+    of blocking the browser tab for however long run_comparison() takes."""
+
+    upload_dir = run_dir / "upload"
+    output_dir = run_dir / "output"
+
+    try:
+        with run_lock:
+            result = run_comparison(**run_kwargs)
+
+            used_names: set = set()
+
+            master_name = _copy_into(result["report_path"], output_dir, used_names)
+            master_url = f"/download/{run_id}/{quote(master_name)}" if master_name else "#"
+
+            dashboard_html = Path(result["dashboard_path"]).read_text(encoding="utf-8")
+            dashboard_html = _rewrite_dashboard_links(
+                dashboard_html, run_id, output_dir, used_names
+            )
+            dashboard_html = _inject_master_download_banner(dashboard_html, master_url)
+
+            (output_dir / "dashboard.html").write_text(dashboard_html, encoding="utf-8")
+
+        _write_status(run_dir, "done")
+
+    except Exception as exc:  # noqa: BLE001
+        _write_status(run_dir, "error", str(exc))
+
+    finally:
+        shutil.rmtree(upload_dir, ignore_errors=True)
+        _prune_old_runs()
+
+
 @app.route("/run", methods=["POST"])
 def run():
     integration = (request.form.get("integration") or "Payroll").lower()
@@ -270,84 +310,67 @@ def run():
     output_dir = run_dir / "output"
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        if mode == "file":
-            cb_files = request.files.getlist("cb_file")
-            ac_files = request.files.getlist("ac_file")
-            if not cb_files or not cb_files[0].filename:
-                flash("Please choose a CB XML file.")
-                return redirect(url_for("index"))
-            if not ac_files or not ac_files[0].filename:
-                flash("Please choose an AC XML file.")
-                return redirect(url_for("index"))
+    if mode == "file":
+        cb_files = request.files.getlist("cb_file")
+        ac_files = request.files.getlist("ac_file")
+        if not cb_files or not cb_files[0].filename:
+            flash("Please choose a CB XML file.")
+            return redirect(url_for("index"))
+        if not ac_files or not ac_files[0].filename:
+            flash("Please choose an AC XML file.")
+            return redirect(url_for("index"))
 
-            cb_dir = upload_dir / "cb"
-            ac_dir = upload_dir / "ac"
-            _save_uploads(cb_files[:1], cb_dir)
-            _save_uploads(ac_files[:1], ac_dir)
-            cb_file_path = str(next(cb_dir.iterdir()))
-            ac_file_path = str(next(ac_dir.iterdir()))
+        cb_dir = upload_dir / "cb"
+        ac_dir = upload_dir / "ac"
+        _save_uploads(cb_files[:1], cb_dir)
+        _save_uploads(ac_files[:1], ac_dir)
+        cb_file_path = str(next(cb_dir.iterdir()))
+        ac_file_path = str(next(ac_dir.iterdir()))
 
-            run_kwargs = dict(
-                integration=integration,
-                cb_file=cb_file_path,
-                ac_file=ac_file_path,
-                client=client,
-            )
-        else:
-            cb_files = request.files.getlist("cb_files")
-            ac_files = request.files.getlist("ac_files")
+        run_kwargs = dict(
+            integration=integration,
+            cb_file=cb_file_path,
+            ac_file=ac_file_path,
+            client=client,
+        )
+    else:
+        cb_files = request.files.getlist("cb_files")
+        ac_files = request.files.getlist("ac_files")
 
-            cb_dir = upload_dir / "cb"
-            ac_dir = upload_dir / "ac"
-            cb_count = _save_uploads(cb_files, cb_dir)
-            ac_count = _save_uploads(ac_files, ac_dir)
+        cb_dir = upload_dir / "cb"
+        ac_dir = upload_dir / "ac"
+        cb_count = _save_uploads(cb_files, cb_dir)
+        ac_count = _save_uploads(ac_files, ac_dir)
 
-            if cb_count == 0:
-                flash("Please choose at least one CB XML file.")
-                return redirect(url_for("index"))
-            if ac_count == 0:
-                flash("Please choose at least one AC XML file.")
-                return redirect(url_for("index"))
+        if cb_count == 0:
+            flash("Please choose at least one CB XML file.")
+            return redirect(url_for("index"))
+        if ac_count == 0:
+            flash("Please choose at least one AC XML file.")
+            return redirect(url_for("index"))
 
-            run_kwargs = dict(
-                cb_folder=str(cb_dir),
-                ac_folder=str(ac_dir),
-                integration=integration,
-                client=client,
-            )
+        run_kwargs = dict(
+            cb_folder=str(cb_dir),
+            ac_folder=str(ac_dir),
+            integration=integration,
+            client=client,
+        )
 
-        with run_lock:
-            try:
-                result = run_comparison(**run_kwargs)
-            except Exception as exc:  # noqa: BLE001
-                flash(f"Comparison failed: {exc}")
-                shutil.rmtree(run_dir, ignore_errors=True)
-                return redirect(url_for("index"))
+    _write_status(run_dir, "pending")
+    threading.Thread(
+        target=_process_run, args=(run_id, run_dir, run_kwargs), daemon=True
+    ).start()
 
-            used_names: set = set()
+    return render_template("processing.html", run_id=run_id, logo_data_uri=LOGO_DATA_URI)
 
-            master_name = _copy_into(result["report_path"], output_dir, used_names)
-            master_url = (
-                url_for("download", run_id=run_id, filename=master_name)
-                if master_name
-                else "#"
-            )
 
-            dashboard_html = Path(result["dashboard_path"]).read_text(encoding="utf-8")
-            dashboard_html = _rewrite_dashboard_links(
-                dashboard_html, run_id, output_dir, used_names
-            )
-            dashboard_html = _inject_master_download_banner(dashboard_html, master_url)
-
-            (output_dir / "dashboard.html").write_text(dashboard_html, encoding="utf-8")
-
-        _prune_old_runs()
-
-        return redirect(url_for("view", run_id=run_id))
-
-    finally:
-        shutil.rmtree(upload_dir, ignore_errors=True)
+@app.route("/status/<run_id>", methods=["GET"])
+def status(run_id):
+    safe_id = re.sub(r"[^a-f0-9]", "", run_id)
+    status_path = RUNS_DIR / safe_id / "status.json"
+    if not status_path.exists():
+        return {"state": "error", "message": "Unknown run."}, 404
+    return status_path.read_text(encoding="utf-8"), 200, {"Content-Type": "application/json"}
 
 
 @app.route("/view/<run_id>", methods=["GET"])

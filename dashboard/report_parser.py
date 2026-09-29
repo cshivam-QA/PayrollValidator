@@ -470,19 +470,28 @@ class ReportParser:
 
         report_title = "CB → AC Migration Validation Report"
 
-        if stores:
+        # Pick the first store with a real Integration value, not just
+        # stores[0] - a CB/AC FILE MISSING or BUSINESS DATE MISMATCH row
+        # has "Integration": "-" and can legitimately sort to the front,
+        # which previously produced a bare "- Validation Report" title.
+        integration = next(
+            (
+                store.get("Integration")
+                for store in stores
+                if store.get("Integration") and store.get("Integration") != "-"
+            ),
+            None,
+        )
 
-            integration = stores[0].get("Integration")
+        if integration:
 
-            if integration:
-
-                report_title = f"{integration} Validation Report"
+            report_title = f"{integration} Validation Report"
 
         report_info = {
 
             "generated_on": datetime.now().strftime("%d-%b-%Y %I:%M %p"),
 
-            "comparison": stores[0].get("Integration", "") if stores else "",
+            "comparison": integration or "",
 
             "report_title": report_title
 

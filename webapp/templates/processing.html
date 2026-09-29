@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Running Comparison...</title>
+{% if logo_data_uri %}<link rel="icon" href="{{ logo_data_uri }}">{% endif %}
+<style>
+  :root {
+    --bg:#1e1e1e; --panel:#252526; --border:#3c3c3c; --text:#ffffff;
+    --muted:#cccccc; --accent:#4da6ff; --err:#ff6b6b;
+  }
+  * { box-sizing:border-box; }
+  body {
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:"Segoe UI", Arial, sans-serif; font-size:14px;
+    display:flex; justify-content:center; align-items:center; padding:32px 16px;
+    position:relative; min-height:100vh; overflow-x:hidden;
+  }
+  #vanta-bg { position:fixed; inset:0; z-index:0; }
+  .card {
+    position:relative; z-index:1; text-align:center;
+    width:100%; max-width:460px; background:var(--panel);
+    border:1px solid var(--border); border-radius:12px; padding:36px 30px;
+  }
+  .spinner {
+    width:56px; height:56px; margin:0 auto 22px;
+    border-radius:50%;
+    border:4px solid rgba(77,166,255,0.2);
+    border-top-color:var(--accent);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  h1 { margin:0 0 8px; font-size:18px; color:var(--accent); }
+  .subtitle { margin:0; color:var(--muted); font-size:13px; }
+  .msg { margin-top:18px; font-size:12.5px; color:var(--muted); min-height:18px; }
+  .msg.error { color:var(--err); }
+  .dots::after {
+    content:'.'; animation:dots 1.4s steps(4, end) infinite;
+  }
+  @keyframes dots {
+    0% { content:''; } 25% { content:'.'; } 50% { content:'..'; } 75% { content:'...'; } 100% { content:''; }
+  }
+</style>
+</head>
+<body>
+  <div id="vanta-bg"></div>
+  <div class="card">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="heading">Running comparison<span class="dots"></span></h1>
+    <p class="subtitle" id="subtitle">Reading files, comparing records and building your report. This can take a little longer on a free-tier server, please keep this tab open.</p>
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vanta/0.5.24/vanta.net.min.js"></script>
+  <script>
+    if (window.VANTA && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      VANTA.NET({
+        el: "#vanta-bg",
+        mouseControls: true,
+        touchControls: true,
+        gyroControls: false,
+        minHeight: 200.00,
+        minWidth: 200.00,
+        scale: 1.00,
+        scaleMobile: 1.00,
+        color: 0x4da6ff,
+        backgroundColor: 0x1e1e1e,
+        points: 9.00,
+        maxDistance: 22.00,
+        spacing: 17.00
+      });
+    }
+  </script>
+
+  <script>
+    const runId = {{ run_id | tojson }};
+    const statusUrl = "/status/" + runId;
+    const viewUrl = "/view/" + runId;
+
+    function poll() {
+      fetch(statusUrl, { cache: "no-store" })
+        .then((r) => r.json())
+        .then((data) => {
+          if (data.state === "done") {
+            window.location.href = viewUrl;
+          } else if (data.state === "error") {
+            document.getElementById("spinner").style.display = "none";
+            document.getElementById("heading").textContent = "Comparison failed";
+            document.getElementById("subtitle").textContent = "Something went wrong while running the comparison.";
+            const msg = document.getElementById("msg");
+            msg.textContent = data.message || "Unknown error.";
+            msg.classList.add("error");
+          } else {
+            setTimeout(poll, 1500);
+          }
+        })
+        .catch(() => setTimeout(poll, 2500));
+    }
+
+    poll();
+  </script>
+</body>
+</html>
