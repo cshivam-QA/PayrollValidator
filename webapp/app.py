@@ -92,6 +92,36 @@ FOOD_OUT_CLIENTS = {
 RUNS_DIR = Path(__file__).resolve().parent / "runs"
 RUNS_DIR.mkdir(parents=True, exist_ok=True)
 
+
+def _load_logo_data_uri() -> str:
+    logo_path = PROJECT_ROOT / "dashboard" / "assets" / "anyconnector-logo.png"
+    if not logo_path.exists():
+        return ""
+
+    import base64
+    from io import BytesIO
+
+    try:
+        from PIL import Image
+
+        # The source file is a large master asset (1.5MB+, with
+        # embedded metadata) - shrink it to a real favicon size and
+        # drop that metadata, same as pdf_generator.py/
+        # dashboard_generator.py already do for their embedded logo.
+        image = Image.open(logo_path).convert("RGBA")
+        image.thumbnail((64, 64))
+        buffer = BytesIO()
+        image.save(buffer, format="PNG", optimize=True)
+        data = buffer.getvalue()
+    except Exception:
+        data = logo_path.read_bytes()
+
+    encoded = base64.b64encode(data).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+LOGO_DATA_URI = _load_logo_data_uri()
+
 RUN_MAX_AGE_SECONDS = 24 * 60 * 60  # prune anything older than this
 
 run_lock = threading.Lock()
@@ -223,6 +253,7 @@ def index():
         "upload.html",
         integrations=INTEGRATIONS,
         clients=list(FOOD_OUT_CLIENTS.keys()),
+        logo_data_uri=LOGO_DATA_URI,
     )
 
 
