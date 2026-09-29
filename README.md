@@ -222,6 +222,12 @@ A permanent sample report (does not expire) is available at:
 
 https://xml-integration-validator.onrender.com/sample
 
+Running a comparison opens the report in a new browser tab
+(the upload form stays as-is in the original tab), showing
+an animated processing page while the comparison runs in
+the background, then switching automatically to the
+dashboard once it's ready.
+
 Notes on the hosted (free-tier) web app:
 
 - It goes to sleep after a period of inactivity; the first
@@ -358,6 +364,14 @@ RECENT ENHANCEMENTS (V4.0)
   comparison pipeline unchanged, deployable for free via a
   Render Blueprint
 - Added a permanent, non-expiring sample report link
+- Web app: report now opens in a new tab, with an animated
+  processing page while the comparison runs in the
+  background instead of a blank/loading tab
+- Web app: added the AnyConnector logo as the browser tab
+  favicon
+- Fixed the dashboard title showing a bare "- Validation
+  Report" when a CB/AC file missing or business-date
+  mismatch row happened to sort first in the store list
 
 ---------------------------------------------------------
 FUTURE ENHANCEMENTS
