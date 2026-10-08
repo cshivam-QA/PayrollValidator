@@ -270,7 +270,9 @@ class ReportParser:
                 "cb_file": store.get("CB File"),
                 "ac_file": store.get("AC File"),
                 "report_file": report_file.get("excel", ""),
-                "pdf_file": report_file.get("pdf", "")
+                "pdf_file": report_file.get("pdf", ""),
+                "cb_xml_file": report_file.get("cb_xml", ""),
+                "ac_xml_file": report_file.get("ac_xml", "")
             })
 
             details[store_key]["validation_failure"] = (

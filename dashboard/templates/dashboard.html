@@ -374,6 +374,13 @@ body::before {
 .info-row { display:flex; gap:8px; padding:5px 0; font-size:13px; }
 .info-row .k { flex:0 0 120px; color:var(--text-secondary); font-weight:600; }
 .info-row .v { color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.file-link {
+    flex:0 0 auto; align-self:center; font-size:11px; font-weight:700; line-height:1.6;
+    color:var(--accent); text-decoration:none; padding:0 9px;
+    border:1px solid var(--border); border-radius:999px; background:var(--surface);
+    transition:border-color .15s ease, background .15s ease;
+}
+.file-link:hover { border-color:var(--accent); }
 
 .mini-stats { display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:12px; margin-bottom:20px; }
 .mini-stat {
@@ -868,6 +875,25 @@ function generateDynamicTable(title, records, columnOrder) {
     return html;
 }
 
+/* Link to the source XML that was compared. Desktop runs embed a local
+   Windows path (turned into a file:/// URL here); the web app has already
+   rewritten it to its own /download/... URL. */
+function xmlFileHref(path) {
+    if (!path) return "";
+    if (/^[A-Za-z]:[\\/]/.test(path)) {
+        const parts = path.replace(/\\/g, "/").split("/");
+        return "file:///" + parts.map((p, i) => (i === 0 ? p : encodeURIComponent(p))).join("/");
+    }
+    return path;
+}
+
+function xmlViewLink(path, side) {
+    const href = xmlFileHref(path);
+    if (!href) return "";
+    const safeHref = href.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    return `<a class="file-link" href="${safeHref}" target="_blank" rel="noopener" title="Open the ${side} XML file">View</a>`;
+}
+
 /* Store details */
 function showStoreDetails(store) {
     const details = dashboardDetails[store];
@@ -904,8 +930,8 @@ function showStoreDetails(store) {
                     <div class="info-row"><span class="k">Business Date</span><span class="v">${details.cb_date || details.ac_date || "-"}</span></div>
                 </div>
                 <div>
-                    <div class="info-row"><span class="k">CB File</span><span class="v" title="${details.cb_file || "-"}">${details.cb_file || "-"}</span></div>
-                    <div class="info-row"><span class="k">AC File</span><span class="v" title="${details.ac_file || "-"}">${details.ac_file || "-"}</span></div>
+                    <div class="info-row"><span class="k">CB File</span><span class="v" title="${details.cb_file || "-"}">${details.cb_file || "-"}</span>${xmlViewLink(details.cb_xml_file, "CB")}</div>
+                    <div class="info-row"><span class="k">AC File</span><span class="v" title="${details.ac_file || "-"}">${details.ac_file || "-"}</span>${xmlViewLink(details.ac_xml_file, "AC")}</div>
                 </div>
             </div>
         </div>

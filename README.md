@@ -384,6 +384,8 @@ RECENT ENHANCEMENTS (V4.0)
 - Added Payroll Out V2 (exact-match, no tolerance)
 - Added Arby's Sales Out integration support (KEYS/DK,
   Sales, Payment Summary, Discounts, Lookups)
+- Dashboard store details now link to the exact CB/AC XML
+  files that were compared ("View" next to each file name)
 - Redesigned the HTML dashboard (KPI strip, Pass/Fail/
   Other filter chips, search, CSV export, dark/light theme)
 - Redesigned the per-store PDF report (clean single/two

@@ -109,6 +109,29 @@ def get_integration_label(integration, search_value):
     )
 
 
+def attach_xml_paths(store_report_paths, xml_sources):
+    """Adds each store's CB/AC XML path to store_report_paths (as "cb_xml" /
+    "ac_xml"), keyed the same way generate_store_reports keys its Excel/PDF
+    paths, so the dashboard can link to the files that were compared."""
+
+    for row, cb_path, ac_path in xml_sources:
+
+        store = str(row.get("Store", "")).strip()
+        business_date = (
+            str(row.get("CB Date", "")).strip()
+            or str(row.get("AC Date", "")).strip()
+        )
+
+        entry = store_report_paths.setdefault(
+            f"{store}|{business_date}", {"excel": "", "pdf": ""}
+        )
+
+        if cb_path:
+            entry.setdefault("cb_xml", os.path.abspath(cb_path))
+        if ac_path:
+            entry.setdefault("ac_xml", os.path.abspath(ac_path))
+
+
 def get_integration_full(search_value):
 
     if not search_value:
@@ -222,6 +245,10 @@ def run_comparison(
 
     summary = []
 
+    # (summary row, CB xml path, AC xml path) - kept outside the summary rows
+    # themselves so the master Excel report doesn't gain extra columns.
+    xml_sources = []
+
     all_differences = []
 
     all_missing_records = []
@@ -297,6 +324,7 @@ def run_comparison(
                     "Duplicates": 0,
                 }
             )
+            xml_sources.append((summary[-1], cb_xml, ac_xml))
 
             continue
 
@@ -480,6 +508,7 @@ def run_comparison(
                 "Duplicates": file_duplicate_count,
             }
         )
+        xml_sources.append((summary[-1], cb_xml, ac_xml))
 
     for key in sorted(missing_ac):
 
@@ -519,6 +548,7 @@ def run_comparison(
                     "Duplicates": 0,
                 }
             )
+            xml_sources.append((summary[-1], cb_files[key], ac_files[matching_ac_key]))
 
             processed_stores.add(store)
 
@@ -538,6 +568,7 @@ def run_comparison(
                     "Duplicates": 0,
                 }
             )
+            xml_sources.append((summary[-1], cb_files[key], None))
 
     for key in sorted(missing_cb):
 
@@ -561,6 +592,7 @@ def run_comparison(
                 "Duplicates": 0,
             }
         )
+        xml_sources.append((summary[-1], None, ac_files[key]))
 
     summary.sort(
         key=lambda x: (
@@ -586,6 +618,7 @@ def run_comparison(
         all_zero_values,
         all_duplicate_records,
     )
+    attach_xml_paths(store_report_paths, xml_sources)
 
     dashboard = DashboardGenerator(
     Path(report_path),

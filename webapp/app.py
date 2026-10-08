@@ -215,7 +215,7 @@ def _rewrite_dashboard_links(html: str, run_id: str, output_dir: Path, used_name
     for entry in details.values():
         if not isinstance(entry, dict):
             continue
-        for key in ("report_file", "pdf_file"):
+        for key in ("report_file", "pdf_file", "cb_xml_file", "ac_xml_file"):
             value = entry.get(key)
             if not value:
                 continue
@@ -241,6 +241,20 @@ def _inject_master_download_banner(html: str, master_url: str) -> str:
     if "<body>" in html:
         return html.replace("<body>", "<body>" + banner, 1)
     return banner + html
+
+
+def _send_report_file(target: Path):
+    if target.suffix.lower() == ".xml":
+        # Source XML opens in the browser for viewing, as plain text: an
+        # uploaded file could carry XHTML <script> content, which a browser
+        # would execute if it were served as XML.
+        response = send_file(
+            target, mimetype="text/plain", as_attachment=False, download_name=target.name
+        )
+        response.headers["X-Content-Type-Options"] = "nosniff"
+        return response
+
+    return send_file(target, as_attachment=True, download_name=target.name)
 
 
 # ---------------------------------------------------------------------------
@@ -395,7 +409,7 @@ def download(run_id, filename):
     if not target.exists():
         return "Not found", 404
 
-    return send_file(target, as_attachment=True, download_name=target.name)
+    return _send_report_file(target)
 
 
 # ---------------------------------------------------------------------------
@@ -426,7 +440,7 @@ def sample_download(filename):
     if not target.exists():
         return "Not found", 404
 
-    return send_file(target, as_attachment=True, download_name=target.name)
+    return _send_report_file(target)
 
 
 if __name__ == "__main__":
