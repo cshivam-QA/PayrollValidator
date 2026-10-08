@@ -23,6 +23,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import secrets
 import shutil
 import sys
 import threading
@@ -34,12 +35,16 @@ from urllib.parse import quote
 from flask import (
     Flask,
     flash,
+    make_response,
     redirect,
     render_template,
     request,
     send_file,
     url_for,
 )
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from xml_viewer import render_xml  # noqa: E402
 
 # The pipeline's "generated on" timestamps use datetime.now()/pd.Timestamp.now()
 # with no explicit timezone, which follows the host machine's system clock.
@@ -220,8 +225,10 @@ def _rewrite_dashboard_links(html: str, run_id: str, output_dir: Path, used_name
             if not value:
                 continue
             stored_name = _copy_into(value, output_dir, used_names)
+            # Source XML opens in the formatted viewer; reports download.
+            route = "xml" if key.endswith("_xml_file") else "download"
             entry[key] = (
-                f"/download/{run_id}/{quote(stored_name)}" if stored_name else ""
+                f"/{route}/{run_id}/{quote(stored_name)}" if stored_name else ""
             )
 
     new_json = json.dumps(details)
@@ -243,8 +250,8 @@ def _inject_master_download_banner(html: str, master_url: str) -> str:
     return banner + html
 
 
-def _send_report_file(target: Path):
-    if target.suffix.lower() == ".xml":
+def _send_report_file(target: Path, force_download: bool = False):
+    if target.suffix.lower() == ".xml" and not force_download:
         # Source XML opens in the browser for viewing, as plain text: an
         # uploaded file could carry XHTML <script> content, which a browser
         # would execute if it were served as XML.
@@ -398,18 +405,54 @@ def view(run_id):
     return html_path.read_text(encoding="utf-8")
 
 
-@app.route("/download/<run_id>/<path:filename>", methods=["GET"])
-def download(run_id, filename):
+def _run_output_file(run_id: str, filename: str) -> Path | None:
     safe_id = re.sub(r"[^a-f0-9]", "", run_id)
     output_dir = (RUNS_DIR / safe_id / "output").resolve()
     target = (output_dir / filename).resolve()
 
-    if output_dir not in target.parents and target != output_dir:
-        return "Not found", 404
-    if not target.exists():
+    if output_dir not in target.parents or not target.is_file():
+        return None
+    return target
+
+
+@app.route("/download/<run_id>/<path:filename>", methods=["GET"])
+def download(run_id, filename):
+    target = _run_output_file(run_id, filename)
+    if target is None:
         return "Not found", 404
 
-    return _send_report_file(target)
+    return _send_report_file(target, force_download=request.args.get("dl") == "1")
+
+
+@app.route("/xml/<run_id>/<path:filename>", methods=["GET"])
+def xml_view(run_id, filename):
+    target = _run_output_file(run_id, filename)
+    if target is None or target.suffix.lower() != ".xml":
+        return "Not found", 404
+
+    body, parsed, line_count = render_xml(target.read_bytes())
+    nonce = secrets.token_urlsafe(16)
+
+    response = make_response(
+        render_template(
+            "xml_viewer.html",
+            filename=target.name,
+            body=body,
+            parsed=parsed,
+            gutter=len(str(line_count)) + 3,
+            download_url=f"/download/{re.sub(r'[^a-f0-9]', '', run_id)}/{quote(target.name)}?dl=1",
+            nonce=nonce,
+            logo_data_uri=LOGO_DATA_URI,
+        )
+    )
+    # Defense in depth on top of escaping: only this page's own nonce'd
+    # scripts may run, and nothing is loaded from elsewhere.
+    response.headers["Content-Security-Policy"] = (
+        f"default-src 'none'; script-src 'nonce-{nonce}'; style-src 'unsafe-inline'; "
+        "img-src data:; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+    )
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    return response
 
 
 # ---------------------------------------------------------------------------

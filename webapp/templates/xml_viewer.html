@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ filename }} - XML Viewer</title>
+{% if logo_data_uri %}<link rel="icon" href="{{ logo_data_uri }}">{% endif %}
+<script nonce="{{ nonce }}">
+(function () {
+    try {
+        var saved = localStorage.getItem("xmlValidatorTheme");
+        if (saved === "dark" || saved === "light") {
+            document.documentElement.setAttribute("data-theme", saved);
+        }
+    } catch (e) {}
+})();
+</script>
+<style>
+:root, [data-theme="light"] {
+    --bg:#e9ecf6; --surface:#ffffff; --surface-2:#f2f3fa; --border:#d8dcee;
+    --text:#161a22; --text-secondary:#4b5166; --accent:#3457e0; --accent-solid:#3457e0; --hover:rgba(52,87,224,0.06);
+    --x-tag:#2445c8; --x-attr:#8a3fd1; --x-val:#0b7a55; --x-punct:#7a8099; --x-text:#161a22; --x-comment:#8a8fa3;
+    --shadow:0 1px 2px rgba(20,25,40,0.06), 0 10px 24px rgba(20,25,40,0.08);
+}
+[data-theme="dark"] {
+    --bg:#0d0b1a; --surface:#17142c; --surface-2:#1e1a38; --border:#322c54;
+    --text:#f2f1f8; --text-secondary:#9c98b8; --accent:#8c9dff; --accent-solid:#5468e8; --hover:rgba(140,157,255,0.08);
+    --x-tag:#8c9dff; --x-attr:#c3a6ff; --x-val:#7ee0b0; --x-punct:#8a86a8; --x-text:#f2f1f8; --x-comment:#6f6a90;
+    --shadow:0 1px 2px rgba(0,0,0,0.4), 0 8px 20px rgba(0,0,0,0.35);
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:"Segoe UI", Arial, sans-serif; }
+
+.bar {
+    position:sticky; top:0; z-index:10; display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+    padding:12px 20px; background:var(--surface); border-bottom:1px solid var(--border); box-shadow:var(--shadow);
+}
+.file { display:flex; flex-direction:column; min-width:0; flex:1 1 260px; }
+.file .lbl { font-size:10.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--text-secondary); }
+.file .name { font-size:15px; font-weight:700; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.actions { display:flex; gap:8px; flex-wrap:wrap; }
+.btn {
+    font:600 12.5px "Segoe UI", Arial, sans-serif; color:var(--text); background:var(--surface-2);
+    border:1px solid var(--border); border-radius:8px; padding:7px 12px; cursor:pointer; text-decoration:none;
+}
+.btn:hover { border-color:var(--accent); color:var(--accent); }
+.btn-primary { background:var(--accent-solid); border-color:var(--accent-solid); color:#ffffff; }
+.btn-primary:hover { color:#ffffff; filter:brightness(1.08); }
+
+.notice {
+    margin:16px 20px 0; padding:10px 14px; border-radius:8px; font-size:13px;
+    background:rgba(209,59,59,0.10); border:1px solid rgba(209,59,59,0.30); color:var(--text);
+}
+.viewer {
+    margin:16px 20px 24px; background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; box-shadow:var(--shadow); padding:10px 0; overflow:hidden;
+}
+.ln { display:flex; font:12.5px/1.65 Consolas, "Cascadia Code", Menlo, monospace; }
+.ln:hover { background:var(--hover); }
+.no {
+    flex:0 0 auto; width:var(--gutter); padding:0 12px 0 8px; text-align:right;
+    color:var(--text-secondary); opacity:.6; user-select:none;
+}
+.code {
+    position:relative; flex:1 1 auto; min-width:0; padding-left:calc(var(--d) * 2ch + 18px); padding-right:16px;
+    white-space:pre-wrap; word-break:break-word;
+}
+.tog {
+    position:absolute; left:calc(var(--d) * 2ch + 2px); top:0; width:14px; cursor:pointer;
+    color:var(--text-secondary); user-select:none;
+}
+.tog::before { content:"\25BE"; }
+.tog:hover { color:var(--accent); }
+.t { color:var(--x-tag); }
+.a { color:var(--x-attr); }
+.v { color:var(--x-val); }
+.p { color:var(--x-punct); }
+.x { color:var(--x-text); }
+.c { color:var(--x-comment); font-style:italic; }
+.ell { display:none; color:var(--x-punct); }
+
+.blk.collapsed > .kids,
+.blk.collapsed > .ln.close { display:none; }
+.blk.collapsed > .ln.open .ell { display:inline; }
+.blk.collapsed > .ln.open .tog::before { content:"\25B8"; }
+</style>
+</head>
+<body>
+<div class="bar">
+    <div class="file">
+        <span class="lbl">XML Viewer</span>
+        <span class="name" title="{{ filename }}">{{ filename }}</span>
+    </div>
+    <div class="actions">
+        {% if parsed %}
+        <button type="button" class="btn" id="expandAll">Expand all</button>
+        <button type="button" class="btn" id="collapseAll">Collapse all</button>
+        {% endif %}
+        <button type="button" class="btn" id="themeToggle">Theme</button>
+        <a class="btn btn-primary" href="{{ download_url }}">Download</a>
+    </div>
+</div>
+
+{% if not parsed %}
+<div class="notice">This file is not well-formed XML, so it is shown as plain text.</div>
+{% endif %}
+
+<div class="viewer" style="--gutter:{{ gutter }}ch">{{ body }}</div>
+
+<script nonce="{{ nonce }}">
+document.addEventListener("click", function (e) {
+    var tog = e.target.closest(".tog");
+    if (tog) tog.closest(".blk").classList.toggle("collapsed");
+});
+
+function setAll(collapsed) {
+    document.querySelectorAll(".blk").forEach(function (b) {
+        b.classList.toggle("collapsed", collapsed);
+    });
+}
+
+var expandAll = document.getElementById("expandAll");
+var collapseAll = document.getElementById("collapseAll");
+if (expandAll) expandAll.addEventListener("click", function () { setAll(false); });
+if (collapseAll) collapseAll.addEventListener("click", function () {
+    // Keep the root open so the top-level sections stay visible.
+    setAll(true);
+    var root = document.querySelector(".viewer > .blk");
+    if (root) root.classList.remove("collapsed");
+});
+
+document.getElementById("themeToggle").addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("xmlValidatorTheme", next); } catch (e) {}
+});
+</script>
+</body>
+</html>
