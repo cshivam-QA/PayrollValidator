@@ -1,235 +1,174 @@
 <!DOCTYPE html>
 <html>
-
 <head>
-
 <meta charset="UTF-8">
-
 <title>{{ report_title }}</title>
-
 <style>
 
 @page{
     size:A4;
-    margin-left:15mm;
-    margin-right:15mm;
-    margin-top:25mm;
-    margin-bottom:13mm;
+    margin-left:14mm;
+    margin-right:14mm;
+    margin-top:34mm;
+    margin-bottom:15mm;
 
     @frame header_frame{
         -pdf-frame-content: header_content;
-        top:7mm;
-        left:15mm;
-        right:15mm;
-        height:18mm;
+        top:8mm;
+        left:14mm;
+        right:14mm;
+        height:23mm;
     }
 
     @frame footer_frame{
         -pdf-frame-content: footer_content;
-        bottom:5mm;
-        left:15mm;
-        right:15mm;
-        height:8mm;
+        bottom:6mm;
+        left:14mm;
+        right:14mm;
+        height:7mm;
     }
 }
 
 body{
     font-family:Helvetica,Arial,sans-serif;
     font-size:9pt;
-    color:#1F2937;
-    line-height:1.4;
+    color:#111827;
+    line-height:1.35;
 }
 
-/* ---------- Running header (every page) ---------- */
+/* ---------- Running header ---------- */
 
-#header_content{
-    width:100%;
-}
-
-.header-table{
+.hdr{
     width:100%;
     border-collapse:collapse;
-    border-bottom:1px solid #D1D5DB;
-    padding-bottom:5px;
 }
-
-.header-table td{
+.hdr td{
     border:none;
     padding:0;
-    vertical-align:top;
+    vertical-align:bottom;
 }
-
-.header-left{
-    width:50%;
-}
-
-.header-right{
-    width:50%;
-    text-align:right;
-    white-space:nowrap;
-}
-
-.report-title{
-    font-size:16pt;
+.hdr-title{
+    font-size:15pt;
     font-weight:bold;
     color:#111827;
-    text-align:center;
-    padding-bottom:5px;
 }
-
-.report-subtitle{
-    margin-top:3px;
+.hdr td.hdr-sub{
+    padding-top:4px;
+    padding-bottom:6px;
     font-size:9pt;
     color:#374151;
 }
-
-.header-right-line{
-    margin-top:3px;
-    white-space:nowrap;
+.hdr-right{
+    text-align:right;
 }
-
-.header-generated{
-    font-size:8pt;
-    color:#6B7280;
-    margin-left:8px;
-}
-
-/* ---------- Running footer (every page) ---------- */
-
-#footer_content{
-    width:100%;
-    border-top:1px solid #D1D5DB;
+.hdr td.hdr-generated{
     padding-top:4px;
-}
-
-.footer-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-.footer-table td{
-    border:none;
-    padding:0;
-    font-size:7.5pt;
-    color:#6B7280;
-}
-
-.footer-center{
-    text-align:center;
-}
-
-.footer-right{
+    padding-bottom:6px;
+    font-size:8pt;
+    color:#4B5563;
     text-align:right;
 }
 
-/* ---------- Section headings ---------- */
-
-h2.section-title{
-    font-size:11.5pt;
-    font-weight:bold;
-    line-height:1.3;
-    color:#111827;
-    border-left:3px solid #2F5BD3;
-    padding:1px 0 1px 8px;
-    margin:16px 0 9px 0;
-    -pdf-keep-with-next:true;
+.hdr td.hdr-rule{
+    border-top:1.5px solid #2F5BD3;
+    padding:0;
+    font-size:1pt;
+    line-height:1;
 }
-
-.section{
-    margin-top:2px;
-}
-
-.section-first{
-    margin-top:6px;
-}
-
-/* ---------- Status badge ---------- */
-
-.badge{
-    display:inline;
-    padding:3px 12px;
-    border-radius:999px;
+.hdr td.badge-cell{
+    width:28mm;
+    padding:5px 0 1px 0;
+    text-align:center;
+    vertical-align:middle;
     font-size:9.5pt;
     font-weight:bold;
-    text-transform:uppercase;
 }
+.hdr td.badge-fail{ background-color:#FDECEC; color:#B42318; border:1px solid #F1A9A3; }
+.hdr td.badge-pass{ background-color:#E7F6EC; color:#1E7B3E; border:1px solid #A9D9B8; }
+.hdr td.badge-other{ background-color:#FEF5E7; color:#9A5B05; border:1px solid #F0CB8E; font-size:7.5pt; }
 
-.badge-fail{
-    background-color:#FDECEC;
-    color:#B42318;
-    border:1px solid #E8938D;
-}
+/* ---------- Running footer ---------- */
 
-.badge-pass{
-    background-color:#E7F6EC;
-    color:#1E7B3E;
-    border:1px solid #B7E1C4;
-}
-
-/* ---------- Key/value info tables ---------- */
-
-.info-table{
+.ftr{
     width:100%;
     border-collapse:collapse;
-    margin-top:4px;
+    border-top:1px solid #D1D5DB;
 }
-
-.info-table td{
+.ftr td{
     border:none;
-    border-bottom:1px solid #F0F1F3;
-    padding:5px 4px;
-    vertical-align:middle;
-    font-size:9pt;
-    word-break:break-word;
+    padding:3px 0 0 0;
+    font-size:7.5pt;
+    color:#4B5563;
 }
 
-.info-label{
-    width:30%;
-    color:#6B7280;
+/* ---------- Sections ---------- */
+
+h2.section-title{
+    font-size:10pt;
+    font-weight:bold;
+    color:#1D3FA6;
+    border-bottom:1px solid #CBD2DC;
+    padding:0 0 3px 0;
+    margin:18px 0 8px 0;
+    -pdf-keep-with-next:true;
+}
+h2.first{
+    margin-top:2px;
 }
 
-.info-value{
-    width:70%;
-    color:#1F2937;
-}
+/* ---------- Summary + source files ---------- */
 
-/* ---------- Validation summary ---------- */
-
-.summary-table{
+.kpi{
     width:100%;
     border-collapse:collapse;
-    margin-top:2px;
-    table-layout:fixed;
 }
-
-.summary-table th{
-    background-color:#F3F4F6;
-    color:#374151;
-    border-bottom:1px solid #D1D5DB;
-    padding:4px 8px;
-    font-size:8.5pt;
+.kpi td.card{
+    width:23.5%;
+    border:1px solid #B9DFC6;
+    border-top:3px solid #2E9E5B;
+    padding:7px 10px 6px 10px;
+    background-color:#EAF6EE;
+}
+.kpi td.card-bad{
+    border:1px solid #F3B9B4;
+    border-top:3px solid #D1454C;
+    background-color:#FDECEC;
+}
+.kpi td.gapcol{
+    width:2%;
+    border:none;
+    background-color:#FFFFFF;
+}
+.kpi-label{
+    font-size:7.5pt;
     font-weight:bold;
-    text-align:left;
+    color:#4B5563;
 }
-
-.summary-table th.num{
-    text-align:right;
-}
-
-.summary-table td{
-    border-bottom:1px solid #F0F1F3;
-    padding:4px 8px;
-    font-size:9pt;
-    color:#1F2937;
-}
-
-.summary-table td.num{
-    text-align:right;
+.kpi-value{
+    font-size:16pt;
     font-weight:bold;
+    color:#1E7B3E;
 }
-
-.summary-table td.num.is-nonzero{
+.kpi-value-bad{
+    font-size:16pt;
+    font-weight:bold;
     color:#B42318;
+}
+
+.files{
+    width:100%;
+    border-collapse:collapse;
+}
+.files td{
+    border-bottom:1px solid #E5E7EB;
+    padding:4px 6px;
+    font-size:8.5pt;
+    word-break:break-all;
+}
+.files td.lbl{
+    width:16%;
+    font-weight:bold;
+    color:#374151;
 }
 
 /* ---------- Data tables ---------- */
@@ -237,401 +176,252 @@ h2.section-title{
 .grid{
     width:100%;
     border-collapse:collapse;
-    margin-top:6px;
-    table-layout:fixed;
 }
-
-.grid thead{
-    display:table-header-group;
-}
-
 .grid th{
-    background-color:#F3F4F6;
-    color:#374151;
-    border-bottom:1px solid #D1D5DB;
-    padding:5px 6px;
-    font-size:8.5pt;
+    background-color:#E8EDFB;
+    color:#1F2A44;
+    border-top:1px solid #C7D2F5;
+    border-bottom:1px solid #C7D2F5;
+    padding:4px 6px;
+    font-size:8pt;
     font-weight:bold;
     text-align:left;
-    word-break:break-word;
 }
-
-.grid th.num{
-    text-align:right;
-}
-
 .grid td{
-    border-bottom:1px solid #F0F1F3;
-    padding:5px 6px;
-    font-size:9pt;
+    border-bottom:1px solid #E5E7EB;
+    padding:3px 6px;
+    font-size:8.5pt;
     vertical-align:top;
     word-break:break-all;
 }
-
-.grid td.num{
+.grid th.num, .grid td.num{
     text-align:right;
 }
-
+.grid tr.band td{
+    background-color:#F7F8FC;
+}
+.grid tr.grp td{
+    background-color:#FFFFFF;
+    border-bottom:1px solid #D1D5DB;
+    padding:6px 6px 3px 6px;
+    font-size:8.5pt;
+}
+.node{
+    font-weight:bold;
+    color:#1D3FA6;
+}
+.path{
+    font-size:7.5pt;
+    color:#4B5563;
+}
 .ac-diff{
-    background-color:#FDECEC;
     color:#B42318;
     font-weight:bold;
 }
-
-.cb-plain{
-    color:#1F2937;
+.side{
+    font-weight:bold;
+    color:#B42318;
 }
 
-/* ---------- Per-record block (Differences / Missing Records) ---------- */
-
-.record-block{
-    border-top:1px solid #E5E7EB;
-    padding-top:8px;
-    padding-bottom:4px;
-    margin-top:5px;
-}
-
-.record-node{
+.grid td.ttl{
+    border:none;
+    border-bottom:1px solid #CBD2DC;
+    background-color:#FFFFFF;
+    padding:0 0 3px 0;
     font-size:10pt;
     font-weight:bold;
-    color:#111827;
-    margin-bottom:5px;
-    -pdf-keep-with-next:true;
+    color:#1D3FA6;
+    word-break:normal;
 }
-
-.record-label{
-    font-size:7.5pt;
-    font-weight:bold;
-    color:#6B7280;
-    text-transform:uppercase;
-    margin-top:5px;
-    -pdf-keep-with-next:true;
-}
-
-.record-value{
-    font-size:9pt;
-    color:#1F2937;
-    word-break:break-all;
-}
-
-/* Compact single-line "Label: value" rows (Record Key / Technical Path) */
-.kv-line{
-    font-size:9pt;
-    color:#1F2937;
-    word-break:break-all;
-    margin-top:0;
-}
-
-.kv-line .kv-label{
-    font-weight:bold;
-    color:#6B7280;
-}
-
-.tech-path-line{
-    font-size:7.5pt;
-    color:#9CA3AF;
-    word-break:break-all;
-    margin-top:6px;
-}
-
-.tech-path-line .kv-label{
-    font-weight:bold;
-    color:#9CA3AF;
-}
-
-.mini-grid{
-    margin-top:8px;
-    margin-bottom:2px;
-}
-
-.tech-attrs{
-    margin-top:4px;
-}
-
-.attr-line{
-    font-size:8pt;
-    color:#1F2937;
-    padding:1px 0;
-}
-
-.attr-k{
-    color:#2F5BD3;
-    font-weight:bold;
-}
-
-.attr-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:7px;
-}
-
-.attr-table td{
-    font-size:8pt;
-    padding:2px 4px;
+.grid td.sp{
     border:none;
-    vertical-align:top;
+    background-color:#FFFFFF;
+    padding:0;
+    font-size:3pt;
+    line-height:1;
 }
-
-.attr-table td.attr-k-col{
-    width:15%;
-    color:#2F5BD3;
-    font-weight:bold;
-}
-
-.attr-table td.attr-v-col{
-    width:35%;
-    color:#1F2937;
-    word-break:break-all;
-}
-
-.empty{
-    text-align:center;
-    padding:14px;
+.grid td.rep{
     color:#6B7280;
-    font-style:italic;
+}
+p.gap{
+    margin:0;
+    font-size:11pt;
+    line-height:1;
+}
+
+.ok{
+    border:1px solid #A9D9B8;
+    background-color:#E7F6EC;
+    color:#1E7B3E;
+    font-weight:bold;
+    padding:9px 12px;
 }
 
 </style>
-
 </head>
 
 <body>
 
+{% set status_text = status or "-" %}
+{% if status_text == "PASS" %}{% set badge_cls = "badge-pass" %}
+{% elif status_text == "FAIL" %}{% set badge_cls = "badge-fail" %}
+{% else %}{% set badge_cls = "badge-other" %}{% endif %}
+
 <!-- ================= Running header ================= -->
 <div id="header_content">
-<table class="header-table">
+<table class="hdr">
 <tr>
-<td colspan="2" class="report-title">{{ report_title }}</td>
+<td class="hdr-title" colspan="2">{{ report_title }}</td>
+<td class="badge-cell {{ badge_cls }}">{{ status_text }}</td>
 </tr>
 <tr>
-<td class="header-left">
-<div class="report-subtitle">Store: {{ store }} | Business Date: {{ business_date }}</div>
-</td>
-<td class="header-right">
-<div class="header-right-line">
-{% if status=="PASS" %}
-<span class="badge badge-pass">[ {{ status }} ]</span>
-{% else %}
-<span class="badge badge-fail">[ {{ status }} ]</span>
-{% endif %}
-<span class="header-generated">Generated: {{ generated_on }} IST</span>
-</div>
-</td>
+<td class="hdr-sub" style="width:58%;">Store: <b>{{ store }}</b> &nbsp;|&nbsp; Business Date: <b>{{ business_date }}</b></td>
+<td class="hdr-generated" colspan="2">Generated: {{ generated_on }} IST</td>
 </tr>
+<tr><td class="hdr-rule" colspan="3">&nbsp;</td></tr>
 </table>
 </div>
 
 <!-- ================= Running footer ================= -->
 <div id="footer_content">
-<table class="footer-table">
+<table class="ftr">
 <tr>
-<td>Generated by {{ app_name }}</td>
-<td class="footer-center">Automatically generated - verify source XML before business action.</td>
-<td class="footer-right">Page <pdf:pagenumber /> of <pdf:pagecount /></td>
+<td>{{ app_name }} - automatically generated, verify against source XML before business action.</td>
+<td style="text-align:right; width:22%;">Page <pdf:pagenumber /> of <pdf:pagecount /></td>
 </tr>
 </table>
 </div>
 
-<!-- ================= Main content ================= -->
+<!-- ================= Summary ================= -->
 
-<div class="section section-first">
-<h2 class="section-title">Validation Summary</h2>
-
-<table class="summary-table">
-<thead>
+<h2 class="section-title first">VALIDATION SUMMARY</h2>
+<table class="kpi">
 <tr>
-<th style="width:70%;">Metric</th>
-<th class="num" style="width:30%;">Count</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Differences</td>
-<td class="num{{ ' is-nonzero' if details.differences }}">{{ details.differences|length }}</td>
-</tr>
-<tr>
-<td>Missing Records</td>
-<td class="num{{ ' is-nonzero' if details.missing }}">{{ details.missing|length }}</td>
-</tr>
-<tr>
-<td>Duplicate Records</td>
-<td class="num{{ ' is-nonzero' if details.duplicates }}">{{ details.duplicates|length }}</td>
-</tr>
-<tr>
-<td>Zero Values</td>
-<td class="num{{ ' is-nonzero' if details.zero_values }}">{{ details.zero_values|length }}</td>
-</tr>
-</tbody>
-</table>
-
-</div>
-
-<div class="section">
-<h2 class="section-title">Source Files</h2>
-
-<table class="info-table">
-<tr>
-    <td class="info-label">CB File</td>
-    <td class="info-value">{{ details.cb_file }}</td>
-</tr>
-<tr>
-    <td class="info-label">AC File</td>
-    <td class="info-value">{{ details.ac_file }}</td>
+{% set n = report.diff_count %}<td class="card{{ ' card-bad' if n else '' }}"><div class="kpi-label">DIFFERENCES</div><div class="{{ 'kpi-value-bad' if n else 'kpi-value' }}">{{ n }}</div></td>
+<td class="gapcol">&nbsp;</td>
+{% set n = report.missing_count %}<td class="card{{ ' card-bad' if n else '' }}"><div class="kpi-label">MISSING RECORDS</div><div class="{{ 'kpi-value-bad' if n else 'kpi-value' }}">{{ n }}</div></td>
+<td class="gapcol">&nbsp;</td>
+{% set n = report.duplicate_rows | length %}<td class="card{{ ' card-bad' if n else '' }}"><div class="kpi-label">DUPLICATE RECORDS</div><div class="{{ 'kpi-value-bad' if n else 'kpi-value' }}">{{ n }}</div></td>
+<td class="gapcol">&nbsp;</td>
+{% set n = report.zero_rows | length %}<td class="card{{ ' card-bad' if n else '' }}"><div class="kpi-label">ZERO VALUES</div><div class="{{ 'kpi-value-bad' if n else 'kpi-value' }}">{{ n }}</div></td>
 </tr>
 </table>
 
-</div>
-
-{% macro diff_block(node, group_key, rows) %}
-<div class="record-block">
-<div class="record-node">{{ node }}</div>
-
-<div class="kv-line"><span class="kv-label">Record Key:</span> {{ group_key }}</div>
-
-<table class="grid mini-grid">
-<thead>
-<tr>
-<th style="width:40%;">Attribute</th>
-<th class="num" style="width:30%;">CB Value</th>
-<th class="num" style="width:30%;">AC Value</th>
-</tr>
-</thead>
-<tbody>
-{% for row in rows %}
-<tr>
-<td>{{ row['Attribute'] }}</td>
-<td class="num cb-plain">{{ row['CB Value'] | fmt_num }}</td>
-<td class="num ac-diff">{{ row['AC Value'] | fmt_num }}</td>
-</tr>
-{% endfor %}
-</tbody>
+<h2 class="section-title">SOURCE FILES</h2>
+<table class="files">
+<tr><td class="lbl">CB File</td><td>{{ details.cb_file or "-" }}</td></tr>
+<tr><td class="lbl">AC File</td><td>{{ details.ac_file or "-" }}</td></tr>
 </table>
 
-<div class="tech-path-line"><span class="kv-label">Technical Path:</span> {{ rows[0]['Path'] }}</div>
-</div>
+{# Section title + spacer + column headers are the table's first three rows,
+   repeated on every page (repeat="3"): a long table starts right after the
+   previous section instead of jumping whole to the next page, and a
+   section title can never be left alone at the bottom of a page. #}
+{% macro section_head(title, cols) %}
+<tr><td class="ttl" colspan="{{ cols }}">{{ title }}</td></tr>
+<tr><td class="sp" colspan="{{ cols }}">&nbsp;</td></tr>
 {% endmacro %}
 
-{% macro missing_block(row) %}
-<div class="record-block">
-<div class="record-node">{{ row['Node'] }}</div>
+<!-- ================= Differences ================= -->
 
-<div class="kv-line"><span class="kv-label">Record Key:</span> {{ row['Key'] }}</div>
-
-<div class="record-label">Status:</div>
-<div class="record-value">
-{% if row['Missing In'] == 'AC' %}
-Present in CB | Missing in AC
-{% else %}
-Present in AC | Missing in CB
-{% endif %}
-</div>
-
-{% set attrs = (row['CB Attributes'] if row['Missing In'] == 'AC' else row['AC Attributes']) | parse_attrs %}
-{% if attrs %}
-<div class="record-label">Technical Attributes:</div>
-<table class="attr-table">
-<tbody>
-{% for pair in attrs.items() | list | batch(2) %}
+{% if report.diff_count %}
+<p class="gap">&nbsp;</p>
+<table class="grid" repeat="3">
+{{ section_head("DIFFERENCES (" ~ report.diff_count ~ ")", 4) }}
 <tr>
-{% for k, v in pair %}
-<td class="attr-k-col">{{ k }}:</td>
-<td class="attr-v-col">{{ v }}</td>
-{% endfor %}
-{% if pair | length == 1 %}
-<td class="attr-k-col"></td>
-<td class="attr-v-col"></td>
-{% endif %}
+<th style="width:40%;">Record Key</th>
+<th style="width:20%;">Attribute</th>
+<th class="num" style="width:20%;">CB Value</th>
+<th class="num" style="width:20%;">AC Value</th>
+</tr>
+{% for group in report.diff_groups %}
+<tr class="grp"><td colspan="4"><span class="node">{{ group.node }}</span>{% if group.path %}&nbsp;&nbsp;&nbsp;<span class="path">{{ group.path }}</span>{% endif %}</td></tr>
+{% for row in group.rows %}
+<tr{% if row.band %} class="band"{% endif %}>
+<td{% if not row.first_of_key %} class="rep"{% endif %}>{{ row.key }}</td>
+<td>{{ row.attribute }}</td>
+<td class="num">{{ row.cb }}</td>
+<td class="num ac-diff">{{ row.ac }}</td>
 </tr>
 {% endfor %}
-</tbody>
+{% endfor %}
 </table>
 {% endif %}
-</div>
-{% endmacro %}
 
-{% if details.differences %}
-<div class="section">
-<h2 class="section-title">Differences ({{ details.differences | length }})</h2>
-{% for group_key, rows in details.differences | sort(attribute='Key') | groupby('Key') %}
-{{ diff_block(rows[0]['Node'], group_key, rows) }}
-{% endfor %}
-</div>
-{% endif %}
+<!-- ================= Missing Records ================= -->
 
-{% if details.missing %}
-<div class="section">
-<h2 class="section-title">Missing Records ({{ details.missing | length }})</h2>
-{% for row in details.missing %}
-{{ missing_block(row) }}
-{% endfor %}
-</div>
-{% endif %}
-
-{% if details.duplicates %}
-<div class="section">
-<h2 class="section-title">Duplicate Records ({{ details.duplicates | length }})</h2>
-
-<table class="grid">
-<thead>
+{% if report.missing_count %}
+<p class="gap">&nbsp;</p>
+<table class="grid" repeat="3">
+{{ section_head("MISSING RECORDS (" ~ report.missing_count ~ ")", 3) }}
 <tr>
-{% for key in details.duplicates[0].keys() %}
-<th>{{ key }}</th>
-{% endfor %}
+<th style="width:36%;">Record Key</th>
+<th style="width:14%;">Missing In</th>
+<th style="width:50%;">Values</th>
 </tr>
-</thead>
-<tbody>
-{% for row in details.duplicates %}
-<tr>
-{% for value in row.values() %}
-<td>{{ value }}</td>
-{% endfor %}
+{% for group in report.missing_groups %}
+<tr class="grp"><td colspan="3"><span class="node">{{ group.node }}</span></td></tr>
+{% for row in group.rows %}
+<tr{% if loop.index is even %} class="band"{% endif %}>
+<td>{{ row.key }}</td>
+<td class="side">{{ row.missing_in }}</td>
+<td>{{ row.attr_text }}</td>
 </tr>
 {% endfor %}
-</tbody>
+{% endfor %}
 </table>
-
-</div>
 {% endif %}
 
-{% if details.zero_values %}
-<div class="section">
-<h2 class="section-title">Zero Value Records ({{ details.zero_values | length }})</h2>
+<!-- ================= Duplicates ================= -->
 
-<table class="grid">
-<thead>
+{% if report.duplicate_rows %}
+<p class="gap">&nbsp;</p>
+<table class="grid" repeat="3">
+{{ section_head("DUPLICATE RECORDS (" ~ (report.duplicate_rows | length) ~ ")", 3) }}
 <tr>
-{% for key in details.zero_values[0].keys() %}
-<th>{{ key }}</th>
-{% endfor %}
+<th style="width:22%;">Node</th>
+<th style="width:58%;">Record Key</th>
+<th style="width:20%;">Found In</th>
 </tr>
-</thead>
-<tbody>
-{% for row in details.zero_values %}
-<tr>
-{% for value in row.values() %}
-<td>{{ value }}</td>
-{% endfor %}
+{% for row in report.duplicate_rows %}
+<tr{% if loop.index is even %} class="band"{% endif %}>
+<td>{{ row.node }}</td>
+<td>{{ row.key }}</td>
+<td class="side">{{ row.side }}</td>
 </tr>
 {% endfor %}
-</tbody>
 </table>
-
-</div>
 {% endif %}
 
+<!-- ================= Zero Values ================= -->
 
-{% if not details.differences
-      and not details.missing
-      and not details.duplicates
-      and not details.zero_values %}
+{% if report.zero_rows %}
+<p class="gap">&nbsp;</p>
+<table class="grid" repeat="3">
+{{ section_head("ZERO VALUE RECORDS (" ~ (report.zero_rows | length) ~ ")", 5) }}
+<tr>
+<th style="width:16%;">Node</th>
+<th style="width:36%;">Record Key</th>
+<th style="width:18%;">Attribute</th>
+<th class="num" style="width:15%;">Value</th>
+<th style="width:15%;">Zero In</th>
+</tr>
+{% for row in report.zero_rows %}
+<tr{% if loop.index is even %} class="band"{% endif %}>
+<td>{{ row.node }}</td>
+<td>{{ row.key }}</td>
+<td>{{ row.attribute }}</td>
+<td class="num">{{ row.value }}</td>
+<td class="side">{{ row.side }}</td>
+</tr>
+{% endfor %}
+</table>
+{% endif %}
 
-<div class="section">
-<h2 class="section-title">Validation Result</h2>
-<div class="empty">No validation issues found for this store.</div>
-</div>
-
+{% if not report.diff_count and not report.missing_count and not report.duplicate_rows and not report.zero_rows %}
+<h2 class="section-title">VALIDATION RESULT</h2>
+<div class="ok">No validation issues found for this store.</div>
 {% endif %}
 
 </body>
-
 </html>

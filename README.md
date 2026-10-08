@@ -386,6 +386,10 @@ RECENT ENHANCEMENTS (V4.0)
   Sales, Payment Summary, Discounts, Lookups)
 - Dashboard store details now link to the exact CB/AC XML
   files that were compared ("View" next to each file name)
+- Redesigned the per-store PDF report again: compact tables
+  grouped by node (instead of one large block per record),
+  status-colored summary cards, report-style headings, and
+  correct columns for ERS DPKeys and Labor Forecast data
 - Redesigned the HTML dashboard (KPI strip, Pass/Fail/
   Other filter chips, search, CSV export, dark/light theme)
 - Redesigned the per-store PDF report (clean single/two
