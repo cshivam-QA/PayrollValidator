@@ -166,7 +166,8 @@ QPushButton#runButton:hover {
                 "Labor Forecast",
                 "Schedule Out",
                 "PMIX OUT",
-                "ERS DPKeys"
+                "ERS DPKeys",
+                "Arby's Sales Out"
             ]
         )
         self.client_label = QLabel("Food Out Client")

@@ -34,6 +34,7 @@ SUPPORTED INTEGRATIONS
 7. Schedule Out
 8. PMIX Out
 9. ERS DPKeys
+10. Arby's Sales Out
 
 ---------------------------------------------------------
 PAYROLL VALIDATION SUPPORT
@@ -146,6 +147,32 @@ configuration and validation path, and supports:
 - Duplicate Record Detection (ERS DPKeys, PMIX Out,
   Schedule Out)
 - Zero Value Detection
+
+---------------------------------------------------------
+ARBY'S SALES OUT VALIDATION SUPPORT
+---------------------------------------------------------
+
+Supported Nodes:
+
+- KEY (KEYS/KEY, keyed by c)
+- DK (KEYS/KEY/DK, keyed by parent KEY c + id)
+- SD1 (Sales/SD0/SD1, keyed by id)
+- PS (Sales/PmtSummary/PS, keyed by cb-posID)
+- DSC (Discounts/DiscSummary/DSC, keyed by id)
+- LOOKUP (Lookups/Look/L, keyed by category + cd)
+
+Validations:
+
+- Value Comparison (exact match, no tolerance; formatting-only
+  differences such as 62.90 vs 62.9 are treated as equal)
+- Missing Record Detection (including zero-value KEYs present
+  on only one side)
+- Missing Attribute Detection
+- Duplicate Record Detection (e.g. a KEY repeated in one file)
+- Zero Value Detection
+
+The report label "Arby's Sales Out" applies when that option
+is selected; the files themselves carry search="AC_POS_SALES".
 
 ---------------------------------------------------------
 VALIDATION FEATURES
@@ -299,6 +326,7 @@ Select Integration Type:
 - Schedule Out
 - PMIX Out
 - ERS DPKeys
+- Arby's Sales Out
 
 Step 4
 
@@ -354,6 +382,8 @@ RECENT ENHANCEMENTS (V4.0)
 - Added Labor Forecast, Schedule Out, PMIX Out and
   ERS DPKeys integration support
 - Added Payroll Out V2 (exact-match, no tolerance)
+- Added Arby's Sales Out integration support (KEYS/DK,
+  Sales, Payment Summary, Discounts, Lookups)
 - Redesigned the HTML dashboard (KPI strip, Pass/Fail/
   Other filter chips, search, CSV export, dark/light theme)
 - Redesigned the per-store PDF report (clean single/two

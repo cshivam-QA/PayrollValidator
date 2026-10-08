@@ -93,6 +93,22 @@ def get_integration_short(search_value):
     return data["short"]
 
 
+# Report labels for integrations that share an XML "search" value with a more
+# generic mapping (Arby's Sales Out files carry search="AC_POS_SALES", which
+# INTEGRATION_MAP labels plain "Sales Out").
+INTEGRATION_LABEL_OVERRIDES = {
+    "arby's sales out": "Arby's Sales Out",
+}
+
+
+def get_integration_label(integration, search_value):
+
+    return (
+        INTEGRATION_LABEL_OVERRIDES.get(str(integration).strip().lower())
+        or get_integration_short(search_value)
+    )
+
+
 def get_integration_full(search_value):
 
     if not search_value:
@@ -171,6 +187,11 @@ def get_node_config(integration, client="bww"):
     elif integration == "ers dpkeys":
 
         from ers_dpkeys_config import NODE_CONFIG
+
+        return NODE_CONFIG
+    elif integration == "arby's sales out":
+
+        from arbys_sales_out_config import NODE_CONFIG
 
         return NODE_CONFIG
     else:
@@ -379,6 +400,15 @@ def run_comparison(
                 if config["node"] == "NV":
                     cb_nodes = cb.get_nv_nodes()
                     ac_nodes = ac.get_nv_nodes()
+                elif "parent_path" in config:
+                    parent_args = (
+                        config["parent_path"],
+                        config["child_tag"],
+                        config["parent_attr"],
+                        config["parent_key_as"],
+                    )
+                    cb_nodes = cb.get_child_nodes_with_parent(*parent_args)
+                    ac_nodes = ac.get_child_nodes_with_parent(*parent_args)
                 else:
                     cb_nodes = cb.get_nodes(config["path"])
                     ac_nodes = ac.get_nodes(config["path"])
@@ -442,7 +472,7 @@ def run_comparison(
                 "AC Date": ac_info.get("date"),
                 "CB File": os.path.basename(cb_xml),
                 "AC File": os.path.basename(ac_xml),
-                "Integration": get_integration_short(cb_info.get("search")),
+                "Integration": get_integration_label(integration, cb_info.get("search")),
                 "Status": ("PASS" if total_issues == 0 else "FAIL"),
                 "Differences": file_difference_count,
                 "Missing Records": file_missing_count,
@@ -479,9 +509,10 @@ def run_comparison(
                     "CB File": os.path.basename(cb_files[key]),
                     "AC File": os.path.basename(ac_files[matching_ac_key]),
                     "Status": "BUSINESS DATE MISMATCH",
-                    "Integration": get_integration_short(
-            XMLLoader(cb_files[key]).get_root_info().get("search")
-),
+                    "Integration": get_integration_label(
+                        integration,
+                        XMLLoader(cb_files[key]).get_root_info().get("search"),
+                    ),
                     "Differences": 0,
                     "Missing Records": 0,
                     "Zero Values": 0,

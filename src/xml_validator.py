@@ -11,6 +11,7 @@ def validate_xml_structure(xml_loader, integration):
 
         # NEW
         "pmix out": ".//PMix/SM0/SM1",
+        "arby's sales out": ".//Sales/SD0",
     }
 
     if integration is None:

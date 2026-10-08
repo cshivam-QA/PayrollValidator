@@ -82,6 +82,7 @@ INTEGRATIONS = [
     "Schedule Out",
     "PMIX Out",
     "ERS DPKeys",
+    "Arby's Sales Out",
 ]
 
 FOOD_OUT_CLIENTS = {

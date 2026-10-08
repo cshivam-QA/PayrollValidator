@@ -36,6 +36,22 @@ class XMLLoader:
 
         return nodes
 
+    def get_child_nodes_with_parent(self, parent_xpath, child_tag, parent_attr, as_attr):
+        """Returns copies of each parent's direct <child_tag> children, with the
+        parent's `parent_attr` value added as `as_attr`, so children whose ids
+        repeat under different parents can be keyed uniquely."""
+
+        nodes = []
+
+        for parent in self.root.findall(parent_xpath):
+            parent_value = parent.attrib.get(parent_attr)
+            for child in parent.findall(child_tag):
+                attrib = dict(child.attrib)
+                attrib[as_attr] = parent_value
+                nodes.append(ET.Element(child.tag, attrib))
+
+        return nodes
+
     def get_root_info(self):
 
         return {
