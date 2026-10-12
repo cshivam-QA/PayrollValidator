@@ -390,6 +390,13 @@ RECENT ENHANCEMENTS (V4.0)
   grouped by node (instead of one large block per record),
   status-colored summary cards, report-style headings, and
   correct columns for ERS DPKeys and Labor Forecast data
+- Fixed a WEEKLY-node bug (Payroll/Timekeeping): a mid-week
+  pay-rate change split one employee/job/date across two rows,
+  which WEEKLY's key (employee/job/date only, no pay rate)
+  treated as a duplicate - silently dropping the second row's
+  hours/pay and reporting a false value mismatch against the
+  other side's combined total. Split rows are now summed before
+  comparison, on both sides.
 - Redesigned the HTML dashboard (KPI strip, Pass/Fail/
   Other filter chips, search, CSV export, dark/light theme)
 - Redesigned the per-store PDF report (clean single/two

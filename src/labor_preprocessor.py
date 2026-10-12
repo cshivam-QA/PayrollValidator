@@ -89,6 +89,70 @@ def aggregate_pay_period_tm1(nodes):
     return aggregated_nodes
 
 
+def aggregate_weekly_by_employee_job(nodes):
+    """
+    Sums WEEKLY TM1 records for the same employee/job/date that were
+    split across multiple pay-rate periods (e.g. a mid-week rate
+    change), so they compare as one combined total instead of the
+    second rate's record being silently dropped as a "duplicate" of
+    the first (WEEKLY's key_fields are e/j/dt - no pay rate "r").
+    """
+
+    grouped = defaultdict(list)
+
+    for node in nodes:
+
+        key = (
+            node.attrib.get("e", ""),
+            node.attrib.get("j", ""),
+            node.attrib.get("dt", ""),
+        )
+
+        grouped[key].append(node)
+
+    aggregated_nodes = []
+
+    numeric_fields = [
+        "rh",
+        "wkh",
+        "rp",
+        "pay",
+        "op",
+        "ot",
+        "dp",
+        "tcr",
+        "tips",
+    ]
+
+    for records in grouped.values():
+
+        if len(records) == 1:
+            aggregated_nodes.append(records[0])
+            continue
+
+        merged = copy.deepcopy(records[0])
+
+        for field in numeric_fields:
+
+            total = 0.0
+            found = False
+
+            for record in records:
+
+                value = record.attrib.get(field)
+
+                if value not in (None, ""):
+                    total += float(value)
+                    found = True
+
+            if found:
+                merged.attrib[field] = str(round(total, 2))
+
+        aggregated_nodes.append(merged)
+
+    return aggregated_nodes
+
+
 def aggregate_pay_period_by_employee_job(nodes):
 
     grouped = defaultdict(list)

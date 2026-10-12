@@ -9,6 +9,7 @@ from labor_preprocessor import (
     filter_exception_records,
     aggregate_pay_period_tm1,
     aggregate_pay_period_by_employee_job,
+    aggregate_weekly_by_employee_job,
 )
 
 # NEW IMPORT
@@ -453,6 +454,18 @@ def run_comparison(
                 ):
                     cb_nodes = aggregate_pay_period_tm1(cb_nodes)
                     ac_nodes = aggregate_pay_period_by_employee_job(ac_nodes)
+                if (
+                    integration in ["payroll", "payroll out v2", "timekeeping"]
+                    and config["node"] == "WEEKLY"
+                ):
+                    # WEEKLY's key is employee/job(/date) only - it has no
+                    # pay-rate field - so a mid-week rate change can put two
+                    # rows under the same key on either side. Sum them first
+                    # so a genuine split-rate record doesn't get flagged as a
+                    # duplicate (dropping its hours/pay) and then show up as
+                    # a false value mismatch against the other side's total.
+                    cb_nodes = aggregate_weekly_by_employee_job(cb_nodes)
+                    ac_nodes = aggregate_weekly_by_employee_job(ac_nodes)
 
                 differences, zero_values, missing_records, duplicate_records = (
                     compare_nodes(
